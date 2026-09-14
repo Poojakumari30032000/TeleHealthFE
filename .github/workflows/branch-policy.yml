@@ -1,0 +1,96 @@
+name: Branch Policy
+
+on:
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+
+env:
+  # Jira project keys accepted by this repository.
+  # TeleHealthBE / TeleHealthFE -> TEL
+  # AmniCare_Claude_Version     -> KAN
+  # Multiple keys: TEL|KAN
+  PROJECT_KEYS: TEL
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch name
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          if [[ "$BRANCH" == "development" ]]; then
+            echo "Integration branch '$BRANCH' — name check not applicable."
+            exit 0
+          fi
+
+          PATTERN="^(feature|bugfix|hotfix|chore)/(${PROJECT_KEYS})-[1-9][0-9]*(-[a-z0-9]+){2,5}$"
+
+          if [[ ! "$BRANCH" =~ $PATTERN ]]; then
+            echo "::error::Invalid branch name '$BRANCH'"
+            echo ""
+            echo "Expected: <type>/<JIRA-KEY>-<slug>"
+            echo "  type    : feature | bugfix | hotfix | chore"
+            echo "  JIRA-KEY: a ${PROJECT_KEYS} ticket key, uppercase, e.g. TEL-19"
+            echo "  slug    : 2-5 lowercase words separated by hyphens"
+            echo ""
+            echo "Examples:"
+            echo "  feature/TEL-19-icd-cpt-reference-data"
+            echo "  bugfix/TEL-13-invoice-lookup-tostring"
+            echo "  chore/TEL-9-verify-dotnet8-build"
+            exit 1
+          fi
+
+          echo "Branch name OK: $BRANCH"
+
+      - name: Validate PR target
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD: ${{ github.head_ref }}
+        run: |
+          if [[ "$BASE" == "main" ]]; then
+            if [[ "$HEAD" != "development" && ! "$HEAD" =~ ^hotfix/ ]]; then
+              echo "::error::'$HEAD' cannot target main."
+              echo "PRs into main must come from 'development' or a 'hotfix/*' branch."
+              exit 1
+            fi
+          fi
+
+          if [[ "$BASE" == "development" && "$HEAD" == "main" ]]; then
+            echo "::error::Do not open PRs from main into development."
+            echo "Sync main back to development via a chore/* branch instead."
+            exit 1
+          fi
+
+          echo "PR target OK: $HEAD -> $BASE"
+
+      - name: Validate PR title and ticket reference
+        env:
+          BRANCH: ${{ github.head_ref }}
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if [[ "$BRANCH" == "development" ]]; then
+            echo "Integration branch — title check not applicable."
+            exit 0
+          fi
+
+          TITLE_PATTERN="^(${PROJECT_KEYS})-[1-9][0-9]* .+"
+
+          if [[ ! "$TITLE" =~ $TITLE_PATTERN ]]; then
+            echo "::error::Invalid PR title '$TITLE'"
+            echo ""
+            echo "Expected: <JIRA-KEY> <ticket summary>"
+            echo "Example : TEL-19 ICD-10 and CPT reference data model and code set load"
+            exit 1
+          fi
+
+          BRANCH_KEY=$(echo "$BRANCH" | sed -E "s#^[a-z]+/((${PROJECT_KEYS})-[0-9]+).*#\1#")
+          TITLE_KEY=$(echo "$TITLE"  | grep -oE "^(${PROJECT_KEYS})-[0-9]+")
+
+          if [[ "$BRANCH_KEY" != "$TITLE_KEY" ]]; then
+            echo "::error::Ticket key mismatch — branch says '$BRANCH_KEY', title says '$TITLE_KEY'."
+            echo "Both must reference the same ticket."
+            exit 1
+          fi
+
+          echo "PR title OK: $TITLE"
