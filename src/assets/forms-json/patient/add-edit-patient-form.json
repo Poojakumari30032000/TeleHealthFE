@@ -1,0 +1,152 @@
+{
+    "title": "Patient",
+    "primaryId": "patientId",
+    "rows": [
+      {
+        "class": "grid grid-cols-2 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "text",
+            "label": "First Name",
+            "name": "firstName",
+            "placeholder": "Enter First Name",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          },
+          {
+            "type": "text",
+            "label": "Last Name",
+            "name": "lastName",
+            "placeholder": "Enter Last Name",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          },
+          {
+            "type": "email",
+            "label": "Email",
+            "name": "email",
+            "placeholder": "Enter Email",
+            "class": "col-span-2",
+            "validations": { "required": true }
+          },
+          {
+            "type": "select",
+            "label": "Sex Assigned at Birth",
+            "name": "gender",
+            "placeholder": "Select Your Sex",
+            "class": "col-span-1",
+            "options": [
+              { "label": "Male", "value": "Male" },
+              { "label": "Female", "value": "Female" },
+              { "label": "Other", "value": "Other" }
+            ],
+            "validations": { "required": true }
+          },
+          {
+            "type": "date",
+            "label": "Birthdate",
+            "name": "dob",
+            "placeholder": "Select Date of Birth",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-1 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "text",
+            "label": "Address",
+            "name": "address",
+            "placeholder": "Enter Address",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          },
+          {
+            "type": "text",
+            "label": "Apt/ Unit/ Suite",
+            "name": "street",
+            "placeholder": "Apt/ Unit/ Suite",
+            "class": "col-span-1"
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-2 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "select",
+            "label": "State",
+            "name": "stateId",
+            "placeholder": "Select State",
+            "class": "col-span-1",
+            "labelKey": ["name"],
+            "valueKey": "id",
+            "fetchUrl": "DropDowns/GetAllStateOfUSA",
+            "validations": { "required": true }
+          },
+          {
+            "type": "select",
+            "label": "City",
+            "name": "cityId",
+            "placeholder": "Select City",
+            "class": "col-span-1",
+            "dependsOn": ["stateId"],
+            "labelKey": ["name"],
+            "valueKey": "id",
+            "fetchUrl": "DropDowns/GetCitiesByStateId?Id={stateId}",
+            "validations": { "required": true }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-2 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "tel",
+            "label": "Zip Code",
+            "name": "zipcode",
+            "placeholder": "Enter Zip Code",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          },
+          {
+            "type": "tel",
+            "label": "Phone number",
+            "name": "phone",
+            "placeholder": "(###) ###-####",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-2 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "file-drag",
+            "label": "Upload Headshot",
+            "name": "patientPicture",
+            "placeholder": "",
+            "class": "col-span-1",
+            "fileAllowed": "single",
+            "validations": {
+              "required": true
+            }
+          },
+          {
+            "type": "file-drag",
+            "label": "Upload Photo ID",
+            "name": "idPicture",
+            "placeholder": "",
+            "class": "col-span-1",
+            "fileAllowed": "single",
+            "validations": {
+              "required": true
+            }
+          }
+        ]
+      }
+    ]
+  }

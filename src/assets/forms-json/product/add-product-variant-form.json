@@ -1,0 +1,181 @@
+{
+    "title": "Variant Form",
+    "primaryId": "drugId",
+    "rows": [
+      {
+        "class": "grid grid-cols-1 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "text",
+            "label": "Name",
+            "name": "varientName",
+            "placeholder": "Enter Variant Name",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2",
+        "title": "Pricing:",
+        "fields": [
+          {
+            "type": "number",
+            "label": "Price $",
+            "name": "price",
+            "placeholder": "Enter Price $",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          },
+          {
+            "type": "number",
+            "label": "Compare Price $",
+            "name": "comparePrice",
+            "placeholder": "Enter Compare Price $",
+            "class": "col-span-1",
+            "additionalText": "To display a markdown, enter a value higher than your price. Often shown with a strikethrough (e.g. $25.00)",
+            "validations": {
+              "required": true
+            }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2",
+        "title": "Dosage & Quantity:",
+        "fields": [
+          {
+            "type": "number",
+            "label": "Quantity",
+            "name": "quantity",
+            "placeholder": "Enter Quantity",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          },
+          {
+            "type": "text",
+            "label": "Quantity Unit",
+            "name": "quantityUnit",
+            "placeholder": "Enter Quantity Unit",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          },
+          {
+            "type": "number",
+            "label": "Refills",
+            "name": "refills",
+            "placeholder": "Enter Refills",
+            "class": "col-span-1"
+          },
+          {
+            "type": "text",
+            "label": "Day Supply",
+            "name": "dose",
+            "placeholder": "90 Days",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          },
+          {
+            "type": "text",
+            "label": "Dosage Strength",
+            "name": "dosage",
+            "placeholder": "250",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          },
+          {
+            "type": "text",
+            "label": "Dose Unit",
+            "name": "strenght",
+            "placeholder": "ex. mg, mL",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          },
+          {
+            "type": "text",
+            "label": "SIG",
+            "name": "sig",
+            "placeholder": "Enter SIG",
+            "class": "col-span-1 sm:col-span-2",
+            "validations": {
+              "required": true
+            }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2",
+        "title": "Packing:",
+        "fields": [
+          {
+            "type": "text",
+            "label": "Packing",
+            "name": "packing",
+            "placeholder": "Enter Packing",
+            "class": "col-span-1"
+          },
+          {
+            "type": "text",
+            "label": "Form",
+            "name": "form",
+            "placeholder": "Enter Form",
+            "class": "col-span-1"
+          },
+          {
+            "type": "text",
+            "label": "UPC",
+            "name": "upc",
+            "placeholder": "Enter UPC",
+            "class": "col-span-1 sm:col-span-2"
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2",
+        "title": "Media:",
+        "fields": [
+          {
+            "type": "file-drag",
+            "label": "Regular image",
+            "name": "regularImageURL",
+            "placeholder": "",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          },
+          {
+            "type": "file-drag",
+            "label": "Transparent background image",
+            "name": "transparentBackgroundImageURL",
+            "placeholder": "",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          },
+          {
+            "type": "text",
+            "label": "Video URL",
+            "name": "videoURL",
+            "placeholder": "https://www.youtube.com/...",
+            "class": "col-span-1 sm:col-span-2"
+          }
+        ]
+      }
+    ]
+  }

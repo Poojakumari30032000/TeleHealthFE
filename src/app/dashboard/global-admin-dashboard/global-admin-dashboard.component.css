@@ -1,0 +1,351 @@
+:host {
+  display: block;
+}
+
+.ga-dashboard-shell {
+  position: relative;
+  padding: 0.3rem 0.3rem 0.45rem;
+}
+
+.ga-dashboard-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1000px 320px at -15% -25%, rgba(47, 95, 204, 0.1), transparent 65%),
+    radial-gradient(900px 280px at 120% -35%, rgba(14, 165, 233, 0.08), transparent 62%);
+}
+
+.ga-kpi-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 0.9rem;
+}
+
+.ga-kpi-card {
+  border: 1px solid var(--primary-100);
+  border-radius: 14px;
+  padding: 0.9rem;
+  background: linear-gradient(
+    160deg,
+    var(--primary-50) 0%,
+    var(--primary-100) 52%,
+    var(--primary-50) 100%
+  );
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+}
+
+.ga-kpi-card-clickable {
+  cursor: pointer;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.ga-kpi-card-clickable:hover,
+.ga-kpi-card-clickable:focus-visible {
+  border-color: #bcd0ee;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.1);
+  transform: translateY(-1px);
+}
+
+.ga-kpi-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.ga-kpi-head h3 {
+  margin: 0;
+  color: #1f365e;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.ga-kpi-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-100);
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.ga-kpi-value {
+  margin-top: 0.52rem;
+  color: #1d3763;
+  font-size: 1.48rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.ga-kpi-action {
+  margin-top: 0.62rem;
+}
+
+.ga-panel-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.ga-panel {
+  border: 1px solid var(--primary-100);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.ga-panel-wide {
+  grid-column: span 2;
+}
+
+.ga-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 0.85rem;
+  padding: 0.82rem 0.9rem 0.74rem;
+  border-bottom: 1px solid var(--primary-100);
+  background: linear-gradient(
+    180deg,
+    var(--primary-100) 0%,
+    var(--primary-50) 100%
+  );
+}
+
+.ga-panel-head h4 {
+  margin: 0;
+  color: #1f365e;
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.ga-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.ga-range {
+  width: 260px;
+  max-width: 100%;
+}
+
+.ga-panel-body {
+  padding: 0.72rem 0.8rem 0.84rem;
+}
+
+.ga-chart-420 {
+  height: 420px;
+}
+
+.ga-chart-360 {
+  height: 360px;
+}
+
+.ga-metric-row {
+  margin-top: 0.55rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.ga-metric-row-compact {
+  gap: 0.4rem;
+}
+
+.ga-metric-pill {
+  font-size: 0.76rem;
+}
+
+.ga-provider-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.ga-provider-content {
+  flex: 1;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0.8rem 0.9rem 0.95rem;
+  gap: 0.56rem;
+}
+
+.ga-provider-count-btn {
+  font-weight: 800;
+  font-size: 1.22rem;
+  min-width: 82px;
+}
+
+.ga-provider-content p {
+  margin: 0;
+  color: #66738b;
+  font-size: 0.85rem;
+}
+
+.ga-kpi-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+  margin-top: 0.52rem;
+}
+
+.ga-loading-line {
+  border-radius: 999px;
+  background: #dfe7f4;
+  height: 0.68rem;
+}
+
+.ga-loading-line.lg {
+  width: 62%;
+  height: 0.98rem;
+}
+
+.ga-loading-line.sm {
+  width: 40%;
+}
+
+.ga-chart-loading {
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.52rem;
+  color: #64748b;
+}
+
+.ga-chart-loading i {
+  color: var(--primary-color);
+}
+
+:host-context(.dark) .ga-kpi-card,
+:host-context(.dark) .ga-panel {
+  border-color: #2f405d;
+  background: rgba(16, 28, 52, 0.94);
+  box-shadow: 0 12px 28px rgba(2, 8, 23, 0.45);
+}
+
+:host-context(.dark) .ga-kpi-card {
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--primary-700) 42%, #0f172a 58%) 0%,
+    color-mix(in srgb, var(--primary-800) 46%, #0f172a 54%) 100%
+  );
+}
+
+:host-context(.dark) .ga-panel-head {
+  border-bottom-color: #2e3f5f;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--primary-700) 36%, #0f172a 64%) 0%,
+    color-mix(in srgb, var(--primary-800) 40%, #0f172a 60%) 100%
+  );
+}
+
+:host-context(.dark) .ga-kpi-head h3,
+:host-context(.dark) .ga-kpi-value,
+:host-context(.dark) .ga-panel-head h4 {
+  color: #e6edf9;
+}
+
+:host-context(.dark) .ga-kpi-icon {
+  border-color: #40567a;
+  background: #1f2f4f;
+  color: #9fc0ff;
+}
+
+:host-context(.dark) .ga-provider-content p,
+:host-context(.dark) .ga-chart-loading {
+  color: #95a6c4;
+}
+
+:host-context(.dark) .ga-loading-line {
+  background: #314461;
+}
+
+:host-context(.dark) ::ng-deep .ga-range.ant-picker {
+  background: #162844;
+  border-color: #3a4f74;
+}
+
+:host-context(.dark) ::ng-deep .ga-range .ant-picker-input > input,
+:host-context(.dark) ::ng-deep .ga-range .ant-picker-separator,
+:host-context(.dark) ::ng-deep .ga-range .ant-picker-suffix {
+  color: #dce7fb;
+}
+
+:host-context(.dark) ::ng-deep .ga-range .ant-picker-input > input::placeholder {
+  color: #9fb2d3;
+}
+
+@media (max-width: 1400px) {
+  .ga-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ga-panel-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ga-panel-wide {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 992px) {
+  .ga-panel-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ga-panel-wide {
+    grid-column: span 1;
+  }
+
+  .ga-panel-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 700px) {
+  .ga-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ga-kpi-card,
+  .ga-panel-body {
+    padding-left: 0.72rem;
+    padding-right: 0.72rem;
+  }
+
+  .ga-panel-head {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .ga-range {
+    width: 100%;
+  }
+
+  .ga-chart-420,
+  .ga-chart-360 {
+    height: 300px;
+  }
+}

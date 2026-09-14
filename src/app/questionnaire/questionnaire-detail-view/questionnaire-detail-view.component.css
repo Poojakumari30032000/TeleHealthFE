@@ -1,0 +1,179 @@
+:host {
+  display: block;
+  --qdv-surface: #ffffff;
+  --qdv-surface-muted: #f8fbff;
+  --qdv-border: #dbe5f2;
+  --qdv-text: #1f2f4f;
+  --qdv-subtle: #667892;
+  --qdv-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+
+.qdv-workspace-shell {
+  position: relative;
+  padding: 0.45rem;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.qdv-workspace-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(980px 320px at -12% -26%, rgba(47, 95, 204, 0.12), transparent 66%),
+    radial-gradient(840px 250px at 122% -24%, rgba(14, 165, 233, 0.1), transparent 62%);
+}
+
+.qdv-toolbar {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--qdv-border) !important;
+  border-radius: 14px;
+  padding: 0.9rem !important;
+  margin-bottom: 0.95rem !important;
+  background: linear-gradient(165deg, #f7fbff 0%, #f5f8ff 48%, #ffffff 100%);
+  box-shadow: var(--qdv-shadow);
+}
+
+.qdv-cta-btn {
+  float: none !important;
+  margin: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.qdv-toolbar-icon-btn {
+  min-width: 38px;
+  padding-inline: 0.65rem;
+}
+
+.qdv-list-shell {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--qdv-border);
+  border-radius: 14px;
+  padding: 0.82rem;
+  background: var(--qdv-surface);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.qdv-question-list {
+  margin-bottom: 0.25rem !important;
+}
+
+.qdv-question-card {
+  border-color: #d5e1f0 !important;
+  border-radius: 12px !important;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%) !important;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease !important;
+}
+
+.qdv-question-card:hover {
+  border-color: #c3d6ee !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+.qdv-question-content {
+  cursor: pointer;
+}
+
+.qdv-question-content .font-medium {
+  color: var(--qdv-text);
+  letter-spacing: 0.01em;
+}
+
+.qdv-question-content .text-xs {
+  color: var(--qdv-subtle) !important;
+}
+
+.qdv-row-action-btn {
+  border-radius: 999px;
+  border: 1px solid #d7e3f2;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+}
+
+.qdv-footer-actions {
+  border-radius: 12px;
+  border: 1px solid var(--qdv-border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, #ffffff 100%) !important;
+  box-shadow: 0 -10px 26px rgba(15, 23, 42, 0.08);
+}
+
+.qdv-empty-state,
+.qdv-error-state,
+.qdv-loading-shell {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--qdv-border);
+  background: var(--qdv-surface) !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.qdv-empty-state {
+  border-radius: 14px;
+}
+
+.qdv-error-state {
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.qdv-loading-shell {
+  border-radius: 14px;
+}
+
+:host ::ng-deep .ant-drawer-content {
+  border-radius: 14px 0 0 14px;
+}
+
+:host ::ng-deep .ant-drawer-header {
+  border-bottom: 1px solid #dde6f3;
+  background: linear-gradient(180deg, #f8fbff 0%, #f4f8ff 100%);
+}
+
+:host ::ng-deep .ant-drawer-title {
+  color: #1f365e;
+  font-weight: 700;
+}
+
+:host-context(.dark) {
+  --qdv-surface: #111827;
+  --qdv-surface-muted: #0f172a;
+  --qdv-border: #334155;
+  --qdv-text: #e5edf9;
+  --qdv-subtle: #94a3b8;
+}
+
+:host-context(.dark) .qdv-toolbar {
+  background: linear-gradient(170deg, rgba(30, 41, 59, 0.88) 0%, rgba(15, 23, 42, 0.9) 100%);
+  box-shadow: 0 14px 28px rgba(2, 6, 23, 0.45);
+}
+
+:host-context(.dark) .qdv-list-shell,
+:host-context(.dark) .qdv-footer-actions,
+:host-context(.dark) .qdv-empty-state,
+:host-context(.dark) .qdv-error-state,
+:host-context(.dark) .qdv-loading-shell {
+  background: #111827 !important;
+  border-color: #374151 !important;
+}
+
+:host-context(.dark) .qdv-question-card {
+  background: linear-gradient(180deg, #111827 0%, #0f172a 100%) !important;
+  border-color: #334155 !important;
+}
+
+:host-context(.dark) .qdv-question-card:hover {
+  border-color: #475569 !important;
+  box-shadow: 0 12px 24px rgba(2, 6, 23, 0.35) !important;
+}
+
+:host-context(.dark) .qdv-row-action-btn,
+:host-context(.dark) .qdv-toolbar-icon-btn {
+  border-color: #334155;
+  background: #0f172a;
+}

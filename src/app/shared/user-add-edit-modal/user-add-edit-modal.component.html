@@ -1,0 +1,234 @@
+<nz-modal
+  *ngIf="isVisible"
+  [(nzVisible)]="isVisible"
+  [nzTitle]="modelTitle"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  [nzOkLoading]="isFormSubmitting"
+  [nzOkDisabled]="isFormSubmitting"
+  nzWidth="1000px"
+  [nzMaskClosable]="false"
+>
+  <ng-container *nzModalContent>
+    <form [formGroup]="userAddEditForm">
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <div class="col-span-full" *ngIf="roleId === 4">
+          <label class="label-C">NPI <span class="text-danger">*</span></label>
+          <input
+            nz-input
+            formControlName="npi"
+            appValidationErrors
+            placeholder="Enter NPI"
+            class="input-C"
+            [disabled]="isFormSubmitting"
+          />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">First Name <span class="text-danger">*</span></label>
+          <input
+            nz-input
+            formControlName="firstName"
+            appValidationErrors
+            placeholder="Enter First Name"
+            minlength="1"
+            maxlength="50"
+            (blur)="onBlurTrim($event, true)"
+            class="input-C"
+          />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Middle Name</label>
+          <input nz-input formControlName="middleName" placeholder="Enter Middle Name" class="input-C" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Last Name <span class="text-danger">*</span></label>
+          <input
+            nz-input
+            formControlName="lastName"
+            appValidationErrors
+            placeholder="Enter Last Name"
+            minlength="1"
+            maxlength="50"
+            (blur)="onBlurTrim($event, true)"
+            class="input-C"
+          />
+        </div>
+
+        @if(roleId === 4){
+          <div class="col-span-1">
+            <label class="label-C">Title</label>
+            <input nz-input formControlName="title" placeholder="Enter Title" class="input-C" />
+          </div>
+
+          <div class="col-span-1">
+            <label class="label-C">Gender <span class="text-danger">*</span></label>
+            <nz-select
+              nzShowSearch
+              formControlName="gender"
+              appValidationErrors
+              nzPlaceHolder="Select Gender"
+              class="w-full onForm-Select mt-1"
+            >
+              <nz-option nzValue="Male" nzLabel="Male"></nz-option>
+              <nz-option nzValue="Female" nzLabel="Female"></nz-option>
+            </nz-select>
+          </div>
+
+          <div class="col-span-1">
+            <label class="label-C">Date Of Birth <span class="text-danger">*</span></label>
+            <nz-date-picker
+              formControlName="dob"
+              appValidationErrors
+              placeholder="mm/dd/yyyy"
+              class="datepicker-C w-full"
+              [nzDisabledDate]="disableFutureDates"
+            ></nz-date-picker>
+          </div>
+        }
+      </div>
+
+      <div class="grid grid-cols-1 gap-2 mb-4">
+        <div class="col-span-1">
+          <label class="label-C">Email <span class="text-danger">*</span></label>
+          <input
+            nz-input
+            type="email"
+            formControlName="email"
+            appValidationErrors
+            placeholder="Enter Email"
+            class="input-C"
+            (change)="checkEmailExists($event)"
+          />
+          <div *ngIf="emailExist" class="text-danger text-sm mt-1">Email already exists</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <div class="col-span-1">
+          <label class="label-C">Phone <span class="text-danger">*</span></label>
+          <input nz-input type="tel" formControlName="phone" appValidationErrors placeholder="(###) ###-####" class="input-C" />
+        </div>
+
+        <div class="col-span-1" *ngIf="roleId === 4">
+          <label class="label-C">Provider Type <span class="text-danger">*</span></label>
+          <nz-select
+            nzShowSearch
+            formControlName="providerType"
+            appValidationErrors
+            nzPlaceHolder="Select Provider Type"
+            class="w-full onForm-Select mt-1"
+          >
+            <nz-option nzValue="Prescribing" nzLabel="Prescribing"></nz-option>
+            <nz-option nzValue="Medical Assistant" nzLabel="Medical Assistant"></nz-option>
+            <nz-option nzValue="EPCS Coordinator" nzLabel="EPCS Coordinatorng"></nz-option>
+            <nz-option nzValue="Care Coordinator" nzLabel="Care Coordinator"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-span-1" *ngIf="roleId !== 4">
+          <label class="label-C">Billing Type <span class="text-danger">*</span></label>
+          <nz-select
+            nzShowSearch
+            formControlName="addressType"
+            appValidationErrors
+            nzPlaceHolder="Select Billing Type"
+            class="w-full onForm-Select mt-1"
+          >
+            <nz-option nzValue="Same as Clinic" nzLabel="Same as Clinic"></nz-option>
+            <nz-option nzValue="Other Address" nzLabel="Other Address"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+
+      <div
+        class="grid grid-cols-2 gap-2 mb-4"
+        *ngIf="roleId === 4 || userAddEditForm.get('addressType')?.value === 'Other Address'"
+      >
+        <div class="col-span-full">
+          <label class="label-C">Address <span class="text-danger">*</span></label>
+          <input nz-input formControlName="address" appValidationErrors placeholder="Enter Address" class="input-C" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">City <span class="text-danger">*</span></label>
+          <nz-select nzShowSearch formControlName="cityId" nzPlaceHolder="Select City" class="w-full onForm-Select mt-1" appValidationErrors>
+            <nz-option *ngFor="let city of cities" [nzValue]="city.id" [nzLabel]="city.name"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">State <span class="text-danger">*</span></label>
+          <nz-select
+            nzShowSearch
+            formControlName="stateId"
+            nzPlaceHolder="Select State"
+            class="w-full onForm-Select mt-1"
+            [nzDisabled]="!userAddEditForm.get('cityId')?.value"
+            [nzLoading]="loadingStates"
+            appValidationErrors
+          >
+            <nz-option *ngIf="state" [nzValue]="state.id" [nzLabel]="state.name + ' (' + state.shortName + ')'"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Zip Code <span class="text-danger">*</span></label>
+          <input nz-input type="tel" formControlName="zipCode" appValidationErrors placeholder="Enter zip code" class="input-C" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 mb-4" *ngIf="roleId === 4">
+        <div class="col-span-1">
+          <label class="label-C">Tax ID</label>
+          <input nz-input formControlName="taxId" placeholder="Enter Tax ID" class="input-C" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Medicaid #</label>
+          <input nz-input formControlName="medicaid" placeholder="Enter Medicaid" class="input-C" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">CAQH ID</label>
+          <input nz-input formControlName="caqhId" placeholder="Enter CAQH ID" class="input-C" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">License <span class="text-danger">*</span></label>
+          <input nz-input formControlName="license" appValidationErrors placeholder="Enter License" class="input-C" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">SSN</label>
+          <input nz-input formControlName="ssn" placeholder="Enter SSN" class="input-C" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">DEA #</label>
+          <input nz-input formControlName="dea" placeholder="Enter DEA" class="input-C" />
+        </div>
+
+        <div class="col-span-full">
+          <label class="label-C">Condition Treated <span class="text-danger">*</span></label>
+          <nz-select nzShowSearch nzMode="multiple" formControlName="categoryId" appValidationErrors nzPlaceHolder="Select Condition Treated" class="w-full onForm-Select mt-1">
+            <nz-option *ngFor="let category of categories" [nzValue]="category.categoryId" [nzLabel]="category.categoryName"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-span-full">
+          <label nz-checkbox formControlName="isSupervisorRequired" class="mr-2 label-C-R"> Is Supervisor Required </label>
+        </div>
+
+        <div class="col-span-full mb-3" *ngIf="userAddEditForm.get('isSupervisorRequired')?.value">
+          <label class="label-C">Supervisors <span class="text-danger">*</span></label>
+          <nz-select nzShowSearch nzMode="multiple" formControlName="supervisorId" appValidationErrors nzPlaceHolder="Select Supervisors" class="w-full onForm-Select mt-1" [nzLoading]="loadingSupervisors">
+            <nz-option *ngFor="let supervisor of supervisors" [nzValue]="supervisor.id" [nzLabel]="supervisor.name"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+</nz-modal>

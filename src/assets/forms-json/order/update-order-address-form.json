@@ -1,0 +1,57 @@
+{
+    "title": "Update Order Address Form",
+    "primaryId": "id",
+    "rows": [
+      {
+        "class": "grid grid-cols-1 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "text",
+            "label": "Address",
+            "name": "address",
+            "placeholder": "Enter Address",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-2 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "select",
+            "label": "City",
+            "name": "city",
+            "placeholder": "Select City",
+            "class": "col-span-1",
+            "labelKey": ["name"],
+            "valueKey": "id",
+            "fetchUrl": "Dropdowns/getAllUSCities",
+            "validations": { "required": true }
+          },
+          {
+            "type": "select",
+            "label": "State",
+            "name": "state",
+            "placeholder": "Select State",
+            "class": "col-span-1",
+            "dependsOn": ["city"],
+            "labelKey": ["name"],
+            "valueKey": "id",
+            "fetchUrl": "Dropdowns/getUSStatesByCityId?Id={city}",
+            "validations": { "required": true }
+          },
+          {
+            "type": "number",
+            "label": "Zip Code",
+            "name": "zip",
+            "placeholder": "Enter zip code",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          }
+        ]
+      }
+    ]
+  }

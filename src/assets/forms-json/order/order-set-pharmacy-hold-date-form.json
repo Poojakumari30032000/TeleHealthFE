@@ -1,0 +1,21 @@
+{
+    "title": "Update Pharmacy Hold Date Form",
+    "primaryId": "id",
+    "rows": [
+        {
+            "class": "grid grid-cols-1 gap-2 mb-2",
+            "fields": [
+                {
+                    "type": "date",
+                    "label": "Set Pharmacy Hold Date :",
+                    "name": "hold",
+                    "placeholder": "Enter Pharmacy Hold Date",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,206 @@
+<div class="order-workspace-shell">
+  <section class="order-filter-shell">
+    <div class="order-filter-toolbar">
+      <div class="order-filter-toolbar-left">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="order-filter-toggle"
+          (click)="showFilters = !showFilters"
+          [attr.aria-expanded]="showFilters"
+          type="button"
+        >
+          <i class="fa-solid fa-sliders"></i>
+          <span>Filters</span>
+          <span *ngIf="visibleFiltersCount > 0" class="order-filter-count-pill">
+            {{ visibleFiltersCount }}
+          </span>
+          <i
+            class="fa-solid fa-chevron-down order-filter-chevron"
+            [class.rotate-180]="showFilters"
+          ></i>
+        </button>
+
+        <span *ngIf="!showFilters && visibleFiltersCount > 0" class="order-filter-summary">
+          {{ visibleFiltersCount }} active filters
+        </span>
+      </div>
+
+      <button
+        *ngIf="visibleFiltersCount > 0"
+        nz-button
+        nzType="default"
+        nzShape="round"
+        class="order-filter-clear"
+        (click)="clearFilters()"
+        type="button"
+      >
+        Reset
+      </button>
+    </div>
+
+    <div *ngIf="visibleFiltersCount > 0 && !showFilters" class="order-filter-chip-row">
+      @for (filter of appliedFilters; track trackByFilterName($index, filter)) {
+        <button
+          *ngIf="!shouldHideAppliedFilter(filter.name)"
+          class="order-filter-chip"
+          type="button"
+          (click)="removeFilter(filter.name)"
+        >
+          <span>{{ getFilterDisplayName(filter.name) }}: {{ getFilterDisplayValue(filter) }}</span>
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      }
+    </div>
+
+    <div *ngIf="showFilters" class="order-filter-grid">
+      <div *ngIf="userRole === 'Provider' || userRole === 'Global Admin'">
+        <label class="label-C-F order-filter-label">Clinic:</label>
+        <nz-select
+          class="w-full order-filter-select"
+          nzPlaceHolder="Select Clinic"
+          nzShowSearch
+          [nzShowArrow]="true"
+          [(ngModel)]="selectedFacility"
+          [nzLoading]="facilitiesLoading"
+          [nzDisabled]="facilitiesLoading"
+          (ngModelChange)="applyFilter('Clinic', true)"
+        >
+          <nz-option nzValue="" nzLabel="All"></nz-option>
+          <nz-option *ngFor="let option of facilities" [nzValue]="option.facilityId" [nzLabel]="option.titlelong"></nz-option>
+        </nz-select>
+      </div>
+
+      <div>
+        <label class="label-C-F order-filter-label">Title:</label>
+        <input
+          nz-input
+          placeholder="Search by MRN, patient name or email"
+          title="Search by MRN, patient name or email"
+          id="search"
+          class="input-C order-filter-input"
+          [(ngModel)]="searchQuery"
+          (input)="searchTermChanged()"
+        />
+      </div>
+
+      <div>
+        <label class="label-C-F order-filter-label">Date:</label>
+        <nz-range-picker
+          nzFormat="MM/dd/yyyy"
+          class="datepicker-C w-full order-filter-date"
+          [(ngModel)]="selectedDateRange"
+          (ngModelChange)="applyFilter(undefined, true)"
+        >
+        </nz-range-picker>
+      </div>
+
+      <div>
+        <label class="label-C-F order-filter-label">Order Status:</label>
+        <nz-select
+          class="w-full order-filter-select"
+          nzPlaceHolder="Select Order Status"
+          nzShowSearch
+          nzAllowClear
+          [nzShowArrow]="true"
+          [(ngModel)]="selectedOrderStatus"
+          (ngModelChange)="applyFilter(undefined, true)"
+        >
+          <nz-option *ngFor="let option of orderStatusOptions" [nzValue]="option" [nzLabel]="option"></nz-option>
+        </nz-select>
+      </div>
+
+      <div *ngIf="userRole !== 'Patient'">
+        <label class="label-C-F order-filter-label">Patient:</label>
+        <nz-select
+          class="w-full order-filter-select"
+          nzPlaceHolder="Select Patient"
+          nzShowSearch
+          nzAllowClear
+          [nzShowArrow]="true"
+          [nzLoading]="loadingPatient"
+          [nzDisabled]="loadingPatient"
+          [(ngModel)]="patientId"
+          (ngModelChange)="applyFilter(undefined, true)"
+        >
+          <nz-option *ngFor="let item of patientData; trackBy: trackByPatientId" [nzValue]="item.patientId" [nzLabel]="item.patientName"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+  </section>
+
+  <section class="order-table-shell">
+    <nz-table
+      [nzData]="orders"
+      [nzLoading]="loading"
+      [nzFrontPagination]="false"
+      [nzTotal]="total"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50, 100]"
+      (nzQueryParams)="onQueryParamsChange($event)"
+      [nzScroll]="{ x: '1950px' }"
+      class="w-full order-table"
+    >
+      <thead>
+      <tr>
+        <th nzWidth="140px">Actions</th>
+        <th nzWidth="100px">Order ID</th>
+        <th nzWidth="150px">Order Date</th>
+        <th nzWidth="240px">Patient Name</th>
+        <th nzWidth="120px">MRN #</th>
+        <th nzWidth="270px">Email</th>
+
+        <th nzWidth="150px">Order Status</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr
+        *ngFor="let row of orders; trackBy: trackByOrderId"
+        class="order-row-clickable"
+        role="button"
+        tabindex="0"
+        (click)="navigateToViewOrder(row)"
+        (keydown.enter)="navigateToViewOrder(row)"
+        (keydown.space)="navigateToViewOrder(row); $event.preventDefault()"
+      >
+        <td>
+          <div class="flex items-center gap-2">
+            <button
+              nz-button
+              nzType="default"
+              nzShape="circle"
+              class="action-icon-btn"
+              (click)="$event.stopPropagation(); navigateToViewOrder(row)"
+              title="View"
+            >
+              <i class="fa fa-eye"></i>
+            </button>
+
+          </div>
+        </td>
+        <td>{{ row.patientOrderId || '--' }}</td>
+        <td>{{ row.orderDate ? (row.orderDate | date: 'MM/dd/yyyy') : '--' }}</td>
+        <td>{{ row.patientName || '--' }}</td>
+        <td>{{ row.mrn || '--' }}</td>
+        <td>{{ row.patientEmail || '--' }}</td>
+
+        <td>
+          <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(row.orderStatus)">
+            {{ row.orderStatus || '--' }}
+          </span>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </section>
+</div>
+
+<app-comman-form-modal
+  #commanModel
+  [apiUrl]="this.modalApiUrl"
+  (formClosed)="refreshAfterModal()"
+></app-comman-form-modal>

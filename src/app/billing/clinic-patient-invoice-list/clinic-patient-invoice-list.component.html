@@ -1,0 +1,264 @@
+<div
+  *ngIf="notAllowed"
+  class="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 p-4"
+>
+  <div class="flex items-start gap-3">
+    <i class="fa-solid fa-triangle-exclamation mt-1"></i>
+    <div>
+      <div class="font-semibold">Access restricted</div>
+      <div class="text-sm text-gray-600 dark:text-gray-300">
+        This page is only available to Clinic Admin and Patient users.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!notAllowed">
+  <nz-tabset
+    nzType="editable-card"
+    class="invoice-list-tabs mt-1"
+    [nzHideAdd]="true"
+    [nzSelectedIndex]="selectedTabIndex"
+    (nzSelectedIndexChange)="onTabIndexChange($event)"
+    (nzClose)="onTabClose($event)"
+  >
+    <nz-tab [nzTitle]="listTabTitle" [nzClosable]="false">
+      <div class="invoice-list-workspace-shell">
+        <section class="invoice-list-filter-shell">
+          <div class="invoice-list-filter-toolbar">
+            <div class="invoice-list-filter-toolbar-left">
+              <button
+                nz-button
+                nzType="default"
+                nzShape="round"
+                class="invoice-list-filter-toggle"
+                (click)="showFilters = !showFilters"
+                [attr.aria-expanded]="showFilters"
+                type="button"
+              >
+                <i class="fa-solid fa-sliders"></i>
+                <span>Filters</span>
+                <span *ngIf="visibleFiltersCount > 0" class="invoice-list-filter-count-pill">
+                  {{ visibleFiltersCount }}
+                </span>
+                <i
+                  class="fa-solid fa-chevron-down invoice-list-filter-chevron"
+                  [class.rotate-180]="showFilters"
+                ></i>
+              </button>
+
+              <span *ngIf="!showFilters && visibleFiltersCount > 0" class="invoice-list-filter-summary">
+                {{ visibleFiltersCount }} active filters
+              </span>
+            </div>
+
+            <div class="invoice-list-filter-toolbar-actions">
+              <button
+                *ngIf="visibleFiltersCount > 0"
+                nz-button
+                nzType="default"
+                nzShape="round"
+                class="invoice-list-filter-clear"
+                (click)="resetListFilters()"
+                type="button"
+              >
+                Reset
+              </button>
+
+              <button
+                *ngIf="isGlobalAdmin"
+                nz-button
+                nzType="default"
+                nzShape="round"
+                class="invoice-list-create-btn"
+                (click)="createInvoice()"
+                type="button"
+              >
+                <i class="fa-solid fa-plus"></i>
+                <span>Create Invoice</span>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="showFilters" class="invoice-list-filter-grid">
+            <div *ngIf="isGlobalAdmin">
+              <label class="label-C-F invoice-list-filter-label">Clinic:</label>
+              <nz-select
+                class="w-full invoice-list-filter-select"
+                nzShowSearch
+                nzAllowClear
+                nzPlaceHolder="Select Clinic"
+                [nzLoading]="facilityDropdownLoading"
+                [(ngModel)]="selectedFacilityId"
+                (ngModelChange)="onFacilitySelected($event)"
+              >
+                <nz-option
+                  *ngFor="let f of facilities"
+                  [nzValue]="f.facilityId"
+                  [nzLabel]="f.titlelong"
+                ></nz-option>
+              </nz-select>
+            </div>
+
+            <div>
+              <label class="label-C-F invoice-list-filter-label">
+                {{ isClinicAdmin ? 'Invoice ID' : 'Bill ID' }}:
+              </label>
+              <input
+                nz-input
+                class="w-full invoice-list-filter-select input-C"
+                type="number"
+                min="1"
+                [placeholder]="isClinicAdmin ? 'Search by invoice ID' : 'Search by bill ID'"
+                [ngModel]="searchInvoiceId"
+                (ngModelChange)="onInvoiceIdSearch($event)"
+              />
+            </div>
+
+            <div *ngIf="isClinicAdmin">
+              <label class="label-C-F invoice-list-filter-label">Patient Name:</label>
+              <input
+                nz-input
+                class="w-full invoice-list-filter-select input-C"
+                type="text"
+                placeholder="Search by patient name"
+                [ngModel]="searchPatientName"
+                (ngModelChange)="onPatientNameSearch($event)"
+              />
+            </div>
+
+            <div>
+              <label class="label-C-F invoice-list-filter-label">Status:</label>
+              <nz-select
+                class="w-full invoice-list-filter-select"
+                nzAllowClear
+                nzPlaceHolder="All Statuses"
+                [ngModel]="selectedStatus"
+                (ngModelChange)="onStatusChange($event)"
+              >
+                <nz-option
+                  *ngFor="let s of statusOptions"
+                  [nzValue]="s"
+                  [nzLabel]="s"
+                ></nz-option>
+              </nz-select>
+            </div>
+          </div>
+        </section>
+
+        <section class="invoice-list-table-shell">
+          <nz-table
+            #invoiceTable
+            [nzData]="invoices"
+            [nzLoading]="loading"
+            [nzFrontPagination]="isPatient"
+            [nzTotal]="isPatient ? invoices.length : total"
+            [nzPageIndex]="pageIndex"
+            [nzPageSize]="pageSize"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[5, 10, 20, 50, 100]"
+            (nzQueryParams)="onQueryParamsChange($event)"
+            [nzScroll]="{ x: '1120px' }"
+            class="w-full invoice-list-table"
+          >
+            <thead>
+            <tr>
+              <th nzWidth="50px">Actions</th>
+              <th nzWidth="40px">ID</th>
+              <th nzWidth="180px">{{ isClinicAdmin ? 'Invoice #' : 'Bill #' }}</th>
+              <th nzWidth="280px">Patient</th>
+              <th nzWidth="160px">Amount</th>
+              <th nzWidth="160px">Status</th>
+              <th nzWidth="220px">Created Date</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr
+              *ngFor="let row of invoiceTable.data"
+              class="invoice-list-row-clickable"
+              role="button"
+              tabindex="0"
+              (click)="openInvoiceDetailTab(row)"
+              (keydown.enter)="openInvoiceDetailTab(row)"
+              (keydown.space)="openInvoiceDetailTab(row); $event.preventDefault()"
+            >
+              <td>
+                <div class="flex items-center gap-2">
+                  <button
+                    nz-button
+                    nzType="default"
+                    nzShape="circle"
+                    class="action-icon-btn"
+                    (click)="$event.stopPropagation(); openInvoiceDetailTab(row)"
+                    title="View {{ isClinicAdmin ? 'Invoice' : 'Bill' }}"
+                  >
+                    <i class="fa-regular fa-eye"></i>
+                  </button>
+                </div>
+              </td>
+
+              <td class="font-medium">
+                <button
+                  type="button"
+                  class="invoice-list-id-link"
+                  (click)="$event.stopPropagation(); openInvoiceDetailTab(row)"
+                >
+                  {{ row?.invoiceId || '--' }}
+                </button>
+              </td>
+
+              <td>{{ row?.invoiceNumber || '--'}}</td>
+
+              <td>{{ row?.customerName || '--' }}</td>
+
+              <td>
+                {{ row?.amount != null ? (+row.amount | currency : 'USD' : 'symbol' : '1.0-2') : '--' }}
+              </td>
+
+              <td>
+                <span class="ui-status-badge" [ngClass]="getStatusTagClass(row?.status)">
+                  {{ row?.status || '--' }}
+                </span>
+              </td>
+
+              <td>{{ row?.createdDate ? (row.createdDate | date : 'MM/dd/yyyy, h:mm a') : '--' }}</td>
+            </tr>
+
+            <tr *ngIf="!loading && invoices.length === 0">
+              <td colspan="7" class="text-center py-6 text-gray-500 dark:text-gray-400">
+                <ng-container *ngIf="isGlobalAdmin && selectedFacilityId === null; else noInvoicesMessage">
+                  Select a Clinic to view invoices.
+                </ng-container>
+                <ng-template #noInvoicesMessage>
+                  No records found.
+                </ng-template>
+              </td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </section>
+      </div>
+    </nz-tab>
+
+    <nz-tab
+      *ngFor="let tab of detailTabs; trackBy: trackByTabKey"
+      [nzTitle]="tab.title"
+      [nzClosable]="true"
+    >
+      <ng-container [ngSwitch]="tab.type">
+        <app-clinic-patient-invoice-detail
+          *ngSwitchCase="'detail'"
+          [invoiceIdInput]="tab.invoiceId || null"
+          [embeddedInTabs]="true"
+        ></app-clinic-patient-invoice-detail>
+
+        <app-manual-patient-bill
+          *ngSwitchCase="'create'"
+          [embeddedInTabs]="true"
+          [openCreatedInvoiceTab]="onCreatedInvoiceFromManual"
+        ></app-manual-patient-bill>
+      </ng-container>
+    </nz-tab>
+  </nz-tabset>
+</div>

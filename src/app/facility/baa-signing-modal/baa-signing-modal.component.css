@@ -1,0 +1,257 @@
+.baa-shell {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 120px);
+}
+
+.baa-header {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background:
+    radial-gradient(120% 80% at 0% 0%,
+      color-mix(in srgb, var(--secondP-color, #0284c7) 14%, #fff) 0%, #fff 70%);
+}
+
+.baa-header-icon {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  color: #fff;
+  background: var(--secondP-color, #0284c7);
+}
+
+.baa-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.baa-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #475569;
+  max-width: 70ch;
+}
+
+.baa-body {
+  overflow-y: auto;
+  padding: 18px 24px;
+  background: #f8fafc;
+}
+
+.baa-doc {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 28px 32px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #1f2937;
+  text-align: justify;
+}
+
+.baa-doc-title {
+  text-align: center;
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: #0f172a;
+}
+
+.baa-h {
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin: 18px 0 8px;
+  color: #0f172a;
+}
+
+.baa-doc p {
+  margin: 0 0 9px;
+}
+
+.baa-sub {
+  padding-left: 20px;
+}
+
+.baa-exec {
+  margin-top: 16px !important;
+  font-weight: 600;
+}
+
+.baa-sign-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 14px;
+  padding-top: 16px;
+  border-top: 1px dashed #cbd5e1;
+}
+
+.baa-sign-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.baa-sign-party {
+  font-weight: 700;
+  font-size: 13px;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.baa-field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin: 10px 0 4px;
+}
+
+.baa-field-label:first-of-type {
+  margin-top: 0;
+}
+
+.baa-esign-note {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.baa-static-sign {
+  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-size: 24px;
+  color: #0f172a;
+  padding: 6px 0 2px;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.baa-static-val {
+  font-size: 13px;
+  color: #1f2937;
+  padding: 4px 0;
+}
+
+.baa-sign-col--static {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.baa-sign-date {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: #334155;
+}
+
+.baa-sign-date span {
+  font-weight: 600;
+  color: #64748b;
+}
+
+.baa-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.baa-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.baa-hint {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.baa-logout {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 6px 8px;
+}
+
+.baa-logout:hover {
+  color: #ef4444;
+}
+
+.baa-logout:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .baa-sign-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .baa-doc {
+    padding: 18px 16px;
+  }
+  .baa-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .baa-actions-right {
+    justify-content: space-between;
+  }
+}
+
+:host-context(.dark) .baa-header {
+  background: #0b1220;
+  border-bottom-color: #1e293b;
+}
+:host-context(.dark) .baa-title,
+:host-context(.dark) .baa-doc-title,
+:host-context(.dark) .baa-h,
+:host-context(.dark) .baa-sign-party {
+  color: #e2e8f0;
+}
+:host-context(.dark) .baa-subtitle {
+  color: #94a3b8;
+}
+:host-context(.dark) .baa-body {
+  background: #0f172a;
+}
+:host-context(.dark) .baa-doc {
+  background: #111827;
+  border-color: #1f2937;
+  color: #cbd5e1;
+}
+:host-context(.dark) .baa-sign-col--static {
+  background: #0b1220;
+  border-color: #1f2937;
+}
+:host-context(.dark) .baa-static-sign {
+  color: #e2e8f0;
+  border-bottom-color: #334155;
+}
+:host-context(.dark) .baa-static-val,
+:host-context(.dark) .baa-sign-date {
+  color: #cbd5e1;
+}
+:host-context(.dark) .baa-actions {
+  background: #0b1220;
+  border-top-color: #1e293b;
+}

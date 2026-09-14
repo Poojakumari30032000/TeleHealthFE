@@ -1,0 +1,686 @@
+<nz-tabset
+  nzType="editable-card"
+  class="facility-tabs mt-1"
+  [nzHideAdd]="true"
+  [nzSelectedIndex]="selectedTabIndex"
+  (nzSelectedIndexChange)="onTabIndexChange($event)"
+  (nzClose)="onTabClose($event)"
+>
+  <nz-tab nzTitle="Clinic List" [nzClosable]="false">
+    <div class="facility-workspace-shell">
+
+      <section *ngIf="userRole === 'Global Admin'" class="facility-plan-banner">
+        <div class="fpb-icon"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+        <div class="fpb-body">
+          <div class="fpb-label">Global Monthly Plan</div>
+          <div class="fpb-meta">
+            <span class="fpb-price">
+              ${{ globalPlan?.monthlyPrice ?? 0 }}
+              <span class="fpb-cadence">/ month</span>
+            </span>
+            <span class="fpb-note">
+              Applied to clinics with billing enabled
+            </span>
+          </div>
+        </div>
+        <button
+          nz-button
+          nzShape="round"
+          class="fpb-edit-btn"
+          type="button"
+          [nzLoading]="loadingGlobalPlan"
+          (click)="openEditPlanModal()"
+        >
+          <i class="fa-solid fa-pen-to-square mr-1"></i> Edit Plan
+        </button>
+      </section>
+
+      <section class="facility-filter-shell">
+        <div class="facility-filter-toolbar">
+          <div class="facility-filter-toolbar-left">
+            <button
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="facility-filter-toggle"
+              (click)="showFilters = !showFilters"
+              [attr.aria-expanded]="showFilters"
+              type="button"
+            >
+              <i class="fa-solid fa-sliders"></i>
+              <span>Filters</span>
+              <span *ngIf="visibleFiltersCount > 0" class="facility-filter-count-pill">
+                {{ visibleFiltersCount }}
+              </span>
+              <i
+                class="fa-solid fa-chevron-down facility-filter-chevron"
+                [class.rotate-180]="showFilters"
+              ></i>
+            </button>
+
+            <span *ngIf="!showFilters && visibleFiltersCount > 0" class="facility-filter-summary">
+              {{ visibleFiltersCount }} active filters
+            </span>
+          </div>
+
+          <div class="facility-filter-toolbar-right">
+            <button
+              *ngIf="visibleFiltersCount > 0"
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="facility-filter-clear"
+              type="button"
+              (click)="clearFilters()"
+            >
+              Reset
+            </button>
+
+            <button
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="facility-add-btn"
+              (click)="AddEditFacility()"
+            >
+              <i class="fa-solid fa-plus"></i>
+              <span class="ml-2 hidden md:inline-block">Add Clinic</span>
+            </button>
+
+            <button
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="facility-bulk-import-btn"
+              type="button"
+              (click)="openBulkImportModal()"
+            >
+              <i class="fa-solid fa-file-arrow-up"></i>
+              <span class="ml-2 hidden md:inline-block">Bulk import</span>
+            </button>
+
+            <button
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="facility-bulk-import-btn"
+              type="button"
+              title="Copy embeddable iframe snippet for the external clinic signup page"
+              (click)="copySignupEmbedSnippet()"
+            >
+              <i class="fa-solid fa-code"></i>
+              <span class="ml-2 hidden md:inline-block">Copy Signup Embed</span>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="visibleFiltersCount > 0 && !showFilters" class="facility-filter-chip-row">
+          @for (filter of appliedFilters; track trackByFilterName($index, filter)) {
+            <button class="facility-filter-chip" type="button" (click)="removeFilter(filter.name)">
+              <span>{{ filter.name }}: {{ filter.value }}</span>
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          }
+        </div>
+
+        <div *ngIf="showFilters" class="facility-filter-grid">
+          <div>
+            <label class="label-C-F ">Title:</label>
+            <input
+              nz-input
+              placeholder="Search Clinic By Name"
+              class="input-C facility-filter-input"
+              [(ngModel)]="facilityTitle"
+              (input)="searchTermChanged()"
+            />
+          </div>
+          <div>
+            <label class="label-C-F ">Status:</label>
+            <nz-select
+              nzPlaceHolder="Select Status"
+              [(ngModel)]="selectedStatus"
+              (ngModelChange)="applyFilter(true)"
+              nzAllowClear
+              nzShowSearch
+              class="w-full facility-filter-select"
+            >
+              <nz-option nzValue="Active" nzLabel="Active"></nz-option>
+              <nz-option nzValue="InActive" nzLabel="InActive"></nz-option>
+            </nz-select>
+          </div>
+        </div>
+      </section>
+
+      <section class="facility-table-shell">
+        <nz-table
+          [nzData]="clinics"
+          [nzLoading]="loading"
+          [nzFrontPagination]="false"
+          [nzTotal]="total"
+          [nzPageIndex]="pageIndex"
+          [nzPageSize]="pageSize"
+          [nzShowSizeChanger]="true"
+          [nzPageSizeOptions]="[10, 20, 50, 100]"
+          (nzQueryParams)="onQueryParamsChange($event)"
+          [nzScroll]="{ x: '1780px' }"
+          class="w-full facility-table"
+        >
+          <thead>
+            <tr>
+              <th nzWidth="150px">Actions</th>
+              <th nzWidth="250px">Name</th>
+              <th nzWidth="320px">Address</th>
+
+              <th nzWidth="130px">Clinic Admin</th>
+
+              <th nzWidth="130px">Billing</th>
+              <th nzWidth="150px">Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr
+              *ngFor="let row of clinics; trackBy: trackByFacilityId"
+              class="facility-row-clickable"
+              role="button"
+              tabindex="0"
+              (click)="onView(row)"
+              (keydown.enter)="onView(row)"
+              (keydown.space)="onView(row); $event.preventDefault()"
+            >
+              <td>
+                <div class="flex items-center gap-2">
+                  <button
+                    nz-button
+                    nzType="default"
+                    nzShape="circle"
+                    (click)="$event.stopPropagation(); onView(row)"
+                    title="View"
+                  >
+                    <i class="fa fa-eye"></i>
+                  </button>
+
+                  <button
+                    nz-button
+                    nzType="default"
+                    nzShape="circle"
+                    (click)="$event.stopPropagation(); AddEditFacility(row)"
+                    title="Edit"
+                  >
+                    <i class="fa-regular fa-pen-to-square"></i>
+                  </button>
+
+                  <button
+                    nz-button
+                    nzType="default"
+                    nzShape="circle"
+                    (click)="$event.stopPropagation(); updateStatus(row)"
+                    title="Update Status"
+                  >
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                  </button>
+                </div>
+              </td>
+              <td>{{ row.titleLong || '--' }}</td>
+              <td>{{ row.address || '--' }}</td>
+
+              <td>{{ row.facilityAdminCount ?? '--' }}</td>
+
+              <td>
+                <button
+                  type="button"
+                  class="facility-billing-pill-btn"
+                  [class.facility-billing-pill-btn--free]="!row.isBillable"
+                  [disabled]="userRole !== 'Global Admin'"
+                  (click)="openToggleBillingModal(row, $event)"
+                  [title]="userRole === 'Global Admin' ? 'Toggle billing' : 'Read only'"
+                >
+                  <i
+                    class="fa-solid"
+                    [class.fa-circle-dollar-to-slot]="row.isBillable"
+                    [class.fa-circle-pause]="!row.isBillable"
+                  ></i>
+                  {{ row.isBillable ? 'Billable' : 'Free' }}
+                </button>
+              </td>
+              <td>
+                <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(row.status)">
+                  {{ row.status || '--' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </section>
+    </div>
+
+    <app-comman-form-modal
+      #commanModel
+      [apiUrl]="this.modalApiUrl"
+      (formClosed)="refreshTable($event)"
+      (saveStarted)="onClinicSaveStarted()"
+      (validationFailed)="onClinicSaveValidationFailed()"
+    ></app-comman-form-modal>
+
+    @if (savingLoaderVisible) {
+      <div class="clinic-save-overlay" role="dialog" aria-modal="true" aria-label="Saving clinic">
+        <div class="clinic-save-card">
+          <div class="clinic-save-header">
+            <div class="clinic-save-spinner" [class.clinic-save-done]="savingComplete">
+              <i class="fa-solid" [ngClass]="savingComplete ? 'fa-circle-check' : 'fa-rotate animate-spin'"></i>
+            </div>
+            <div class="clinic-save-titles">
+              <p class="clinic-save-title">{{ savingComplete ? 'All done!' : (currentSaveTitle === 'Add Clinic' ? 'Setting up your clinic…' : 'Updating clinic…') }}</p>
+              <p class="clinic-save-subtitle">{{ savingComplete ? 'Clinic saved successfully.' : 'This may take up to 40 seconds — please wait.' }}</p>
+            </div>
+          </div>
+
+          <div class="clinic-save-progress-wrap">
+            <div class="clinic-save-progress-track">
+              <div class="clinic-save-progress-fill" [style.width.%]="savingProgressPercent"></div>
+            </div>
+            <span class="clinic-save-percent">{{ savingProgressPercent }}%</span>
+          </div>
+
+          <ul class="clinic-save-stages">
+            @for (stage of savingStages; track stage.label; let i = $index) {
+              <li class="clinic-save-stage"
+                  [class.clinic-stage-done]="savingComplete || i < savingStageIndex"
+                  [class.clinic-stage-active]="!savingComplete && i === savingStageIndex"
+                  [class.clinic-stage-pending]="!savingComplete && i > savingStageIndex">
+                <span class="clinic-stage-icon-wrap">
+                  @if (savingComplete || i < savingStageIndex) {
+                    <i class="fa-solid fa-circle-check"></i>
+                  } @else if (i === savingStageIndex) {
+                    <i class="fa-solid fa-circle-notch animate-spin"></i>
+                  } @else {
+                    <i class="fa-regular fa-circle"></i>
+                  }
+                </span>
+                <span class="clinic-stage-label">{{ stage.label }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
+
+    <nz-modal
+      [(nzVisible)]="bulkImportVisible"
+      nzTitle="Bulk import clinics & administrators"
+      [nzFooter]="null"
+      nzWidth="820px"
+      [nzMaskClosable]="!bulkImportSubmitting"
+      [nzClosable]="!bulkImportSubmitting"
+      (nzOnCancel)="closeBulkImportModal()"
+    >
+      <ng-container *nzModalContent>
+        <div class="bulk-import-modal-body">
+          <div class="bulk-import-toolbar">
+            <button
+              nz-button
+              nzType="default"
+              type="button"
+              (click)="downloadBulkImportTemplate()"
+              [disabled]="bulkImportSubmitting"
+            >
+              <i class="fa-solid fa-download mr-2"></i>
+              Download template (.xlsx)
+            </button>
+            <p class="bulk-import-hint" ngNonBindable>
+              Please download the template and add the required information to bulk upload the clinics.
+              Payment Mode: Square, Stripe Direct, or Stripe Destination (blank defaults to Square).
+            </p>
+          </div>
+
+          <div
+            class="bulk-import-dropzone"
+            [class.bulk-import-dropzone-active]="bulkImportDragOver"
+            (dragover)="onBulkDragOver($event)"
+            (dragleave)="onBulkDragLeave($event)"
+            (drop)="onBulkDrop($event)"
+            (click)="bulkFileInput.click()"
+            role="button"
+            tabindex="0"
+            (keydown.enter)="bulkFileInput.click()"
+          >
+            <input
+              #bulkFileInput
+              type="file"
+              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              class="bulk-import-file-input-hide"
+              (change)="onBulkFileInputChange($event)"
+            />
+            <div class="bulk-import-dropzone-inner">
+              <i class="fa-solid fa-cloud-arrow-up bulk-import-dropzone-icon"></i>
+              <div>
+                <span class="font-medium">Drop your filled workbook here</span>
+                <span class="text-gray-500"> or click to browse</span>
+              </div>
+              <div *ngIf="bulkImportFile" class="bulk-import-file-name">
+                <i class="fa-regular fa-file-excel mr-1"></i>{{ bulkImportFile.name }}
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="bulkImportResult?.importSucceeded" class="bulk-import-success-panel">
+            <div class="bulk-import-success-title">
+              <i class="fa-solid fa-circle-check"></i>
+              {{ hasBulkImportFailures(bulkImportResult) ? 'Import finished (partial success)' : 'Import completed' }}
+            </div>
+            <p class="bulk-import-success-msg">{{ bulkImportLastMessage }}</p>
+            <p class="text-sm text-gray-600" *ngIf="bulkImportResult">
+              {{ bulkImportResult.facilitiesCreated }} clinic(s), {{ bulkImportResult.adminsCreated }} administrator(s)
+              added.
+            </p>
+          </div>
+
+          <div
+            *ngIf="bulkImportResult && (!bulkImportResult.importSucceeded || hasBulkImportFailures(bulkImportResult))"
+            class="bulk-import-error-panel"
+          >
+            <div class="bulk-import-error-title">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              {{
+                bulkImportResult.importSucceeded
+                  ? 'Some rows failed — see details below.'
+                  : bulkImportLastMessage || 'No changes were saved.'
+              }}
+            </div>
+            <nz-table
+              *ngIf="(bulkImportResult.parseAndValidationErrors?.length ?? 0) > 0"
+              [nzData]="bulkImportResult.parseAndValidationErrors!"
+              [nzShowPagination]="false"
+              nzSize="small"
+              class="bulk-import-errors-table mt-2"
+            >
+              <thead>
+                <tr>
+                  <th nzWidth="120px">Sheet</th>
+                  <th nzWidth="70px">Row</th>
+                  <th nzWidth="140px">Import key</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of bulkImportResult.parseAndValidationErrors; trackBy: trackByBulkIssue">
+                  <td>{{ row.sheet }}</td>
+                  <td>{{ row.row || '—' }}</td>
+                  <td>{{ row.facilityImportKey || '—' }}</td>
+                  <td>{{ row.message }}</td>
+                </tr>
+              </tbody>
+            </nz-table>
+
+            <nz-table
+              *ngIf="(bulkImportResult.facilitiesFailed?.length ?? 0) > 0"
+              [nzData]="bulkImportResult.facilitiesFailed!"
+              [nzShowPagination]="false"
+              nzSize="small"
+              class="bulk-import-errors-table mt-2"
+              nzTitle="Clinics not created"
+            >
+              <thead>
+                <tr>
+                  <th nzWidth="140px">Import key</th>
+                  <th nzWidth="220px">Clinic name</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of bulkImportResult.facilitiesFailed">
+                  <td>{{ row.facilityImportKey }}</td>
+                  <td>{{ row.titleLong || '—' }}</td>
+                  <td>{{ row.message }}</td>
+                </tr>
+              </tbody>
+            </nz-table>
+
+            <nz-table
+              *ngIf="(bulkImportResult.adminsFailed?.length ?? 0) > 0"
+              [nzData]="bulkImportResult.adminsFailed!"
+              [nzShowPagination]="false"
+              nzSize="small"
+              class="bulk-import-errors-table mt-2"
+              nzTitle="Administrators not created"
+            >
+              <thead>
+                <tr>
+                  <th nzWidth="120px">Import key</th>
+                  <th nzWidth="90px">Clinic ID</th>
+                  <th nzWidth="220px">Email</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of bulkImportResult.adminsFailed">
+                  <td>{{ row.facilityImportKey }}</td>
+                  <td>{{ row.facilityId ?? '—' }}</td>
+                  <td>{{ row.email }}</td>
+                  <td>{{ row.message }}</td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </div>
+
+          <div class="bulk-import-actions">
+            <button nz-button type="button" (click)="closeBulkImportModal()" [disabled]="bulkImportSubmitting">
+              Close
+            </button>
+            <button
+              nz-button
+              nzType="primary"
+              type="button"
+              (click)="runBulkImport()"
+              [disabled]="!bulkImportFile || bulkImportSubmitting"
+              [nzLoading]="bulkImportSubmitting"
+            >
+              Import
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </nz-modal>
+  </nz-tab>
+
+  <nz-tab [nzTitle]="pendingTabTitleTpl" [nzClosable]="false">
+    <ng-template #pendingTabTitleTpl>
+      <span class="facility-pending-tab-label">
+        <i class="fa-regular fa-clock"></i>
+        Pending Approval
+        <span *ngIf="pendingCount > 0" class="facility-pending-badge">
+          {{ pendingCount > 99 ? '99+' : pendingCount }}
+        </span>
+      </span>
+    </ng-template>
+
+    <div class="facility-workspace-shell">
+      <section class="facility-table-shell">
+        <nz-table
+          [nzData]="pendingClinics"
+          [nzLoading]="pendingLoading"
+          [nzFrontPagination]="false"
+          [nzPageIndex]="pendingPageIndex"
+          [nzPageSize]="pendingPageSize"
+          [nzTotal]="pendingTotal"
+          (nzPageIndexChange)="onPendingPageIndexChange($event)"
+          (nzPageSizeChange)="onPendingPageSizeChange($event)"
+          [nzShowSizeChanger]="true"
+          [nzPageSizeOptions]="[10, 25, 50]"
+          [nzScroll]="{ x: '900px' }"
+          class="w-full"
+        >
+          <thead>
+            <tr>
+              <th nzWidth="140px">Actions</th>
+              <th>Clinic</th>
+              <th>Admin Contact</th>
+              <th>Location</th>
+              <th nzWidth="120px">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let row of pendingClinics; trackBy: trackByFacilityId"
+              class="facility-row-clickable"
+              role="button"
+              tabindex="0"
+              (click)="openPendingDetailTab(row)"
+              (keydown.enter)="openPendingDetailTab(row)"
+              (keydown.space)="openPendingDetailTab(row); $event.preventDefault()"
+            >
+              <td>
+                <button
+                  nz-button
+                  nzType="primary"
+                  nzShape="round"
+                  class="facility-pending-review-btn"
+                  type="button"
+                  title="Review & Approve"
+                  (click)="$event.stopPropagation(); openPendingDetailTab(row)"
+                >
+                  <i class="fa-solid fa-eye"></i>
+                  <span class="ml-1 hidden md:inline">Review</span>
+                </button>
+              </td>
+              <td>
+                <div class="font-semibold">{{ row.titleLong || row.titleShort }}</div>
+                <div class="text-xs text-slate-500" *ngIf="row.titleShort && row.titleLong && row.titleShort !== row.titleLong">
+                  {{ row.titleShort }}
+                </div>
+              </td>
+              <td>
+                <div class="font-medium">{{ row.email || '—' }}</div>
+                <div class="text-xs text-slate-500">{{ row.phone || '—' }}</div>
+              </td>
+              <td>
+                <div>{{ row.cityName || '—' }}<span *ngIf="row.stateName">, {{ row.stateName }}</span></div>
+                <div class="text-xs text-slate-500">{{ row.zipCode }}</div>
+              </td>
+              <td>
+                <span class="facility-pending-status-pill">
+                  <i class="fa-regular fa-clock"></i>
+                  Pending
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+
+        <div *ngIf="!pendingLoading && pendingClinics.length === 0" class="facility-pending-empty">
+          <i class="fa-regular fa-circle-check"></i>
+          <p class="facility-pending-empty-title">All caught up</p>
+          <p class="facility-pending-empty-sub">No clinics are awaiting your approval right now.</p>
+        </div>
+      </section>
+    </div>
+  </nz-tab>
+
+  <nz-tab *ngFor="let tab of detailTabs; trackBy: trackByTabKey" [nzTitle]="tab.title" [nzClosable]="true">
+    <ng-container [ngSwitch]="tab.type">
+      <app-facility-info-view
+        *ngSwitchCase="'edit'"
+        [facilityIdInput]="tab.facilityId"
+        [embeddedInTabs]="true"
+      ></app-facility-info-view>
+
+      <app-clinic-pending-detail-view
+        *ngSwitchCase="'pending'"
+        [facilityIdInput]="tab.facilityId"
+        [embeddedInTabs]="true"
+        (approved)="onClinicApproved($event)"
+      ></app-clinic-pending-detail-view>
+    </ng-container>
+  </nz-tab>
+</nz-tabset>
+
+<nz-modal
+  [(nzVisible)]="showEditPlanModal"
+  nzTitle="Edit Global Plan Price"
+  [nzMaskClosable]="!savingPlan"
+  [nzClosable]="!savingPlan"
+  [nzFooter]="planFooterTpl"
+  nzCentered
+  (nzOnCancel)="closeEditPlanModal()"
+>
+  <ng-container *nzModalContent>
+    <p class="text-sm text-slate-600 mb-3">
+      This price will apply to every clinic with billing enabled.
+    </p>
+    <label class="label-C">Monthly Price (USD) <span class="text-red-600">*</span></label>
+    <div class="mt-1 flex items-center gap-2">
+      <span class="text-slate-500 font-semibold text-base">$</span>
+      <input
+        nz-input
+        type="number"
+        min="0"
+        step="1"
+        class="input-C"
+        [(ngModel)]="editPlanPrice"
+        placeholder="e.g. 50"
+        [disabled]="savingPlan"
+      />
+    </div>
+  </ng-container>
+  <ng-template #planFooterTpl>
+    <button nz-button nzShape="round" type="button" (click)="closeEditPlanModal()" [disabled]="savingPlan">
+      Cancel
+    </button>
+    <button
+      nz-button
+      nzType="primary"
+      nzShape="round"
+      type="button"
+      (click)="confirmEditPlan()"
+      [nzLoading]="savingPlan"
+      [disabled]="editPlanPrice == null || editPlanPrice < 0"
+    >
+      <i class="fa-solid fa-circle-check mr-2"></i>
+      Save Plan
+    </button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="showToggleBillingModal"
+  nzTitle="Confirm Billing Change"
+  [nzMaskClosable]="!togglingBilling"
+  [nzClosable]="!togglingBilling"
+  [nzFooter]="billingFooterTpl"
+  nzCentered
+  (nzOnCancel)="closeToggleBillingModal()"
+>
+  <ng-container *nzModalContent>
+    <p class="text-sm text-slate-700 mb-3" *ngIf="toggleBillingTarget">
+      <ng-container *ngIf="!toggleBillingTarget.isBillable">
+        Are you sure you want to mark
+        <strong>{{ toggleBillingTarget.titleLong }}</strong>
+        as <strong>Billable</strong>?
+        They will be charged
+        <strong>${{ globalPlan?.monthlyPrice ?? 0 }}/month</strong>
+        starting their next billing cycle.
+      </ng-container>
+      <ng-container *ngIf="toggleBillingTarget.isBillable">
+        Are you sure you want to mark
+        <strong>{{ toggleBillingTarget.titleLong }}</strong>
+        as <strong>Free</strong>? They will no longer be charged the monthly fee.
+      </ng-container>
+    </p>
+  </ng-container>
+  <ng-template #billingFooterTpl>
+    <button nz-button nzShape="round" type="button" (click)="closeToggleBillingModal()" [disabled]="togglingBilling">
+      Cancel
+    </button>
+    <button
+      nz-button
+      nzType="primary"
+      nzShape="round"
+      type="button"
+      (click)="confirmToggleBilling()"
+      [nzLoading]="togglingBilling"
+    >
+      <i class="fa-solid fa-circle-check mr-2"></i>
+      Confirm
+    </button>
+  </ng-template>
+</nz-modal>

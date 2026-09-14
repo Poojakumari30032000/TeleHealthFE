@@ -1,0 +1,526 @@
+:host {
+  display: block;
+  --appt-surface: #ffffff;
+  --appt-border: #dbe4f1;
+  --appt-text: #1f2f4f;
+  --appt-subtle-text: #64748b;
+  --appt-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+
+.appt-workspace-shell {
+  position: relative;
+  padding: 0.3rem 0.3rem 0.4rem;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.appt-workspace-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1100px 360px at -16% -35%, rgba(47, 95, 204, 0.12), transparent 64%),
+    radial-gradient(900px 280px at 120% -30%, rgba(14, 165, 233, 0.09), transparent 62%);
+}
+
+.appt-summary-hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  padding: 1rem;
+  border: 1px solid var(--appt-border);
+  border-radius: 14px;
+  background: linear-gradient(160deg, #f7fbff 0%, #f5f8ff 52%, #fdfdff 100%);
+  box-shadow: var(--appt-shadow);
+  animation: apptFadeIn 220ms ease-out both;
+}
+
+.appt-summary-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 260px;
+  flex: 1 1 360px;
+}
+
+.appt-avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  background: linear-gradient(
+    135deg,
+    var(--primary-400) 0%,
+    var(--primary-color) 48%,
+    var(--primary-700) 100%
+  );
+  box-shadow:
+    0 10px 24px color-mix(in srgb, var(--primary-color) 34%, transparent),
+    0 2px 8px color-mix(in srgb, var(--primary-color) 20%, transparent);
+}
+
+.appt-summary-name {
+  color: var(--appt-text);
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.24;
+}
+
+.appt-summary-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+
+.appt-summary-meta span {
+  border: 1px solid #d8e3f3;
+  border-radius: 999px;
+  padding: 0.18rem 0.62rem;
+  font-size: 0.73rem;
+  color: #4e638b;
+  background: rgba(255, 255, 255, 0.82);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.appt-kpi-grid {
+  flex: 1 1 360px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 0.5rem;
+}
+
+.appt-kpi-card {
+  border: 1px solid #dbe6f6;
+  border-radius: 12px;
+  padding: 0.46rem 0.62rem;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.appt-kpi-label {
+  color: var(--appt-subtle-text);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.appt-kpi-value {
+  color: #1c3563;
+  margin-top: 0.18rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+
+.appt-action-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.52rem;
+  margin-bottom: 0.75rem;
+}
+
+.appt-cta-btn {
+  float: none !important;
+  margin: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.appt-meeting-banner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: color-mix(in srgb, #16a34a 10%, transparent);
+  border: 1px solid color-mix(in srgb, #16a34a 35%, transparent);
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-bottom: 0.75rem;
+  color: #15803d;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.appt-meeting-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+  animation: meetingPulse 1.4s infinite;
+}
+.appt-meeting-label { flex: 1; }
+.appt-meeting-actions { display: flex; gap: 8px; margin-left: auto; }
+.appt-end-btn { color: #dc2626 !important; border-color: #fca5a5 !important; }
+.appt-end-btn:hover { background: #fef2f2 !important; border-color: #dc2626 !important; }
+@keyframes meetingPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+:host-context(.dark) .appt-meeting-banner {
+  background: rgba(21, 128, 61, 0.15);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #4ade80;
+}
+:host-context(.dark) .appt-end-btn { color: #f87171 !important; border-color: #7f1d1d !important; }
+
+.appt-overview-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 0.9rem;
+}
+
+.appt-info-panel {
+  border: 1px solid #d8e4f5;
+  border-radius: 14px;
+  padding: 0.9rem;
+  background: var(--appt-surface);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.appt-info-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.72rem;
+  padding-bottom: 0.62rem;
+  border-bottom: 1px dashed #d8e3f4;
+}
+
+.appt-panel-title {
+  margin: 0;
+  color: #1f365e;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.appt-pair-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.62rem 0.8rem;
+}
+
+.appt-pair-grid > div {
+  min-width: 0;
+}
+
+.appt-pair-grid label {
+  display: block;
+  color: #64748b;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.12rem;
+}
+
+.appt-pair-grid span {
+  display: block;
+  color: #20365f;
+  font-weight: 600;
+  line-height: 1.34;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.appt-col-span-2 {
+  grid-column: span 2;
+}
+
+.appt-workflow-shell {
+  position: relative;
+  z-index: 1;
+  border: 1px solid #d8e4f5;
+  border-radius: 14px;
+  background: var(--appt-surface);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.appt-workflow-title {
+  display: flex;
+  align-items: center;
+  padding: 0.9rem;
+  border-bottom: 1px dashed #d8e3f4;
+  color: #1f365e;
+  font-size: 1rem;
+  font-weight: 700;
+  background: transparent;
+}
+
+.appt-records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.8rem;
+}
+
+.appt-record-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.1fr) minmax(0, 2fr) auto;
+  gap: 0.65rem;
+  align-items: center;
+  border: 1px solid #d4e1f4;
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  background: #ffffff;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.appt-record-row-clickable {
+  cursor: pointer;
+}
+
+.appt-record-row-clickable:hover {
+  border-color: #c4d5ed;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+}
+
+.appt-record-row-disabled {
+  opacity: 0.75;
+}
+
+.appt-record-main {
+  min-width: 0;
+}
+
+.appt-record-title {
+  color: #213c6a;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.22;
+}
+
+.appt-record-subtitle {
+  color: #6a7f9f;
+  margin-top: 0.18rem;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.appt-record-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.appt-fact {
+  min-width: 0;
+  border: 1px solid #dce7f8;
+  border-radius: 10px;
+  background: #f5f9ff;
+  padding: 0.34rem 0.5rem;
+}
+
+.appt-fact label {
+  display: block;
+  color: #7b8faa;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.08rem;
+}
+
+.appt-fact span {
+  color: #1f3968;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.appt-record-end {
+  display: flex;
+  align-items: center;
+  gap: 0.44rem;
+}
+
+.appt-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  color: #6b7f9f;
+  text-align: center;
+  padding: 1.25rem 0.9rem;
+}
+
+.appt-empty-state i {
+  font-size: 1.15rem;
+  color: #98a2b3;
+}
+
+.appt-state-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 1rem;
+  border-radius: 14px;
+  border: 1px solid #d8e4f5;
+  background: linear-gradient(180deg, #f8fbff 0%, #f4f8ff 100%);
+}
+
+.appt-action-row button:not(:disabled),
+.appt-workflow-shell button:not(:disabled),
+.appt-workspace-shell button:not(:disabled),
+.appt-workspace-shell [role='button']:not([aria-disabled='true']) {
+  cursor: pointer !important;
+}
+
+.appt-workspace-shell button:disabled,
+.appt-workspace-shell [aria-disabled='true'] {
+  cursor: not-allowed !important;
+}
+
+@media (max-width: 1200px) {
+  .appt-record-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .appt-record-end {
+    justify-content: space-between;
+  }
+}
+
+:host-context(.dark) .appt-summary-hero,
+:host-context(.dark) .appt-info-panel,
+:host-context(.dark) .appt-workflow-shell,
+:host-context(.dark) .appt-state-panel,
+:host-context(.dark) .appt-record-row,
+:host-context(.dark) .appt-kpi-card {
+  border-color: rgba(148, 163, 184, 0.24);
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: none;
+}
+
+:host-context(.dark) .appt-workflow-title {
+  border-bottom-color: #334a62;
+  background: transparent;
+  color: #dbe7ff;
+}
+
+:host-context(.dark) .appt-summary-name,
+:host-context(.dark) .appt-kpi-value,
+:host-context(.dark) .appt-panel-title,
+:host-context(.dark) .appt-pair-grid span,
+:host-context(.dark) .appt-record-title,
+:host-context(.dark) .appt-fact span {
+  color: #dbeafe;
+}
+
+:host-context(.dark) .appt-summary-meta span,
+:host-context(.dark) .appt-fact {
+  border-color: rgba(148, 163, 184, 0.34);
+  background: rgba(30, 41, 59, 0.8);
+  color: #bfdbfe;
+}
+
+:host-context(.dark) .appt-summary-meta span,
+:host-context(.dark) .appt-kpi-label,
+:host-context(.dark) .appt-pair-grid label,
+:host-context(.dark) .appt-fact label,
+:host-context(.dark) .appt-record-subtitle,
+:host-context(.dark) .appt-empty-state {
+  color: #94a3b8;
+}
+
+:host-context(.dark) .appt-workflow-shell {
+  background: #1d2b3d;
+  border-color: #32465f;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+@media (max-width: 1024px) {
+  .appt-overview-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .appt-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .appt-record-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .appt-summary-hero {
+    padding: 0.82rem;
+    gap: 0.78rem;
+  }
+
+  .appt-summary-identity {
+    min-width: 0;
+  }
+
+  .appt-summary-meta span {
+    font-size: 0.69rem;
+  }
+
+  .appt-kpi-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .appt-pair-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .appt-col-span-2 {
+    grid-column: auto;
+  }
+
+  .appt-record-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .appt-workspace-shell {
+    padding: 0.15rem;
+  }
+
+  .appt-info-panel {
+    padding: 0.75rem;
+  }
+
+  .appt-workflow-title {
+    padding: 0.7rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .appt-records-list {
+    padding: 0.65rem;
+  }
+}
+
+@keyframes apptFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

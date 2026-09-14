@@ -1,0 +1,264 @@
+<div class="ga-dashboard-shell">
+  <section class="ga-kpi-grid">
+    <article
+      class="ga-kpi-card ga-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open clinics"
+      (click)="openClinics()"
+      (keydown.enter)="openClinics()"
+      (keydown.space)="openClinics(); $event.preventDefault()"
+    >
+      <div class="ga-kpi-head">
+        <h3>Active Clinics</h3>
+        <span class="ga-kpi-icon"><i class="fa-solid fa-house-chimney-medical"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="ga-kpi-value">{{ activeClinics }}</div>
+      </ng-container>
+
+    </article>
+
+    <article
+      class="ga-kpi-card ga-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open clinic invoices"
+      (click)="openClinicInvoices()"
+      (keydown.enter)="openClinicInvoices()"
+      (keydown.space)="openClinicInvoices(); $event.preventDefault()"
+    >
+      <div class="ga-kpi-head">
+        <h3>Monthly Revenue (Clinics)</h3>
+        <span class="ga-kpi-icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="ga-kpi-value">{{ formatCurrency(monthlyClinicRevenue) }}</div>
+      </ng-container>
+
+    </article>
+
+    <article
+      class="ga-kpi-card ga-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open treatments"
+      (click)="openTreatments()"
+      (keydown.enter)="openTreatments()"
+      (keydown.space)="openTreatments(); $event.preventDefault()"
+    >
+      <div class="ga-kpi-head">
+        <h3>Total Active Treatments</h3>
+        <span class="ga-kpi-icon"><i class="fa-solid fa-pills"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="ga-kpi-value">{{ totalActiveTreatments }}</div>
+      </ng-container>
+
+    </article>
+
+    <article
+      class="ga-kpi-card ga-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open bills"
+      (click)="openClinicBills()"
+      (keydown.enter)="openClinicBills()"
+      (keydown.space)="openClinicBills(); $event.preventDefault()"
+    >
+      <div class="ga-kpi-head">
+        <h3>Monthly Revenue</h3>
+        <span class="ga-kpi-icon"><i class="fa-solid fa-coins"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="ga-kpi-value">{{ formatCurrency(monthlyPlatformRevenue) }}</div>
+      </ng-container>
+    </article>
+
+    <article
+      class="ga-kpi-card ga-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open refill requests"
+      (click)="openRefillRequests()"
+      (keydown.enter)="openRefillRequests()"
+      (keydown.space)="openRefillRequests(); $event.preventDefault()"
+    >
+      <div class="ga-kpi-head">
+        <h3>Refill Requests</h3>
+        <span class="ga-kpi-icon"><i class="fa-solid fa-rotate-right"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="ga-kpi-value">{{ refillRequests }}</div>
+      </ng-container>
+    </article>
+
+    <article
+      class="ga-kpi-card"
+      role="button"
+      tabindex="0"
+      title="Pending intakes"
+    >
+      <div class="ga-kpi-head">
+        <h3>Pending Intakes</h3>
+        <span class="ga-kpi-icon"><i class="fa-solid fa-clipboard-list"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="ga-kpi-value">{{ pendingIntakes }}</div>
+      </ng-container>
+    </article>
+
+    <article
+      class="ga-kpi-card ga-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open schedule"
+      (click)="openSchedule()"
+      (keydown.enter)="openSchedule()"
+      (keydown.space)="openSchedule(); $event.preventDefault()"
+    >
+      <div class="ga-kpi-head">
+        <h3>Upcoming Appointments</h3>
+        <span class="ga-kpi-icon"><i class="fa-solid fa-calendar-check"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="ga-kpi-value">{{ upcomingAppointments }}</div>
+      </ng-container>
+    </article>
+  </section>
+
+  <section class="ga-panel-grid">
+    <article class="ga-panel ga-panel-wide">
+      <div class="ga-panel-head">
+        <h4><i class="fa-solid fa-chart-column text-primary mr-2"></i>Monthly Revenue (Clinics)</h4>
+        <div class="ga-panel-actions">
+          <nz-range-picker
+            class="ga-range"
+            [(ngModel)]="revenueDateRange"
+            nzFormat="yyyy-MM-dd"
+            (ngModelChange)="fetchMonthlyRevenueBarChart()"
+            [nzDisabledDate]="disabledDate">
+          </nz-range-picker>
+          <button nz-button nzType="default" nzShape="round" (click)="openClinicInvoices()">
+            Open Clinic Invoices
+          </button>
+        </div>
+      </div>
+
+      <div class="ga-panel-body">
+        <div *ngIf="!revenueChartLoading; else chartLoading" echarts [options]="monthlyRevenueBarChart" class="ga-chart-420"></div>
+        <div class="ga-metric-row">
+          <button
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="ga-metric-pill"
+            (click)="openClinicInvoices()"
+          >
+            Range Total: {{ formatCurrency(monthlyRevenueTotal) }}
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="ga-panel">
+      <div class="ga-panel-head">
+        <h4><i class="fa-solid fa-chart-pie text-primary mr-2"></i>Collections vs Outstanding</h4>
+        <div class="ga-panel-actions">
+          <nz-range-picker
+            class="ga-range"
+            [(ngModel)]="collectionsDateRange"
+            nzFormat="yyyy-MM-dd"
+            (ngModelChange)="fetchPaymentStatus()"
+            [nzDisabledDate]="disabledDate">
+          </nz-range-picker>
+          <button nz-button nzType="default" nzShape="round" (click)="openClinicBills()">
+            Open Invoices
+          </button>
+        </div>
+      </div>
+
+      <div class="ga-panel-body">
+        <div *ngIf="!collectionsChartLoading; else chartLoading" echarts [options]="collectionsDonutChart" class="ga-chart-420"></div>
+        <div class="ga-metric-row ga-metric-row-compact">
+          <button nz-button nzType="default" nzShape="round" class="ga-metric-pill" (click)="openClinicBills()">
+            Paid: ${{ collectionsSummary.paid }}
+          </button>
+          <button nz-button nzType="default" nzShape="round" class="ga-metric-pill" (click)="openClinicBills()">
+            Pending: ${{ collectionsSummary.pending }}
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="ga-panel">
+      <div class="ga-panel-head">
+        <h4><i class="fa-solid fa-layer-group text-primary mr-2"></i>Monthly Treatment Categories</h4>
+        <div class="ga-panel-actions">
+          <nz-range-picker
+            class="ga-range"
+            [(ngModel)]="categoriesDateRange"
+            nzFormat="yyyy-MM-dd"
+            (ngModelChange)="fetchTreatmentCategoriesPieChart()"
+            [nzDisabledDate]="disabledDate">
+          </nz-range-picker>
+          <button nz-button nzType="default" nzShape="round" (click)="openTreatments()">
+            Open Treatments
+          </button>
+        </div>
+      </div>
+
+      <div class="ga-panel-body">
+        <div *ngIf="!categoriesChartLoading; else chartLoading" echarts [options]="categoriesPieChart" class="ga-chart-360"></div>
+        <div class="ga-metric-row ga-metric-row-compact" *ngIf="topCategoryHighlights.length > 0">
+          <button
+            *ngFor="let item of topCategoryHighlights"
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="ga-metric-pill"
+            (click)="openTreatments()"
+          >
+            {{ item.name }}: {{ item.value }}
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="ga-panel ga-provider-panel">
+      <div class="ga-panel-head">
+        <h4><i class="fa-solid fa-user-doctor text-primary mr-2"></i>Active Providers</h4>
+        <button nz-button nzType="default" nzShape="round" (click)="openUsers()">
+          Open Providers
+        </button>
+      </div>
+
+      <div class="ga-provider-content" *ngIf="!activeProvidersLoading; else kpiLoading">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="ga-provider-count-btn"
+          (click)="openUsers()"
+        >
+          {{ activeProvidersCount || 0 }}
+        </button>
+        <p>Currently active providers across all clinics.</p>
+      </div>
+    </article>
+  </section>
+</div>
+
+<ng-template #kpiLoading>
+  <div class="ga-kpi-loading">
+    <div class="ga-loading-line lg"></div>
+    <div class="ga-loading-line sm"></div>
+  </div>
+</ng-template>
+
+<ng-template #chartLoading>
+  <div class="ga-chart-loading">
+    <i class="fa-solid fa-arrows-spin animate-spin"></i>
+    <span>Loading chart...</span>
+  </div>
+</ng-template>

@@ -1,0 +1,121 @@
+<nz-spin [nzSpinning]="loading">
+  <div class="role-detail">
+
+    <div class="role-detail__header">
+      <h2 class="role-detail__title">{{ pageTitle }}</h2>
+
+      <nz-tag
+        *ngIf="isSystemRole"
+        nzColor="blue"
+        nz-tooltip
+        nzTooltipTitle="Built-in role. Its name cannot be changed because API endpoints are gated on it, but its permissions can.">
+        Built-in role
+      </nz-tag>
+    </div>
+
+    <!-- Super Admin: nothing to edit. Saying why is better than a silently disabled form. -->
+    <div *ngIf="hasAllPermissions" class="role-detail__notice">
+      <i class="fa-solid fa-circle-info"></i>
+      <span>
+        Super Admin holds every permission implicitly, including any added in future,
+        so its permissions are not editable.
+      </span>
+    </div>
+
+    <div class="role-detail__fields">
+      <div class="role-detail__field">
+        <label for="roleName">Role name <span class="role-detail__required">*</span></label>
+        <input
+          id="roleName"
+          nz-input
+          type="text"
+          maxlength="250"
+          placeholder="e.g. Billing Coordinator"
+          [(ngModel)]="roleName"
+          [disabled]="isSystemRole || isReadOnly"
+          [class.role-detail__input--error]="nameError" />
+        <p *ngIf="nameError" class="role-detail__error">{{ nameError }}</p>
+        <p *ngIf="isSystemRole && !nameError" class="role-detail__hint">
+          Built-in role names are fixed. You can still change the description and permissions.
+        </p>
+      </div>
+
+      <div class="role-detail__field">
+        <label for="roleDescription">Description</label>
+        <input
+          id="roleDescription"
+          nz-input
+          type="text"
+          maxlength="500"
+          placeholder="What is this role for?"
+          [(ngModel)]="roleDescription"
+          [disabled]="isReadOnly" />
+      </div>
+
+      <div class="role-detail__field role-detail__field--inline" *ngIf="!isSystemRole && !isReadOnly">
+        <label for="roleActive">Active</label>
+        <nz-switch id="roleActive" [(ngModel)]="isActive"></nz-switch>
+      </div>
+    </div>
+
+    <div class="role-detail__permissions-head">
+      <div>
+        <h3>Permissions</h3>
+        <p class="role-detail__hint">
+          {{ selectedCount }} permission(s) selected. Unchecking one removes it from this role.
+        </p>
+      </div>
+
+      <div class="role-detail__bulk" *ngIf="!isReadOnly">
+        <button nz-button nzType="default" nzSize="small" (click)="selectAll()">Select all</button>
+        <button nz-button nzType="default" nzSize="small" (click)="clearAll()">Clear all</button>
+      </div>
+    </div>
+
+    <div class="role-detail__modules">
+      <section class="role-detail__module" *ngFor="let module of modules">
+        <label
+          nz-checkbox
+          class="role-detail__module-head"
+          [ngModel]="module.checked"
+          [nzIndeterminate]="module.indeterminate"
+          [nzDisabled]="isReadOnly"
+          (ngModelChange)="onModuleToggle(module, $event)">
+          <span class="role-detail__module-name">{{ module.moduleName }}</span>
+        </label>
+
+        <div class="role-detail__actions">
+          <label
+            nz-checkbox
+            class="role-detail__action"
+            *ngFor="let permission of module.permissions"
+            [(ngModel)]="permission.checked"
+            [nzDisabled]="isReadOnly"
+            (ngModelChange)="onPermissionToggle(module)"
+            nz-tooltip
+            [nzTooltipTitle]="permission.permissionCode">
+            {{ permission.actionName }}
+          </label>
+        </div>
+      </section>
+    </div>
+
+    <nz-empty
+      *ngIf="!loading && modules.length === 0"
+      nzNotFoundContent="No permissions found. Has the RBAC migration been run?"></nz-empty>
+
+    <div class="role-detail__footer">
+      <button nz-button nzType="default" (click)="cancel()" [disabled]="saving">Cancel</button>
+
+      <button
+        *appHasAnyPermission="['user_management']"
+        nz-button
+        nzType="primary"
+        [nzLoading]="saving"
+        [disabled]="isReadOnly"
+        (click)="save()">
+        {{ isNew ? 'Create Role' : 'Save Changes' }}
+      </button>
+    </div>
+  </div>
+</nz-spin>

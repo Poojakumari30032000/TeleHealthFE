@@ -1,0 +1,320 @@
+@if (!hasError) {
+  <ng-container *ngIf="!isLoading && details; else loadingMain">
+    <div class="ticket-detail-shell">
+      <section class="ticket-summary-hero">
+        <div class="ticket-summary-identity">
+          <span class="ticket-avatar">{{ getTicketInitials(details.title) }}</span>
+          <div>
+            <div class="ticket-summary-name">{{ details.title || 'Ticket Detail' }}</div>
+            <div class="ticket-summary-meta">
+              <span>#{{ details.ticketId || '--' }}</span>
+              <span>{{ details.createdBy || '--' }}</span>
+              <span>{{ details.createdDate ? (details.createdDate | date:'MM/dd/yyyy, h:mm a') : '--' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-kpi-grid">
+          <article class="ticket-kpi-card">
+            <div class="ticket-kpi-label">Status</div>
+            <div class="ticket-kpi-value">
+              <span class="ui-status-badge" [ngClass]="statusBadgeClass(details.status)">
+                {{ statusLabel(details.status) }}
+              </span>
+            </div>
+          </article>
+          <article class="ticket-kpi-card">
+            <div class="ticket-kpi-label">Priority</div>
+            <div class="ticket-kpi-value">
+              <span class="ui-status-badge ticket-priority-badge" [ngClass]="priorityBadgeClass(details.priority)">
+                {{ priorityLabel(details.priority) }}
+              </span>
+            </div>
+          </article>
+          <article class="ticket-kpi-card">
+            <div class="ticket-kpi-label">Comments</div>
+            <div class="ticket-kpi-value">{{ details.comments.length || 0 }}</div>
+          </article>
+          <article class="ticket-kpi-card">
+            <div class="ticket-kpi-label">Attachments</div>
+            <div class="ticket-kpi-value">{{ details.documents.length || 0 }}</div>
+          </article>
+        </div>
+      </section>
+
+      <div class="ticket-action-row">
+        <button nz-button nzType="default" nzShape="round" class="ticket-cta-btn" (click)="openEdit()" type="button">
+          <i class="fa-regular fa-pen-to-square"></i>
+          <span class="ml-2 hidden md:inline-block">Edit Ticket</span>
+        </button>
+
+        <button nz-button nzType="default" nzShape="round" class="ticket-cta-btn" (click)="openUpdateStatus()" type="button">
+          <i class="fa-solid fa-circle-check"></i>
+          <span class="ml-2 hidden md:inline-block">Update Status</span>
+        </button>
+      </div>
+
+      <section class="ticket-overview-grid">
+        <article class="ticket-info-panel">
+          <div class="ticket-info-head">
+            <h4 class="ticket-panel-title">
+              <i class="fa-solid fa-ticket mr-2 text-primary"></i>Ticket Snapshot
+            </h4>
+            <span class="ui-status-badge" [ngClass]="statusBadgeClass(details.status)">
+              {{ statusLabel(details.status) }}
+            </span>
+          </div>
+
+          <div class="ticket-pair-grid">
+            <div>
+              <label>Ticket #</label>
+              <span>{{ details.ticketId || '--' }}</span>
+            </div>
+            <div>
+              <label>Created By</label>
+              <span>{{ details.createdBy || '--' }}</span>
+            </div>
+            <div>
+              <label>Created Date</label>
+              <span>{{ details.createdDate ? (details.createdDate | date:'MM/dd/yyyy, h:mm a') : '--' }}</span>
+            </div>
+            <div>
+              <label>Priority</label>
+              <span class="ui-status-badge ticket-priority-badge" [ngClass]="priorityBadgeClass(details.priority)">
+                {{ priorityLabel(details.priority) }}
+              </span>
+            </div>
+          </div>
+        </article>
+
+        <article class="ticket-info-panel">
+          <div class="ticket-info-head">
+            <h4 class="ticket-panel-title">
+              <i class="fa-solid fa-align-left mr-2 text-primary"></i>Description
+            </h4>
+          </div>
+
+          <div class="ticket-description-box">
+            {{ details.description || '--' }}
+          </div>
+        </article>
+      </section>
+
+      <section class="ticket-workflow-hub">
+        <div class="ticket-workflow-title">
+          <i class="fa-solid fa-diagram-project mr-2 text-primary"></i>Ticket Workspace
+        </div>
+
+        <nz-tabset class="ticket-workflow-tabs" nzSize="small">
+          <nz-tab [nzTitle]="'Activity (' + commentsDesc.length + ')'">
+            <div class="ticket-workflow-pane">
+              <div class="ticket-comment-composer">
+                <label class="label-C">Add Comment</label>
+                <textarea
+                  nz-input
+                  rows="3"
+                  class="input-C mt-1"
+                  [(ngModel)]="newComment"
+                  placeholder="Write a comment..."
+                ></textarea>
+
+                <div class="ticket-composer-actions">
+                  <button
+                    nz-button
+                    nzType="default"
+                    nzShape="round"
+                    class="ticket-cta-btn"
+                    [nzLoading]="addingComment"
+                    [disabled]="addingComment || !(newComment || '').trim()"
+                    (click)="addComment()"
+                    type="button"
+                  >
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span class="ml-2 hidden md:inline-block">Add Comment</span>
+                  </button>
+                </div>
+              </div>
+
+              @if (commentsDesc.length === 0) {
+                <div class="ticket-empty-state">
+                  <i class="fa-regular fa-comment-dots"></i>
+                  <p>No activity yet.</p>
+                </div>
+              } @else {
+                <div class="ticket-comment-list">
+                  <article *ngFor="let c of commentsDesc; trackBy: trackByCommentId" class="ticket-comment-card">
+                    <div class="ticket-comment-head">
+                      <div class="ticket-comment-author">
+                        <span class="ticket-mini-avatar">{{ getCommentInitials(c.createdBy) }}</span>
+                        <div>
+                          <div class="ticket-comment-name">{{ c.createdBy || '--' }}</div>
+                          <div class="ticket-comment-time">{{ c.createdDate || '--' }}</div>
+                        </div>
+                      </div>
+
+                      <button
+                        nz-button
+                        nzType="default"
+                        nzShape="circle"
+                        class="action-icon-btn"
+                        title="Delete"
+                        (click)="deleteComment(c.ticketCommentId)"
+                        type="button"
+                      >
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </div>
+
+                    <div class="ticket-comment-body">
+                      {{ c.comment || '--' }}
+                    </div>
+                  </article>
+                </div>
+              }
+            </div>
+          </nz-tab>
+
+          <nz-tab [nzTitle]="'Attachments (' + details.documents.length + ')'">
+            <div class="ticket-workflow-pane">
+              <div class="ticket-attachment-actions">
+                <button nz-button nzType="default" nzShape="round" class="ticket-cta-btn" (click)="uploadDocument()" type="button">
+                  <i class="fa-solid fa-upload"></i>
+                  <span class="ml-2 hidden md:inline-block">Upload Attachment</span>
+                </button>
+              </div>
+
+              @if (details.documents.length === 0) {
+                <div class="ticket-empty-state">
+                  <i class="fa-regular fa-folder-open"></i>
+                  <p>No attachments uploaded.</p>
+                </div>
+              } @else {
+                <div class="ticket-attachment-grid">
+                  <article
+                    *ngFor="let d of details.documents"
+                    class="ticket-attachment-card"
+                    (click)="viewDocument(d)"
+                    title="Open attachment"
+                  >
+                    <span class="ticket-attachment-icon"><i class="fa-regular fa-file-lines"></i></span>
+                    <div class="ticket-attachment-content">
+                      <div class="ticket-attachment-title">{{ d.ticketFileName || '--' }}</div>
+                      <div class="ticket-attachment-desc">{{ d.description || '--' }}</div>
+                    </div>
+                  </article>
+                </div>
+              }
+            </div>
+          </nz-tab>
+        </nz-tabset>
+      </section>
+    </div>
+
+    <nz-modal
+      [(nzVisible)]="editModalVisible"
+      nzTitle="Edit Ticket"
+      [nzMaskClosable]="false"
+      (nzOnCancel)="closeEdit()"
+      [nzFooter]="editFooter"
+      [nzWidth]="'96vw'"
+      [nzStyle]="{ 'max-width.px': 700 }"
+      [nzBodyStyle]="{
+        'max-height': 'calc(100vh - 180px)',
+        'overflow': 'auto',
+        'padding': '16px'
+      }"
+    >
+      <div *nzModalContent>
+        <form [formGroup]="editForm" class="grid grid-cols-1 gap-3">
+          <div>
+            <label class="label-C">Title <span class="text-red-600">*</span></label>
+            <input nz-input class="input-C mt-1" formControlName="subject" placeholder="Ticket title" />
+            <div class="text-red-600 text-xs mt-1" *ngIf="editForm.get('subject')?.touched && editForm.get('subject')?.invalid">
+              Title is required.
+            </div>
+          </div>
+
+          <div>
+            <label class="label-C">Description <span class="text-red-600">*</span></label>
+            <textarea nz-input rows="4" class="input-C mt-1" formControlName="description" placeholder="Ticket description"></textarea>
+            <div class="text-red-600 text-xs mt-1" *ngIf="editForm.get('description')?.touched && editForm.get('description')?.invalid">
+              Description is required.
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="label-C">Priority <span class="text-red-600">*</span></label>
+              <nz-select class="w-full mt-1" formControlName="priority" nzPlaceHolder="Select priority">
+                <nz-option *ngFor="let p of priorityOptions" [nzLabel]="p.label" [nzValue]="p.value"></nz-option>
+              </nz-select>
+              <div class="text-red-600 text-xs mt-1" *ngIf="editForm.get('priority')?.touched && editForm.get('priority')?.invalid">
+                Priority is required.
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <ng-template #editFooter>
+        <button nz-button nzType="default" nzShape="round" (click)="closeEdit()" [disabled]="saving" type="button">Cancel</button>
+        <button nz-button nzType="primary" nzShape="round" (click)="saveEdits()" [disabled]="editForm.invalid || saving" [nzLoading]="saving" type="button">
+          Save
+        </button>
+      </ng-template>
+    </nz-modal>
+
+    <nz-modal
+      [(nzVisible)]="statusModalVisible"
+      nzTitle="Update Ticket Status"
+      (nzOnCancel)="handleStatusCancel()"
+      (nzOnOk)="confirmUpdateStatus()"
+      [nzOkText]="'Update'"
+      [nzOkDisabled]="statusControl.invalid || isUpdatingStatus"
+      [nzOkLoading]="isUpdatingStatus"
+      [nzWidth]="480"
+    >
+      <ng-container *nzModalContent>
+        <div>
+          <label class="label-C">Select Status <span class="text-red-600">*</span></label>
+          <nz-select class="w-full mt-1" nzPlaceHolder="Select status" [formControl]="statusControl">
+            <nz-option *ngFor="let s of statusOptions" [nzLabel]="s.label" [nzValue]="s.value"></nz-option>
+          </nz-select>
+
+          <div class="text-red-600 text-xs mt-1" *ngIf="statusControl.touched && statusControl.invalid">
+            Status is required.
+          </div>
+        </div>
+      </ng-container>
+    </nz-modal>
+
+    <app-comman-form-modal
+      #commanModel
+      [apiUrl]="modalApiUrl"
+      (formClosed)="onDocumentFormClosed()"
+    ></app-comman-form-modal>
+  </ng-container>
+} @else {
+  <div class="ticket-error-state">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p class="ticket-error-title">An error occurred while loading the ticket details.</p>
+    <p class="ticket-error-subtitle">Please try again later or contact support.</p>
+    <div class="ticket-error-actions">
+      <button nz-button nzType="default" nzShape="round" class="ticket-cta-btn" (click)="loadDetails()" type="button">
+        <i class="fa-solid fa-rotate-right"></i>
+        <span class="ml-2">Reload</span>
+      </button>
+      <button nz-button nzType="default" nzShape="round" class="ticket-cta-btn" (click)="moveBack()" type="button">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span class="ml-2">Go Back</span>
+      </button>
+    </div>
+  </div>
+}
+
+<ng-template #loadingMain>
+  <div class="ticket-loading-state">
+    <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+    <p>Loading Ticket Details...</p>
+  </div>
+</ng-template>

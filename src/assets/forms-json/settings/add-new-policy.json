@@ -1,0 +1,26 @@
+{
+    "title": "Policy Form",
+    "primaryId": "id",
+    "rows": [
+        {
+            "class": "grid grid-cols-1 gap-2 mb-2 pb-2",
+            "fields": [
+                {
+                    "type": "multi-select",
+                    "label": "Policy Type",
+                    "name": "policyType",
+                    "placeholder": "Select Your Policy Type",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    },
+                    "options": [
+                        { "label" : "Policy One" , "value" : 1 },
+                        { "label" : "Policy Two" , "value" : 2 },
+                        { "label" : "Policy Three" , "value" : 3 }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,155 @@
+<div class="relative before:absolute before:inset-0 before:-z-[1] before:bg-[radial-gradient(closest-side,theme(colors.gray.300),transparent)] dark:before:bg-[radial-gradient(closest-side,theme(colors.neutral.600),transparent)]">
+    <div class="flex gap-4 w-full max_wit overflow-x-auto py-6 overflow-y-hidden">
+        <div *ngFor="let plan of plans" [id]="'plan-' + plan.id"
+            class="flex flex-col rounded-2xl transform transition-all duration-300 hover:scale-105 border w-80"
+            [ngClass]="{
+            'bg-primary-50 border-primary-600 shadow dark:bg-gray-600 dark:border-gray-500' : plan.id === selectedPlan,
+            'shadow hover:shadow-md dark:border-gray-600' : plan.id !== selectedPlan
+        }" (click)="onClick(plan)">
+            <div class="pt-4 pb-2 px-5">
+                <div *ngIf="plan.id === selectedPlan" class="absolute -top-3 left-5">
+                    <span class="bg-primary text-white px-3 py-0.5 rounded-full text-xs font-medium">Active</span>
+                </div>
+                <div class="justify-between flex">
+                    <h4 class="font-medium text-lg text-gray-800 dark:text-gray-100">{{plan.title}}</h4>
+
+                    <div (click)="toggleCheckbox()"
+                        class="w-5 h-5 border-2 border-primary rounded-full cursor-pointer transition-all flex justify-center items-center"
+                        [ngClass]="{'bg-primary': plan.id === selectedPlan, 'border-primary': plan.id === selectedPlan}">
+
+                        <div *ngIf="plan.id === selectedPlan" class="w-4 h-4 flex justify-center items-center">
+                            <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-5 py-2">
+                <div class="flex items-baseline">
+                    <span class="font-bold text-4xl text-gray-800 dark:text-gray-100">{{plan.name}}</span>
+                    <span class="ml-1.5 text-sm text-gray-500 dark:text-gray-400">/{{plan.period}}</span>
+                </div>
+                <p class="mt-1 text-gray-800 dark:text-gray-200">{{plan.des}} </p>
+            </div>
+
+            <div class="flex-grow px-5 py-3">
+                <ul class="space-y-2">
+                    <li *ngFor="let point of plan.infoPoints"
+                        class="text-gray-600 flex items-center gap-2 text-sm"  [ngClass]="{
+                            'dark:text-gray-300':plan.id === selectedPlan,
+                            'dark:text-gray-400':plan.id !== selectedPlan,
+                            }">
+                        <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>{{point}}</span>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="my-4">
+    <div class="gap-4 flex items-center">
+        <h3 class="title mr-auto">Billing History</h3>
+    </div>
+    <p class="w-full text-gray-500 dark:text-gray-400">
+        Manage all billing histories efficiently, view details, track statuses, and apply filters for specific billing
+        information. Utilize search and additional filters for customized insights into your billing data.
+    </p>
+</div>
+
+<div class="mb-3 flex justify-between gap-3">
+    <div class="flex gap-4 flex-grow flex-wrap items-center min-w-full lg:hidden">
+        <button nz-popover [nzPopoverContent]="contentTemplate" nzPopoverTrigger="click" nzPopoverPlacement="bottomLeft"
+            [nzPopoverOverlayClassName]="'noArrow'" class="filters-btns mt-1">
+            <i class="fa-solid fa-filter"></i>
+        </button>
+
+        <input nz-input placeholder="Search by name or code" title="Search by name or code" id="search"
+            class="input-C" />
+    </div>
+    <div class="flex-grow flex-wrap items-center gap-4 hidden lg:flex">
+        <ng-container *ngTemplateOutlet="filterTemplate"></ng-container>
+    </div>
+</div>
+
+<div class="py-2 rounded-lg">
+    <app-dynamic-table [apiEndpoint]="'https://api.example.com/table-data'"
+        [columns]="filteredColumns"
+        [filters]="[{ name: 'facilityId', value: 1 }]"
+        [showActions]="true" [actions]="[
+          { label: 'View', icon: 'fa-solid fa-eye' , callback: invoiceDetail },
+        ]"
+    ></app-dynamic-table>
+</div>
+
+<ng-template #filterTemplate>
+    <input nz-input placeholder="Search by name or code" title="Search by name or code" id="search"
+        class="input-C lg:min-w-[25vw] lg:max-w-[25vw] hidden lg:block" />
+
+    <nz-select class="min-w-64" nzPlaceHolder="Select Status" nzShowSearch nzAllowClear [nzShowArrow]="true">
+        <nz-option *ngFor="let option of billStatus" [nzValue]="option" [nzLabel]="option"></nz-option>
+    </nz-select>
+</ng-template>
+
+<nz-dropdown-menu #actionMenu="nzDropdownMenu">
+    <ul nz-menu>
+        <li nz-menu-item nz-dropdown nzTrigger="click" nzPlacement="bottomRight" [nzDropdownMenu]="columnMenu">
+            <i class="fa-solid fa-sliders mr-2"></i>
+            View
+        </li>
+        <li nz-menu-item>
+            <i class="fa-solid fa-file-export mr-2"></i>
+            Export
+        </li>
+        <li nz-menu-item (click)="onRefresh()">
+            <i class="fa-solid fa-rotate-right mr-2"></i>
+            Refresh
+        </li>
+    </ul>
+</nz-dropdown-menu>
+
+<nz-dropdown-menu #columnMenu="nzDropdownMenu">
+    <div class="bg-white rounded-lg shadow dark:bg-gray-700 divide-y divide-gray-100 dark:divide-gray-600">
+        <div class="p-3">
+            <label for="input-group-search" class="sr-only">Search</label>
+            <div class="relative">
+                <div class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <svg class="z-10 w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                    </svg>
+                </div>
+                <input type="text" id="input-group-search" nz-input
+                    class="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                    placeholder="Search" [(ngModel)]="columnSearch">
+            </div>
+        </div>
+        <ul class="h-48 px-3 pb-3 pt-1 overflow-y-auto text-sm text-gray-700 dark:text-gray-200"
+            aria-labelledby="dropdownSearchButton">
+            <li *ngFor="let column of columns | search:'title':columnSearch">
+                <div class="ps-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                    <label class="label-C-R py-2 w-full" nz-checkbox [(ngModel)]="columnVisibility[column.key]"
+                        (ngModelChange)="getfilteredColumnsData()">{{ column.title }}</label>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nz-dropdown-menu>
+
+<ng-template #contentTemplate>
+    <div class="flex-grow flex-wrap items-center gap-4 flex">
+        <h4 class="text-base font-semibold w-full m-0 p-0 dark:text-gray-200">Additional Filters :</h4>
+        <ng-container *ngTemplateOutlet="filterTemplate"></ng-container>
+    </div>
+</ng-template>

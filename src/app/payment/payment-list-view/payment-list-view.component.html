@@ -1,0 +1,68 @@
+<div class="flex items-center justify-between flex-grow flex-wrap gap-4">
+  <button class="filters-btns m-0" (click)="this.showFilters = !this.showFilters;" >
+    <i class="fa-solid fa-sliders mr-1"></i>
+    Filters
+    <span *ngIf="visibleFiltersCount > 0" class="ml-1">
+      ({{ visibleFiltersCount }})
+    </span>
+    <i class="fa-solid fa-chevron-down ml-1 text-xs transition-transform duration-200"
+      [class.rotate-180]="showFilters"
+    ></i>
+  </button>
+  @for (filter of appliedFilters; track trackByFilterName($index, filter)) {
+    <span *ngIf="!shouldHideAppliedFilter(filter.name)" class="px-2 py-1 text-sm bg-primary-100 text-primary-800 rounded-lg flex items-center gap-1" [class.hidden]="this.showFilters">
+      {{ filter.name }}: {{filter.value }}
+      <button class="ml-1 hover:text-primary-600" (click)="removeFilter(filter.name)">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </span>
+  }
+  <button *ngIf="visibleFiltersCount > 0" class="px-3 border-l border-gray-300 dark:border-gray-600 text-red-600 hover:text-red-700 text-sm mr-auto" (click)="clearFilters()">
+    Clear All
+  </button>
+</div>
+<div *ngIf="showFilters" class="mt-2 p-4 rounded-lg bg-primary-50 border border-primary-100 dark:bg-gray-800 dark:border-gray-700 grid grid-cols-3 items-center gap-4">
+  <div>
+    <label class="label-C-F">Title:</label>
+        <input nz-input placeholder="Search by Patient Name, Order Number, Credit Card, or #ID" title="Search by Patient Name, Order Number, Credit Card, or #ID" id="search" class="input-C lg:min-w-[25vw] lg:max-w-[25vw] lg:block" [(ngModel)]="searchQuery" (input)="searchTermChanged()"/>
+  </div>
+</div>
+<div class="py-2 rounded-lg">
+    <app-dynamic-table
+        apiEndpoint="PatientPayments/getAllPatientPayments"
+        [columns]="[
+            { title: 'Order Number', key: 'orderNumber', width: 'auto', type: 'link' , callback: navigateToOrderDetail },
+            { title: 'Patient Name', key: 'patientName', width: 'auto' },
+            { title: '#ID', key: 'patientPaymentId', width: 'auto' },
+            {
+                title: 'Status',
+                key: 'paymentStatus',
+                width: 'auto',
+                type: 'badge',
+                badgeMapping: {
+                    Paid: {
+                        class:'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+                        label: 'Paid',
+                    },
+                    Pending: {
+                        class: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+                        label: 'Pending',
+                    }
+                }
+            },
+            { title: 'Date', key: 'date', width: 'auto', type: 'date' },
+            { title: 'Gross Payment', key: 'grossPayment', width: 'auto', type: 'number' },
+            { title: 'Fees', key: 'fees', width: 'auto', type: 'number' },
+            { title: 'Refunds', key: 'refunds', width: 'auto', type: 'number' },
+            { title: 'Net Payment', key: 'netPayment', width: 'auto', type: 'number' },
+        ]"
+        [filters]="appliedFilters"
+        [showActions]="true"
+        [actions]="[
+          { label: 'View', icon: 'fa fa-eye', callback: navigateToInvoice, permissionKeys: ['payment_view'] },
+          { label: 'Update Status', icon: 'fa fa-arrows-rotate', callback:updatePaymentStatus, permissionKeys:['payment_update'] }
+        ]"
+    ></app-dynamic-table>
+</div>
+
+<app-comman-form-modal #commanModel [apiUrl]="this.modalApiUrl" (formClosed)="dynamicTable.fetchData()"></app-comman-form-modal>

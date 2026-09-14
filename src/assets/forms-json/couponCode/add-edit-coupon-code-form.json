@@ -1,0 +1,204 @@
+{
+    "title": "Coupon Form",
+    "primaryId": "id",
+    "rows": [
+      {
+        "class": "grid grid-cols-1 gap-2 mb-2 mb-2",
+        "fields": [
+          {
+            "type": "text",
+            "label": "Name",
+            "name": "name",
+            "placeholder": "First Order Lattise Promo",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          },
+          {
+            "type": "text",
+            "label": "Code",
+            "name": "code",
+            "placeholder": "FIRSTORDER",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2 pb-2 border-b",
+        "title": "Discount:",
+        "fields": [
+          {
+            "type": "select",
+            "label": "Discount type",
+            "name": "discountType",
+            "placeholder": "Select Discount type",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            },
+            "options": [
+                { "label": "Percentage" , "value": "Percentage" },
+                { "label": "Fixed" , "value": "Fixed" }
+            ]
+          },
+          {
+            "type": "number",
+            "label": "Discount",
+            "name": "discount",
+            "placeholder": "Enter Discount Price",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          },
+          {
+            "type": "select",
+            "label": "Apply On",
+            "name": "applyon",
+            "placeholder": "Select Which To Apply On",
+            "class": "col-span-1 sm:col-span-2",
+            "validations": {
+              "required": true
+            },
+            "options": [
+                { "label": "Products + Digital Products" , "value": "orderTotal" },
+                { "label": "All Drugs" , "value": "allDrugs" },
+                { "label": "Some Drugs" , "value": "drug" },
+                { "label": "Some Drugs Variants" , "value": "variant" },
+                { "label": "All Digital Products" , "value": "allDigitalProducts" },
+                { "label": "Some Digital Products" , "value": "digitalProduct" },
+                { "label": "Remarketing" , "value": "remarketing" }
+            ]
+          },
+          {
+            "visibilityCondition": { "name": "applyon", "value": "drug" },
+            "type": "multi-select",
+            "label": "Select Products",
+            "name": "selectProducts",
+            "placeholder": "Select Products",
+            "class": "col-span-1 sm:col-span-2",
+            "validations": {
+              "required": true
+            },
+            "options": [
+                { "label": "Product 1" , "value": "Product 1" },
+                { "label": "Product 2" , "value": "Product 2" }
+            ]
+          },
+          {
+            "visibilityCondition": { "name": "applyon", "value": "variant" },
+            "type": "multi-select",
+            "label": "Select Variants",
+            "name": "selectVariant",
+            "placeholder": "Select Variants",
+            "class": "col-span-1 sm:col-span-2",
+            "validations": {
+              "required": true
+            },
+            "options": [
+                { "label": "Variant 1" , "value": "Variant 1" },
+                { "label": "Variant 2" , "value": "Variant 2" }
+            ]
+          },
+          {
+            "visibilityCondition": { "name": "applyon", "value": "digitalProduct" },
+            "type": "multi-select",
+            "label": "Select Digital Products",
+            "name": "selectDigitalProduct",
+            "placeholder": "Select Digital Product",
+            "class": "col-span-1 sm:col-span-2",
+            "validations": {
+              "required": true
+            },
+            "options": [
+                { "label": "Digital Product 1" , "value": "Digital Product 1" },
+                { "label": "Digital Product 2" , "value": "Digital Product 2" }
+            ]
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-1 mb-2",
+        "fields": [
+          {
+            "type": "multi-select",
+            "label": "Select Bundle",
+            "name": "selectBundle",
+            "placeholder": "Select Bundle",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            },
+            "options": [
+                { "label": "Bundle 1" , "value": "Bundle 1" },
+                { "label": "Bundle 2" , "value": "Bundle 2" }
+            ]
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-1 gap-2 mb-2",
+        "title": "Duration:",
+        "fields": [
+          {
+            "type": "radio",
+            "label": "Duration Type",
+            "name": "durationType",
+            "placeholder": "",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            },
+            "options": [
+                { "label": "One Time" , "value": "One Time" },
+                { "label": "First Order" , "value": "First Order" },
+                { "label": "All Orders (inc. Auto Refills)" , "value": "All Orders (inc. Auto Refills)" },
+                { "label": "№ of Orders" , "value": "OrdersNo" },
+                { "label": "First Payment Only" , "value": "First Payment Only" }
+            ]
+          },
+          {
+            "visibilityCondition": { "name": "durationType", "value": "OrdersNo" },
+            "type": "number",
+            "label": "",
+            "name": "noOfOrder",
+            "placeholder": "10",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2",
+        "title": "Validity",
+        "fields": [
+          {
+            "type": "date",
+            "label": "Valid till",
+            "name": "validTill",
+            "placeholder": "Pick a date",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          },
+          {
+            "type": "number",
+            "label": "Maximum redemptions",
+            "name": "maxRedemptions",
+            "placeholder": "25",
+            "class": "col-span-1",
+            "validations": {
+              "required": true
+            }
+          }
+        ]
+      }
+    ]
+  }

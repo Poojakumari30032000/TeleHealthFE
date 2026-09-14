@@ -1,0 +1,397 @@
+<div class="user-workspace-shell">
+  <section class="user-filter-shell">
+    <div class="user-filter-toolbar">
+      <div class="user-filter-toolbar-left">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="user-filter-toggle"
+          (click)="showFilters = !showFilters"
+          [attr.aria-expanded]="showFilters"
+          type="button"
+        >
+          <i class="fa-solid fa-sliders"></i>
+          <span>Filters</span>
+          <span *ngIf="visibleFiltersCount > 0" class="user-filter-count-pill">
+            {{ visibleFiltersCount }}
+          </span>
+          <i class="fa-solid fa-chevron-down user-filter-chevron" [class.rotate-180]="showFilters"></i>
+        </button>
+
+        <span *ngIf="!showFilters && visibleFiltersCount > 0" class="user-filter-summary">
+          {{ visibleFiltersCount }} active filters
+        </span>
+      </div>
+
+      <div class="user-filter-toolbar-right">
+        <button
+          *ngIf="visibleFiltersCount > 0"
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="user-filter-clear"
+          (click)="clearFilters()"
+          type="button"
+        >
+          Reset
+        </button>
+
+        @if(currentUserRole === 'Global Admin'){
+          <button
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="user-add-btn"
+            (click)="AddEditUser({ userRole: 'Provider', userId: 0, roleId: 4 })"
+            type="button"
+          >
+            <i class="fa-solid fa-plus"></i>
+            <span class="ml-2 hidden md:inline-block">Add Provider</span>
+          </button>
+        } @else {
+          <button
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="user-add-btn"
+            nz-dropdown
+            nzTrigger="click"
+            [nzDropdownMenu]="addNewMenu"
+            [disabled]="isUserLimitReached() && isProviderLimitReached()"
+            nz-tooltip
+            [nzTooltipTitle]="isUserLimitReached() && isProviderLimitReached() ? 'All staff limits reached. Upgrade your plan.' : ''"
+            [nzTooltipTrigger]="(isUserLimitReached() && isProviderLimitReached()) ? 'hover' : null"
+            type="button"
+          >
+            <i class="fa-solid fa-plus"></i>
+            <span class="ml-2 hidden md:inline-block">Add Staff</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div *ngIf="visibleFiltersCount > 0 && !showFilters" class="user-filter-chip-row">
+      @for (filter of appliedFilters; track trackByFilterName($index, filter)) {
+        <button
+          *ngIf="!shouldHideAppliedFilter(filter.name)"
+          class="user-filter-chip"
+          type="button"
+          (click)="removeFilter(filter.name)"
+        >
+          <span>{{ getFilterDisplayName(filter.name) }}: {{ getFilterDisplayValue(filter) }}</span>
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      }
+    </div>
+
+    <div *ngIf="showFilters" class="user-filter-grid">
+      <div>
+        <label class="label-C-F user-filter-label">Title:</label>
+        <input
+          nz-input
+          placeholder="Search by name, email, phone number"
+          title="Search by name, email, phone number"
+          id="search"
+          class="input-C user-filter-input"
+          [(ngModel)]="searchQuery"
+          (input)="searchTermChanged()"
+        />
+      </div>
+
+      <div>
+        <label class="label-C-F user-filter-label">Status:</label>
+        <nz-select
+          class="w-full user-filter-select"
+          nzPlaceHolder="Select Status"
+          nzShowSearch
+          nzAllowClear
+          [nzShowArrow]="true"
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="applyFilter(true)"
+        >
+          <nz-option nzValue="Active" nzLabel="Active"></nz-option>
+          <nz-option nzValue="InActive" nzLabel="In-Active"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+  </section>
+
+  <section class="user-table-shell">
+    <nz-table
+      class="w-full user-table"
+      [nzData]="users"
+      [nzFrontPagination]="false"
+      [nzLoading]="tableLoading"
+      [nzTotal]="total"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50, 100]"
+      [nzScroll]="{ x: currentUserRole !== 'Global Admin' ? '1300px' : '1150px' }"
+      (nzQueryParams)="onQueryParamsChange($event)"
+    >
+      <thead>
+      <tr>
+        <th nzWidth="150px">Actions</th>
+        <th nzWidth="250px">Name</th>
+        <th nzWidth="170px">Phone</th>
+        <th nzWidth="260px">Email</th>
+        <th *ngIf="currentUserRole !== 'Global Admin'" nzWidth="180px">User Type</th>
+        <th nzWidth="140px">Status</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr *ngFor="let u of users; trackBy: trackByUserId">
+        <td>
+          <div class="flex items-center gap-2">
+            <button
+              *ngFor="let act of getRowActions(u)"
+              nz-button
+              nzType="default"
+              nzShape="circle"
+              class="action-icon-btn"
+              (click)="act.callback(u)"
+              [title]="act.label"
+              type="button"
+            >
+              <i *ngIf="act.icon" [class]="act.icon"></i>
+            </button>
+          </div>
+        </td>
+        <td>{{ u.userName || '-' }}</td>
+        <td>{{ u.phone || '-' }}</td>
+        <td>{{ u.email || '-' }}</td>
+        <td *ngIf="currentUserRole !== 'Global Admin'">{{ u.userRole || '-' }}</td>
+        <td>
+          <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(u.status)">
+            {{ getStatusBadgeLabel(u.status) }}
+          </span>
+        </td>
+      </tr>
+
+      <tr *ngIf="!tableLoading && users.length === 0">
+        <td [attr.colspan]="currentUserRole !== 'Global Admin' ? 6 : 5" class="py-8 text-center text-gray-500">
+          No users found.
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </section>
+</div>
+
+<nz-dropdown-menu #addNewMenu="nzDropdownMenu">
+  <ul nz-menu>
+
+    <li
+      nz-menu-item
+      [nzDisabled]="isUserLimitReached()"
+      nz-tooltip
+      [nzTooltipTitle]="getLimitTooltip('staff')"
+      [nzTooltipTrigger]="isUserLimitReached() ? 'hover' : null"
+      (click)="AddEditUser({ userRole: 'Clinic Admin', userId: 0, roleId: 3 })"
+    >
+      <i class="fa-solid fa-user-shield mr-2"></i>
+      Clinic Admin
+    </li>
+
+    @if(userRole ==  'Global Admin'){
+      <li
+        nz-menu-item
+        [nzDisabled]="isProviderLimitReached()"
+        nz-tooltip
+        [nzTooltipTitle]="getLimitTooltip('provider')"
+        [nzTooltipTrigger]="isProviderLimitReached() ? 'hover' : null"
+        (click)="assignProviderModel = true; unAssignedProvidersList()"
+      >
+        <i class="fa-solid fa-user-doctor mr-2"></i>
+        Providers
+      </li>
+    }
+  </ul>
+</nz-dropdown-menu>
+
+<nz-modal
+  *ngIf="userModalVisible && userAddEditForm"
+  [(nzVisible)]="userModalVisible"
+  [nzTitle]="userModalTitle"
+  (nzOnCancel)="handleUserModalCancel()"
+  (nzOnOk)="handleUserModalOk()"
+  [nzOkLoading]="isFormSubmitting"
+  [nzOkDisabled]="isFormSubmitting"
+  nzWidth="1000px"
+  [nzMaskClosable]="false"
+>
+  <ng-container *nzModalContent>
+    <form [formGroup]="userAddEditForm">
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <div class="col-span-full" *ngIf="roleId === 4">
+          <label class="label-C">NPI <span class="text-danger">*</span></label>
+          <input nz-input formControlName="npi" appValidationErrors placeholder="Enter NPI" class="input-C" [disabled]="isFormSubmitting" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">First Name <span class="text-danger">*</span></label>
+          <input
+            nz-input
+            formControlName="firstName"
+            appValidationErrors
+            placeholder="Enter First Name"
+            minlength="1"
+            maxlength="50"
+            (blur)="onBlurTrim($event, true)"
+            class="input-C"
+          />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Middle Name</label>
+          <input nz-input formControlName="middleName" placeholder="Enter Middle Name" class="input-C" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Last Name <span class="text-danger">*</span></label>
+          <input
+            nz-input
+            formControlName="lastName"
+            appValidationErrors
+            placeholder="Enter Last Name"
+            minlength="1"
+            maxlength="50"
+            (blur)="onBlurTrim($event, true)"
+            class="input-C"
+          />
+        </div>
+
+        @if(roleId === 4){
+          <div class="col-span-1">
+            <label class="label-C">Title</label>
+            <input nz-input formControlName="title" placeholder="Enter Title" class="input-C" />
+          </div>
+
+          <div class="col-span-1">
+            <label class="label-C">Gender <span class="text-danger">*</span></label>
+            <nz-select nzShowSearch formControlName="gender" appValidationErrors nzPlaceHolder="Select Gender"
+                       class="w-full onForm-Select mt-1">
+              <nz-option nzValue="Male" nzLabel="Male"></nz-option>
+              <nz-option nzValue="Female" nzLabel="Female"></nz-option>
+            </nz-select>
+          </div>
+
+          <div class="col-span-1">
+            <label class="label-C">Date Of Birth <span class="text-danger">*</span></label>
+            <nz-date-picker
+              formControlName="dob"
+              appValidationErrors
+              placeholder="mm/dd/yyyy"
+              class="datepicker-C w-full"
+              [nzDisabledDate]="disableFutureDates"
+            ></nz-date-picker>
+          </div>
+        }
+      </div>
+
+      <div class="grid grid-cols-1 gap-2 mb-4">
+        <div class="col-span-1">
+          <label class="label-C">Email <span class="text-danger">*</span></label>
+          <input nz-input type="email" formControlName="email" appValidationErrors placeholder="Enter Email"
+                 class="input-C" (change)="checkEmailExists($event)">
+          <div *ngIf="emailExist" class="text-danger text-sm mt-1">Email already exists</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <div class="col-span-1">
+          <label class="label-C">Phone <span class="text-danger">*</span></label>
+          <input nz-input type="tel" formControlName="phone" appValidationErrors placeholder="(###) ###-####" class="input-C">
+        </div>
+
+        <div class="col-span-1" *ngIf="roleId === 4">
+          <label class="label-C">Provider Type <span class="text-danger">*</span></label>
+          <nz-select nzShowSearch formControlName="providerType" appValidationErrors nzPlaceHolder="Select Provider Type"
+                     class="w-full onForm-Select mt-1">
+            <nz-option nzValue="Prescribing" nzLabel="Prescribing"></nz-option>
+            <nz-option nzValue="Medical Assistant" nzLabel="Medical Assistant"></nz-option>
+            <nz-option nzValue="EPCS Coordinator" nzLabel="EPCS Coordinatorng"></nz-option>
+            <nz-option nzValue="Care Coordinator" nzLabel="Care Coordinator"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-span-1" *ngIf="roleId !== 4">
+          <label class="label-C">Billing Type <span class="text-danger">*</span></label>
+          <nz-select
+            nzShowSearch
+            formControlName="addressType"
+            appValidationErrors
+            nzPlaceHolder="Select Billing Type"
+            class="w-full onForm-Select mt-1"
+          >
+            <nz-option nzValue="Same as Clinic" nzLabel="Same as Clinic"></nz-option>
+            <nz-option nzValue="Other Address" nzLabel="Other Address"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 mb-4"
+           *ngIf="roleId === 4 || userAddEditForm.get('addressType')?.value === 'Other Address'">
+
+        <div class="col-span-full">
+          <label class="label-C">Address <span class="text-danger">*</span></label>
+          <input nz-input formControlName="address" appValidationErrors placeholder="Enter Address" class="input-C">
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">City <span class="text-danger">*</span></label>
+          <nz-select nzShowSearch formControlName="cityId" nzPlaceHolder="Select City"
+                     class="w-full onForm-Select mt-1" appValidationErrors>
+            <nz-option *ngFor="let city of cities" [nzValue]="city.id" [nzLabel]="city.name"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">State <span class="text-danger">*</span></label>
+          <nz-select nzShowSearch formControlName="stateId" nzPlaceHolder="Select State"
+                     class="w-full onForm-Select mt-1"
+                     [nzDisabled]="!userAddEditForm.get('cityId')?.value"
+                     [nzLoading]="loadingStates"
+                     appValidationErrors>
+            <nz-option *ngIf="state" [nzValue]="state.id" [nzLabel]="state.name + ' (' + state.shortName + ')'"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Zip Code <span class="text-danger">*</span></label>
+          <input nz-input type="tel" formControlName="zipCode" appValidationErrors placeholder="Enter zip code" class="input-C">
+        </div>
+      </div>
+    </form>
+  </ng-container>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="assignProviderModel"
+  nzTitle="Assign Providers To Clinic"
+  (nzOnCancel)="assignProviderModel=false; selectedProviders=[]"
+  (nzOnOk)="assignProviders()"
+>
+  <ng-container *nzModalContent>
+    <div class="grid gap-4 mb-4 grid-cols-1">
+      <div>
+        <label class="label-C">Providers <span class="text-danger mr-1">*</span></label>
+        <nz-select
+          appValidationErrors
+          nzPlaceHolder="Select Providers"
+          [(ngModel)]="selectedProviders"
+          class="w-full onForm-Select mt-1"
+          nzShowSearch
+          nzMode="multiple"
+          [nzDisabled]="providersLoading"
+          [nzLoading]="providersLoading"
+        >
+          <nz-option *ngFor="let item of providers; trackBy: trackById" [nzValue]="item.id" [nzLabel]="item.name"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>

@@ -1,0 +1,158 @@
+@if (branding) {
+
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 dark:bg-yellow-900/20 dark:border-yellow-500">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fa-solid fa-exclamation-circle text-yellow-400"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-yellow-700 dark:text-yellow-200">
+                    <strong>Preview Mode:</strong> All changes here are for preview purposes and will not be saved until you click "Change Settings".
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Logo:</h2>
+        <div class="flex items-center justify-between gap-2">
+            <nz-upload
+              nzType="drag"
+              [nzAction]="uploadUrl"
+              [nzHeaders]="{ authorization: 'Bearer ' + token}" [nzBeforeUpload]="beforeUpload" class="w-72 h-32" (nzChange)="handleUpload($event)">
+                <p class="ant-upload-drag-icon p-0 m-0">
+                    <i class="fa-solid fa-upload text-lg"></i>
+                </p>
+                <p class="ant-upload-text">Click or drag file to upload</p>
+                <p class="ant-upload-hint">Upload a logo (PNG, JPG, max 5MB)</p>
+            </nz-upload>
+            <img *ngIf="logoPreview" [src]="logoPreview" alt="Logo Preview" class="h-24 object-contain rounded border border-gray-200 dark:border-gray-700">
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-6">Colors:</h2>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primary Color</label>
+            <div class="flex items-center space-x-4">
+                <div class="relative w-[3.3rem] h-12 rounded-full overflow-hidden">
+                    <input type="color"
+                        [(ngModel)]="branding.primaryColor"
+                        (ngModelChange)="updateColorVariants()"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    <div class="w-full h-full rounded-full" [style.background-color]="branding.primaryColor"></div>
+                </div>
+                <span class="text-gray-600 dark:text-gray-400">{{branding.primaryColor}}</span>
+                <div class="bg-gray-200 dark:bg-gray-800 p-3 w-full rounded-lg">
+                    <div class="flex flex-grow flex-wrap items-center gap-3">
+                        <span class="text-md font-semibold text-gray-700 dark:text-gray-300">Variants:</span>
+                        @for (variant of primaryColorVariants; track $index) {
+                            <div class="relative w-10 h-10 rounded-full overflow-hidden shadow-md">
+                                <input type="color"
+                                    [(ngModel)]="primaryColorVariants[$index]"
+                                    (ngModelChange)="updateVarientColors()"
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                <div class="w-full h-full rounded-full" [style.background-color]="primaryColorVariants[$index]"></div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Secondary Color</label>
+            <div class="flex items-center space-x-4">
+                <div class="relative w-12 h-12 rounded-full overflow-hidden">
+                    <input type="color"
+                        [(ngModel)]="branding.secondaryColor"
+                        (ngModelChange)="updateColors()"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    <div class="w-full h-full rounded-full" [style.background-color]="branding.secondaryColor"></div>
+                </div>
+                <span class="text-gray-600 dark:text-gray-400">{{branding.secondaryColor}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-6">Chart Colors:</h2>
+        <div class="flex flex-grow flex-wrap gap-6">
+            @for (color of branding.chartColors; track $index) {
+                <div class="relative inline-block w-12 h-12 group">
+                    <div class="relative w-full h-full">
+                        <input type="color"
+                            [(ngModel)]="branding.chartColors[$index]"
+                            (ngModelChange)="updateColors()"
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <div class="w-full h-full rounded-full" [style.background-color]="branding.chartColors[$index]"></div>
+                    </div>
+                    <button
+                        (click)="removeChartColor($index)"
+                        class="absolute top-[-4px] right-[-4px] w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        title="Delete color"
+                    >
+                        <i class="fa-solid fa-trash text-[10px]"></i>
+                    </button>
+                </div>
+            }
+            <button nz-button nzType="default" (click)="addChartColor()" class="w-12 h-12 rounded-full" title="Add Color">
+                <i class="fa-solid fa-plus text-lg"></i>
+            </button>
+        </div>
+
+        <div class="mt-6 bg-gray-200 dark:bg-gray-800 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
+            <div class="flex items-end gap-2 pt-4">
+                @for (color of branding.chartColors; track $index) {
+                <div
+                    class="flex-1 rounded-t flex flex-col items-center"
+                    [style]="{
+                        'background-color': color,
+                        'height': (30 + $index * 15) + 'px'
+                    }"
+                >
+                    <span class="text-xs text-white transform translate-y-[60%]">{{30 + $index * 15}}%</span>
+                </div>
+                }
+            </div>
+            <div class="flex gap-2 mt-8 border-t border-gray-300 dark:border-gray-700 pt-3">
+                @for (color of branding.chartColors; track $index) {
+                    <div class="flex-1 text-center text-xs text-gray-600 dark:text-gray-400">Item {{$index + 1}}</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-6">Font Style:</h2>
+        <nz-select [(ngModel)]="branding.fontStyle" (ngModelChange)="updateFontStyle()" class="w-full max-w-md dark:[&>div]:bg-gray-700 dark:[&>div]:text-gray-300">
+            <nz-option *ngFor="let font of fontOptions" [nzValue]="font.value" [nzLabel]="font.label"></nz-option>
+        </nz-select>
+
+        <div class="mt-6 bg-gray-200 dark:bg-gray-800 p-6 rounded-lg border border-gray-300 dark:border-gray-700">
+            <p class="text-xl dark:text-gray-200" [style.fontFamily]="branding.fontStyle">
+                The quick brown fox jumps over the lazy dog
+            </p>
+            <p class="mt-4 text-gray-600 dark:text-gray-400" [style.fontFamily]="branding.fontStyle">
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Officia ut fugit quia blanditiis laudantium aliquam vitae, error distinctio, mollitia corrupti praesentium, voluptatibus voluptate? Cum aperiam officiis dolorem, quisquam ipsum alias.
+            </p>
+        </div>
+    </div>
+
+    <div class="mt-2 pt-4 pb-2 sticky bottom-0 h-[60px] backdrop-blur-xl rounded border-t dark:border-gray-700">
+        <button class="main-btn mb-0" (click)="saveBranding()">
+            <i class="fa-regular fa-floppy-disk mr-2"></i>
+            Change Settings
+        </button>
+        <button class="mr-2 main-btn mb-0 bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600" (click)="cancelChanges()">
+            Cancel
+        </button>
+    </div>
+}@else {
+    <div class="flex items-center justify-center min-h-[88vh] border-t dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl">
+        <div class="text-center">
+            <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+            <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Branding data...</p>
+        </div>
+    </div>
+}

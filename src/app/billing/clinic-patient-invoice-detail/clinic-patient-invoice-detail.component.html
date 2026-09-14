@@ -1,0 +1,228 @@
+<div *ngIf="errorMsg" class="invoice-alert invoice-alert-error">
+  {{ errorMsg }}
+</div>
+
+<div *ngIf="loading" class="invoice-alert invoice-alert-loading">
+  Loading {{ docLabelLower }}...
+</div>
+
+<div *ngIf="!loading && data" class="invoice-ehr-shell">
+  <section class="invoice-ehr-hero">
+    <div class="invoice-ehr-identity">
+      <div class="invoice-ehr-avatar">
+        {{ (data.patientName || 'P').charAt(0) }}{{ (docLabel || 'I').charAt(0) }}
+      </div>
+      <div>
+        <div class="invoice-ehr-name">{{ data.patientName || '--' }}</div>
+        <div class="invoice-ehr-meta">
+          <span>{{ docLabel }} #{{ data.invoiceId || '--' }}</span>
+          <span>{{ data.invoiceType || '--' }}</span>
+          <span>{{ data.facilityName || '--' }}</span>
+          <span>{{ data.patientEmail || '--' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="invoice-kpi-grid">
+      <div class="invoice-kpi-card">
+        <div class="invoice-kpi-label">Items</div>
+        <div class="invoice-kpi-value">{{ lineItems.length }}</div>
+      </div>
+      <div class="invoice-kpi-card">
+        <div class="invoice-kpi-label">Subtotal</div>
+        <div class="invoice-kpi-value">{{ subtotalAmount | currency:'USD':'symbol' }}</div>
+      </div>
+      <div class="invoice-kpi-card">
+        <div class="invoice-kpi-label">Amount Due</div>
+        <div class="invoice-kpi-value">{{ netTotal | currency:'USD':'symbol' }}</div>
+      </div>
+      <div class="invoice-kpi-card">
+        <div class="invoice-kpi-label">Status</div>
+        <div class="invoice-kpi-value invoice-kpi-status">
+          <span class="ui-status-badge" [ngClass]="statusPillClasses(data.status)">
+            {{ data.status || '--' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="invoice-action-row">
+
+    <button
+      *ngIf="userRole === 'Patient'"
+      nz-button
+      nzType="default"
+      nzShape="round"
+      [disabled]="paymentLoading || !isPending"
+      [nzLoading]="paymentLoading"
+      class="invoice-cta-btn"
+      (click)="openPayBillConfirm()"
+      title="Pay Invoice"
+    >
+      <i class="fa-solid fa-credit-card"></i>
+      <span class="ml-2">Pay {{ docLabel }}</span>
+    </button>
+
+    <button
+      *ngIf="userRole === 'Global Admin'"
+      nz-button
+      nzType="default"
+      nzShape="round"
+      [disabled]="sendingReminder || !isPending"
+      [nzLoading]="sendingReminder"
+      class="invoice-cta-btn"
+      (click)="sendInvoiceReminder()"
+      title="Send Invoice Reminder"
+    >
+      <i class="fa-solid fa-bell"></i>
+      <span class="ml-2">Send Invoice Reminder</span>
+    </button>
+
+    <button
+      *ngIf="userRole === 'Global Admin'"
+      nz-button
+      nzType="default"
+      nzShape="round"
+      [disabled]="cancellingInvoice || !isPending"
+      [nzLoading]="cancellingInvoice"
+      class="invoice-cta-btn invoice-cta-btn--danger"
+      (click)="cancelInvoice()"
+      title="Cancel Invoice"
+    >
+      <i class="fa-solid fa-ban"></i>
+      <span class="ml-2">Cancel Invoice</span>
+    </button>
+  </section>
+
+  <section class="invoice-overview-grid">
+    <article class="invoice-info-card">
+      <div class="invoice-info-head">
+        <h4 class="invoice-info-title">
+          <i class="fa-solid fa-user mr-2 text-primary"></i>Patient Snapshot
+        </h4>
+      </div>
+
+      <div class="invoice-info-grid">
+        <div><label>Patient</label><span>{{ data.patientName || '--' }}</span></div>
+        <div><label>Facility</label><span>{{ data.facilityName || '--' }}</span></div>
+        <div class="col-span-2"><label>Address</label><span>{{ data.patientAddress || '--' }}</span></div>
+        <div class="col-span-2"><label>Email</label><span>{{ data.patientEmail || '--' }}</span></div>
+
+      </div>
+    </article>
+
+    <article class="invoice-info-card">
+      <div class="invoice-info-head">
+        <h4 class="invoice-info-title">
+          <i class="fa-regular fa-file-lines mr-2 text-primary"></i>{{ docLabel }} Detail
+        </h4>
+        <span class="ui-status-badge" [ngClass]="statusPillClasses(data.status)">
+          {{ data.status || '--' }}
+        </span>
+      </div>
+
+      <div class="invoice-info-grid">
+        <div><label>{{ docLabel }} #</label><span>{{ data.invoiceId || '--' }}</span></div>
+        <div><label>Type</label><span>{{ data.invoiceType || '--' }}</span></div>
+        <div><label>{{ docLabel }} Date</label><span>{{ data.invoiceDate | date:'MM/dd/yyyy' }}</span></div>
+        <div><label>Due Date</label><span>{{ data.dueDate | date:'MM/dd/yyyy' }}</span></div>
+        <div><label>Coupon</label><span>{{ data.couponCode || '--' }}</span></div>
+      </div>
+    </article>
+
+    <article class="invoice-info-card invoice-info-card-summary">
+      <div class="invoice-info-head">
+        <h4 class="invoice-info-title">
+          <i class="fa-solid fa-receipt mr-2 text-primary"></i>Financial Summary
+        </h4>
+      </div>
+
+      <div class="invoice-summary-list">
+        <div class="invoice-summary-row">
+          <label>Subtotal</label>
+          <span>{{ subtotalAmount | currency:'USD':'symbol' }}</span>
+        </div>
+        <div class="invoice-summary-row">
+          <label>Discount</label>
+          <span>{{ discountTotal | currency:'USD':'symbol' }}</span>
+        </div>
+        <div class="invoice-summary-row invoice-summary-row-total">
+          <label>Total / Amount Due</label>
+          <span>{{ netTotal | currency:'USD':'symbol' }}</span>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="invoice-workspace-card">
+    <div class="invoice-workspace-title">
+      <i class="fa-solid fa-box-archive mr-2 text-primary"></i>Products
+      <span class="invoice-workspace-count">({{ lineItems.length }})</span>
+    </div>
+
+    <nz-table
+      [nzData]="lineItems"
+      [nzFrontPagination]="false"
+      [nzShowPagination]="false"
+      [nzScroll]="{ x: '1220px' }"
+      class="invoice-products-table"
+      nzSize="small"
+    >
+      <thead>
+      <tr>
+        <th nzWidth="180px">Order Date</th>
+        <th nzWidth="520px">Product</th>
+        <th nzWidth="120px">Coupon</th>
+        <th class="text-center" nzWidth="90px">Qty</th>
+        <th class="text-right" nzWidth="120px">Unit Price</th>
+        <th class="text-right" nzWidth="110px">Discount</th>
+        <th class="text-right" nzWidth="130px">Line Total</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let p of lineItems; trackBy: trackByIdx">
+        <td>{{ p.orderDate | date:'MMM d, y, h:mm a' }}</td>
+        <td class="invoice-product-cell">
+          <div class="invoice-product-name">{{ p.productName || '--' }}</div>
+          <div class="invoice-product-type">Type: {{ p.productType || '-' }}</div>
+        </td>
+        <td>
+          <ng-container *ngIf="(p.couponCode || data.couponCode) as cc; else noCoupon">
+            {{ cc }}
+          </ng-container>
+          <ng-template #noCoupon>-</ng-template>
+        </td>
+        <td class="text-center">{{ p.quantity }}</td>
+        <td class="text-right">{{ (p.displayUnitPrice || 0) | currency:'USD':'symbol' }}</td>
+        <td class="text-right">
+          <ng-container *ngIf="(p.discountPerUnit || 0) > 0; else noDisc">
+            {{ (p.discountPerUnit || 0) | currency:'USD':'symbol' }}
+          </ng-container>
+          <ng-template #noDisc>-</ng-template>
+        </td>
+        <td class="text-right font-semibold">{{ (p.lineTotal || 0) | currency:'USD':'symbol' }}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </section>
+
+  <section *ngIf="data?.payment as pay" class="invoice-workspace-card">
+    <div class="invoice-workspace-title">
+      <i class="fa-solid fa-money-check-dollar mr-2 text-primary"></i>Payment Details
+    </div>
+
+    <div class="invoice-info-grid invoice-payment-grid">
+      <div>
+        <label>Payment Status</label>
+        <span class="ui-status-badge" [ngClass]="statusPillClasses(pay.paymentStatus)">
+          {{ pay.paymentStatus || '--' }}
+        </span>
+      </div>
+      <div><label>Payment Method</label><span>{{ pay.paymentMethod || '--' }}</span></div>
+      <div><label>Payment Date</label><span>{{ pay.paymentDate | date:'MMM d, y, h:mm a' }}</span></div>
+      <div><label>Payment ID</label><span>{{ pay.paymentId || '--' }}</span></div>
+      <div class="col-span-2"><label>Transaction ID</label><span class="break-all">{{ pay.transactionId || '--' }}</span></div>
+    </div>
+  </section>
+</div>

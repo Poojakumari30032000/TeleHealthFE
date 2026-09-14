@@ -1,0 +1,304 @@
+{
+    "title": "Provider Form",
+    "primaryId": "userId",
+    "rows": [
+        {
+            "class": "grid grid-cols-2 gap-2 mb-2",
+            "fields": [
+                {
+                    "type": "text",
+                    "label": "NPI",
+                    "name": "npi",
+                    "placeholder": "Enter NPI",
+                    "class": "col-span-full",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "text",
+                    "label": "First Name",
+                    "name": "firstName",
+                    "placeholder": "Enter First Name",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "text",
+                    "label": "Middle Name",
+                    "name": "middleName",
+                    "placeholder": "Enter Middle Name",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": false
+                    }
+                },
+                {
+                    "type": "text",
+                    "label": "Last Name",
+                    "name": "lastName",
+                    "placeholder": "Enter Last Name",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "text",
+                    "label": "Title",
+                    "name": "title",
+                    "placeholder": "Enter Title",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": false
+                    }
+                },
+                {
+                    "type": "select",
+                    "label": "Gender",
+                    "name": "gender",
+                    "placeholder": "Select Gender",
+                    "class": "col-span-1",
+                    "options": [
+                        {
+                            "label": "Male",
+                            "value": "Male"
+                        },
+                        {
+                            "label": "Female",
+                            "value": "Female"
+                        }
+                    ],
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "date",
+                    "label": "Date Of Birth",
+                    "name": "dob",
+                    "placeholder": "mm/dd/yyyy",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        },
+        {
+            "class": "grid grid-cols-1 gap-2 mb-2",
+            "fields": [
+                {
+                    "type": "email",
+                    "label": "Email",
+                    "name": "email",
+                    "placeholder": "Enter Email",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        },
+        {
+            "class": "grid grid-cols-2 gap-2 mb-2",
+            "fields": [
+                {
+                    "type": "tel",
+                    "label": "Phone",
+                    "name": "phone",
+                    "placeholder": "(###) ###-####",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "select",
+                    "label": "Provider Type",
+                    "name": "providerType",
+                    "placeholder": "Select Provider Type",
+                    "class": "col-span-1",
+                    "options": [
+                        {
+                            "value": "Proxy",
+                            "label": "Proxy"
+                        },
+                        {
+                            "value": "Prescribing",
+                            "label": "Prescribing"
+                        },
+                        {
+                            "value": "EPCS Coorfinator",
+                            "label": "EPCS Coorfinator"
+                        },
+                        {
+                            "value": "Permanent",
+                            "label": "Permanent"
+                        }
+                    ],
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        },
+        {
+            "class": "grid grid-cols-1 gap-2 mb-2",
+            "fields": [
+              {
+                "type": "text",
+                "label": "Address",
+                "name": "address",
+                "placeholder": "Enter Address",
+                "class": "col-span-1",
+                "validations": { "required": true }
+              }
+            ]
+          },
+          {
+            "class": "grid grid-cols-2 gap-2 mb-2",
+            "fields": [
+              {
+                "type": "select",
+                "label": "City",
+                "name": "cityId",
+                "placeholder": "Select City",
+                "class": "col-span-1",
+                "labelKey": ["name"],
+                "valueKey": "id",
+                "fetchUrl": "Dropdowns/getAllUSCities",
+                "validations": { "required": true }
+              },
+              {
+                "type": "select",
+                "label": "State",
+                "name": "stateId",
+                "placeholder": "Select State",
+                "class": "col-span-1",
+                "dependsOn": ["cityId"],
+                "labelKey": ["name"],
+                "valueKey": "id",
+                "fetchUrl": "Dropdowns/getUSStatesByCityId?Id={cityId}",
+                "validations": { "required": true }
+              },
+              {
+                "type": "tel",
+                "label": "Zip Code",
+                "name": "zipCode",
+                "placeholder": "Enter zip code",
+                "class": "col-span-1",
+                "validations": {
+                  "required": true
+                }
+              }
+            ]
+          },
+        {
+            "class": "grid grid-cols-2 gap-2 mb-2",
+            "fields": [
+                {
+                    "type": "text",
+                    "label": "Tax ID",
+                    "name": "taxId",
+                    "placeholder": "Enter Tax ID",
+                    "class": "col-span-1"
+                },
+                {
+                    "type": "text",
+                    "label": "Medicaid #",
+                    "name": "medicaid",
+                    "placeholder": "Enter Medicaid",
+                    "class": "col-span-1"
+                },
+                {
+                    "type": "text",
+                    "label": "CAQH ID",
+                    "name": "caqhId",
+                    "placeholder": "Enter CAQH ID",
+                    "class": "col-span-1"
+                },
+                {
+                    "type": "text",
+                    "label": "License",
+                    "name": "license",
+                    "placeholder": "Enter License",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        },
+        {
+            "class": "grid grid-cols-1 gap-2 mb-2",
+            "fields": [
+                
+                {
+                    "type": "text",
+                    "label": "SSN",
+                    "name": "ssn",
+                    "placeholder": "Enter SSN",
+                    "class": "col-span-1"
+                }
+            ]
+        },
+        {
+            "class": "grid grid-cols-2 gap-2 mb-2",
+            "fields": [
+                {
+                    "type": "text",
+                    "label": "DEA #",
+                    "name": "dea",
+                    "placeholder": "Enter DEA",
+                    "class": "col-span-1"
+                },
+                {
+                    "type": "multi-select",
+                    "label": "Condition Treated",
+                    "name": "categoryId",
+                    "placeholder": "Select Condition Treated",
+                    "class": "col-span-1",
+                    "labelKey": ["categoryName"],
+                    "valueKey": "categoryId",
+                    "fetchUrl": "DropDowns/getAllCategories?Id={OrgId}",
+                    "validations": { "required": true }
+                },
+                {
+                    "type": "select",
+                    "label": "Licensed State",
+                    "name": "licenseStateId",
+                    "placeholder": "Select Licensed State",
+                    "class": "col-span-1",
+                    "labelKey": ["name", "shortName"],
+                    "valueKey": "id",
+                    "joinBy": " - ",
+                    "fetchUrl": "DropDowns/GetAllStateOfUSA",
+                    "validations": { "required": true }
+                },
+                {
+                    "type": "checkbox",
+                    "label": "Is Supervisor Required",
+                    "name": "isSupervisorRequired",
+                    "class": "col-span-full"
+                },
+                {
+                    "visibilityCondition": { "name": "isSupervisorRequired", "value": true },
+                    "type": "multi-select",
+                    "label": "Supervisors",
+                    "name": "supervisorId",
+                    "placeholder": "Select Supervisors",
+                    "class": "col-span-full",
+                    "labelKey": ["name"],
+                    "valueKey": "id",
+                    "fetchUrl": "DropDowns/getAllProviders?IsSupervisor=true",
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        }
+    ]
+}

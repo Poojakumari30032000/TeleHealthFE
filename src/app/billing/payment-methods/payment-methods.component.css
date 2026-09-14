@@ -1,0 +1,11 @@
+@media (max-width: 1267px) {
+    .custom-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1268px) {
+    .custom-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

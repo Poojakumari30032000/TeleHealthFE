@@ -1,0 +1,50 @@
+<nz-table
+  #basicTable
+  [nzData]="invoiceData"
+>
+  <thead>
+    <tr>
+      <th>Invoice Number</th>
+      <th>Customer Name</th>
+      <th>Amount</th>
+      <th>Status</th>
+      <th>Invoice Type</th>
+      <th>Created Date</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let invoice of basicTable.data">
+      <td>{{ invoice.invoiceNumber }}</td>
+      <td>{{ invoice.customerName || '-' }}</td>
+      <td>{{ invoice.amount }}</td>
+      <td>
+        <span
+          [ngStyle]="{
+            color: getStatusColor(invoice.status),
+            'font-weight': 'bold'
+          }"
+        >
+          {{ invoice.status }}
+        </span>
+      </td>
+      <td>{{ invoice.invoiceType }}</td>
+      <td>{{ invoice.createdDate | date: 'short' }}</td>
+      <td>
+
+        <button nz-button nz-dropdown [nzDropdownMenu]="menu" nzTrigger="click">
+          Actions <span nz-icon nzType="down"></span>
+        </button>
+        <nz-dropdown-menu #menu="nzDropdownMenu">
+          <ul nz-menu>
+            @if(invoice.status != 'Paid') {
+            <li nz-menu-item (click)="payInvoice(invoice)">💳 Pay Invoice</li>
+          }
+            <li nz-menu-item (click)="viewInvoice(invoice)">View Invoice</li>
+          </ul>
+        </nz-dropdown-menu>
+      </td>
+    </tr>
+  </tbody>
+</nz-table>
+

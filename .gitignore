@@ -1,0 +1,140 @@
+# =============================================================================
+#  TeleHealth  -  .gitignore
+#
+#  This project was not under version control when these rules were written.
+#  Put it under git BEFORE the next change, so edits are recoverable:
+#
+#      cd D:\teleHealthComplete
+#      git init
+#      git add .
+#      git status            <-- read this carefully before committing
+#      git commit -m "Initial commit"
+#
+#  Check `git status` output against the "Secrets" section below before the
+#  first commit. Once a secret is committed it stays in history even if a later
+#  commit deletes it, and the only real remedy is to rotate the credential.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+#  Secrets  -  never commit these
+# -----------------------------------------------------------------------------
+# Local secret files consumed by `dotnet user-secrets` (see SECRETS.md).
+secrets.local.json
+*.local.json
+*.local.ps1
+*.local.sh
+
+# Environment files. .env.example is the committed template and is un-ignored.
+.env
+.env.*
+!.env.example
+
+# Certificates and keys
+*.pfx
+*.p12
+*.key
+*.pem
+*.cer
+*.crt
+*.jks
+*.keystore
+
+# -----------------------------------------------------------------------------
+#  .NET  -  TeleHealthBE
+# -----------------------------------------------------------------------------
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+build/
+bld/
+publish/
+[Pp]ublish[Pp]rofiles/
+*.publishsettings
+*.pubxml
+*.pubxml.user
+*.dll
+*.exe
+*.pdb
+*.cache
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.slnLaunch.user
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+*.DotSettings.user
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+
+# Test and coverage output
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+coverage*.json
+coverage*.xml
+coverage*.info
+*.coverage
+*.coveragexml
+TestResults/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/*
+!packages/build/
+*.nuget.props
+*.nuget.targets
+
+# -----------------------------------------------------------------------------
+#  Angular  -  TeleHealthFE
+# -----------------------------------------------------------------------------
+node_modules/
+dist/
+tmp/
+out-tsc/
+.angular/
+*.tsbuildinfo
+.npm/
+.eslintcache
+npm-debug.log*
+yarn-error.log*
+lighthouse-report.json
+performance-reports/
+stats.json
+
+# -----------------------------------------------------------------------------
+#  Runtime artefacts and uploaded content
+# -----------------------------------------------------------------------------
+# Generated invoice PDFs and user uploads. These currently contain real patient
+# and provider material (including a patient signature image) and must not be
+# committed. Move existing files out of the working tree before the first
+# commit, then serve them from S3 - InvoicePdfS3UploadService already does.
+TeleHealthBE/Vitality/wwwroot/Invoices/
+TeleHealthBE/Vitality/wwwroot/UploadImages/
+!TeleHealthBE/Vitality/wwwroot/UploadImages/.gitkeep
+
+*.log
+**/appsettings.Development.json
+logs/
+
+# -----------------------------------------------------------------------------
+#  OS noise
+# -----------------------------------------------------------------------------
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+._*

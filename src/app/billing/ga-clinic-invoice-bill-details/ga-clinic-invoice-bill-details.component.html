@@ -1,0 +1,375 @@
+<div *ngIf="errorMsg" class="p-4 mb-4 rounded-lg bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-200">
+  {{ errorMsg }}
+</div>
+
+<div *ngIf="loading" class="p-4 mb-4 rounded-lg bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+  Loading {{ docLabelLower }}…
+</div>
+
+<div *ngIf="!loading && data" class="space-y-6">
+
+  <div
+    class="grid mb-4 grid-cols-1 sm:max-lg:grid-cols-2 lg:grid-cols-4 gap-4 my-2 p-4 bg-gray-100 rounded-xl dark:bg-gray-800">
+
+    <div class="lg:col-span-4 md:max-lg:col-span-2 col-span-1">
+      <h4 class="font-semibold text-lg dark:text-gray-300">
+        {{ data.invoiceType }} (Facility {{ docLabel }})
+      </h4>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        Facility: <span class="font-medium text-gray-700 dark:text-gray-200">{{ data.facilityName }}</span>
+      </p>
+    </div>
+
+    <div class="col-span-1">
+      <label class="text-gray-500 dark:text-gray-400 text-sm">Facility Email :</label>
+      <span class="label-C font-semibold mt-1">{{ data.facilityEmail }}</span>
+    </div>
+
+    <div class="col-span-1">
+      <label class="text-gray-500 dark:text-gray-400 text-sm">Address :</label>
+      <span class="label-C font-semibold mt-1">{{ data.facilityAddress }}</span>
+    </div>
+
+    <div class="col-span-1">
+      <label class="text-gray-500 dark:text-gray-400 text-sm">{{ docLabel }} Number :</label>
+      <span class="label-C font-semibold mt-1">{{ data.invoiceNumber }}</span>
+    </div>
+
+    <div class="col-span-1">
+      <label class="text-gray-500 dark:text-gray-400 text-sm">{{ docLabel }} Date :</label>
+      <span class="label-C font-semibold mt-1">{{ data.invoiceDate | date:'MMM d, y' }}</span>
+    </div>
+
+    <div class="col-span-1">
+      <label class="text-gray-500 dark:text-gray-400 text-sm">Due date :</label>
+      <span class="label-C font-semibold mt-1">{{ data.dueDate | date:'MMM d, y' }}</span>
+    </div>
+
+    <div class="col-span-1">
+      <label class="text-gray-500 dark:text-gray-400 text-sm">Status:</label>
+      <span class="block mt-1 w-fit text-xs font-medium px-2.5 py-0.5 rounded-full"
+            [ngClass]="statusPillClasses(data.status)">
+        {{ data.status }}
+      </span>
+    </div>
+
+    <div class="col-span-1">
+      <label class="text-gray-500 dark:text-gray-400 text-sm">Totals:</label>
+      <span class="label-C font-semibold mt-1 block">
+        Provider: {{ data.providerBillTotal | currency:'USD':'symbol' }}
+      </span>
+      <span class="label-C font-semibold mt-1 block">
+        Pharmacy: {{ data.pharmacyBillTotal | currency:'USD':'symbol' }}
+      </span>
+      <span class="label-C font-extrabold mt-1 block">
+        Grand Total: {{ data.totalAmount | currency:'USD':'symbol' }}
+      </span>
+    </div>
+  </div>
+
+  <div class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden" *ngIf="paymentSummary">
+    <div class="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="font-semibold text-gray-800 dark:text-gray-100">Payment Summary</h3>
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        {{ docLabel }} #: {{ paymentSummary.invoiceNumber }} • Status: {{ paymentSummary.invoiceStatus }}
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4">
+      <div>
+        <div class="text-xs text-gray-500 dark:text-gray-400">Amount</div>
+        <div class="label-C font-semibold mt-1">
+          {{ paymentSummary.invoiceAmount | currency:'USD':'symbol' }}
+        </div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-500 dark:text-gray-400">Total Paid</div>
+        <div class="label-C font-semibold mt-1">
+          {{ paymentSummary.totalPaidAmount | currency:'USD':'symbol' }}
+        </div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-500 dark:text-gray-400">Remaining</div>
+        <div class="label-C font-semibold mt-1"
+             [ngClass]="{'text-primary': (paymentSummary.remainingAmount||0) > 0}">
+          {{ paymentSummary.remainingAmount | currency:'USD':'symbol' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden" *ngIf="paymentSummary">
+    <div class="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="font-semibold text-gray-800 dark:text-gray-100">
+        Payments <span class="text-xs font-normal text-gray-500 dark:text-gray-400">({{ paymentSummary.paymentCount || 0 }})</span>
+      </h3>
+    </div>
+
+    <div *ngIf="(paymentSummary.paymentCount || 0) > 0; else noPayments">
+      <nz-table
+        [nzData]="payments"
+        [nzFrontPagination]="false"
+        [nzShowPagination]="false"
+        nzSize="small">
+        <thead>
+        <tr>
+          <th>Date</th>
+          <th>Method</th>
+          <th>Status</th>
+          <th>Paid By</th>
+          <th class="text-right">Amount</th>
+          <th>Transaction</th>
+          <th class="text-center" nzWidth="80">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let row of payments; trackBy: trackByIdx">
+          <td>{{ row.paymentDate | date:'MMM d, y, h:mm a' }}</td>
+          <td>
+            {{ row.paymentMethod }}
+            <span *ngIf="row.cardBrand || row.cardLast4" class="text-xs text-gray-500 ml-1">
+              ({{ row.cardBrand }} •••• {{ row.cardLast4 }})
+            </span>
+          </td>
+          <td>
+            <span class="text-xs px-2 py-0.5 rounded-full"
+                  [ngClass]="statusPillClasses(row.paymentStatus)">
+              {{ row.paymentStatus }}
+            </span>
+          </td>
+          <td>{{ row.paidByName || '-' }}</td>
+          <td class="text-right">{{ row.paymentAmount | currency:'USD':'symbol' }}</td>
+          <td class="truncate max-w-[220px]" [title]="row.transactionId || row.squarePaymentId">
+            {{ row.transactionId || row.squarePaymentId || '-' }}
+          </td>
+          <td class="text-center">
+            <button
+              class="btn-icon h-9 w-9 flex items-center justify-center"
+              (click)="viewInvoice(row)"
+              title="View Invoice">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </div>
+
+    <ng-template #noPayments>
+      <div class="p-4 text-sm text-gray-600 dark:text-gray-300">
+        No payments recorded yet.
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="font-semibold text-gray-800 dark:text-gray-100">Provider {{ docLabel }} (Appointments)</h3>
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        Total Appointments: {{ data.summary.totalAppointments || providerLineItems.length }}
+      </p>
+    </div>
+
+    <nz-table
+      [nzData]="providerLineItems"
+      [nzFrontPagination]="false"
+      [nzShowPagination]="false"
+      nzSize="small"
+      [nzFooter]="providerFooter">
+      <thead>
+      <tr>
+        <th>Provider</th>
+        <th>Email</th>
+        <th>Patient</th>
+        <th>Appointment Date</th>
+        <th>Status</th>
+        <th>Product</th>
+        <th class="text-right">Amount</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let row of providerLineItems; trackBy: trackByIdx">
+        <td>{{ row.providerName }}</td>
+        <td>{{ row.providerEmail }}</td>
+        <td>{{ row.patientName }}</td>
+        <td>{{ row.appointmentDate | date:'MMM d, y' }}</td>
+        <td>
+          <span class="text-xs px-2 py-0.5 rounded-full"
+                [ngClass]="statusPillClasses(row.appointmentStatus)">
+            {{ row.appointmentStatus }}
+          </span>
+        </td>
+        <td>{{ row.productName }}</td>
+        <td class="text-right">{{ row.appointmentAmount | currency:'USD':'symbol' }}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+
+    <ng-template #providerFooter>
+      <div class="flex justify-end">
+        <div class="grid grid-cols-6 gap-x-14 gap-y-2">
+          <h4 class="text-sm dark:text-gray-200 col-span-4 text-right font-extrabold">
+            Total Appointments:
+          </h4>
+          <p class="text-sm dark:text-gray-200 col-span-2 inline text-right font-extrabold">
+            {{ providerLineItems.length }}
+          </p>
+
+          <h4 class="text-sm dark:text-gray-200 col-span-4 text-right font-extrabold">
+            Total Amount:
+          </h4>
+          <p class="text-sm text-primary col-span-2 inline text-right font-extrabold">
+            {{ providerTotalAmount | currency:'USD':'symbol' }}
+          </p>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="font-semibold text-gray-800 dark:text-gray-100">Medication {{ docLabel }} (Products)</h3>
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        Total Products: {{ data.summary.totalProducts || medicationProductLines.length }}
+      </p>
+    </div>
+
+    <nz-table
+      [nzData]="medicationProductLines"
+      [nzFrontPagination]="false"
+      [nzShowPagination]="false"
+      nzSize="small"
+      [nzFooter]="medProductsFooter">
+      <thead>
+      <tr>
+        <th>Product</th>
+        <th class="text-center" nzWidth="120px">Qty</th>
+        <th class="text-right" nzWidth="160px">Unit Price</th>
+        <th class="text-right" nzWidth="180px">Line Total</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let p of medicationProductLines; trackBy: trackByIdx">
+        <td>{{ p.productName }}</td>
+        <td class="text-center">{{ p.quantity }}</td>
+        <td class="text-right">{{ p.unitPrice | currency:'USD':'symbol' }}</td>
+        <td class="text-right font-semibold">{{ p.lineTotal | currency:'USD':'symbol' }}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+
+    <ng-template #medProductsFooter>
+      <div class="flex justify-end">
+        <div class="grid grid-cols-6 gap-x-14 gap-y-2">
+          <h4 class="text-sm dark:text-gray-200 col-span-4 text-right font-extrabold">
+            Total Quantity:
+          </h4>
+          <p class="text-sm dark:text-gray-200 col-span-2 inline text-right font-extrabold">
+            {{ medicationProductsTotalQty }}
+          </p>
+
+          <h4 class="text-sm dark:text-gray-200 col-span-4 text-right font-extrabold">
+            Total Amount:
+          </h4>
+          <p class="text-sm text-primary col-span-2 inline text-right font-extrabold">
+            {{ medicationProductsTotalAmount | currency:'USD':'symbol' }}
+          </p>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="font-semibold text-gray-800 dark:text-gray-100">Medication Orders</h3>
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        Total Orders: {{ data.summary.totalOrders || medicationOrderLines.length }}
+      </p>
+    </div>
+
+    <nz-table
+      [nzData]="medicationOrderLines"
+      [nzFrontPagination]="false"
+      [nzShowPagination]="false"
+      nzSize="small"
+      [nzFooter]="medOrdersFooter">
+      <thead>
+      <tr>
+        <th>Order #</th>
+        <th>Product</th>
+        <th>Patient</th>
+        <th>Order Date</th>
+        <th>Status</th>
+        <th class="text-right">Unit Price</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let o of medicationOrderLines; trackBy: trackByIdx">
+        <td>{{ o.orderId }}</td>
+        <td>{{ o.productName }}</td>
+        <td>{{ o.patientName }}</td>
+        <td>{{ o.orderDate | date:'MMM d, y, h:mm a' }}</td>
+        <td>
+          <span class="text-xs px-2 py-0.5 rounded-full"
+                [ngClass]="statusPillClasses(o.orderStatus)">
+            {{ o.orderStatus }}
+          </span>
+        </td>
+        <td class="text-right">{{ o.unitPrice | currency:'USD':'symbol' }}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+
+    <ng-template #medOrdersFooter>
+      <div class="flex justify-end">
+        <div class="grid grid-cols-6 gap-x-14 gap-y-2">
+          <h4 class="text-sm dark:text-gray-200 col-span-4 text-right font-extrabold">
+            Total Orders:
+          </h4>
+          <p class="text-sm dark:text-gray-200 col-span-2 inline text-right font-extrabold">
+            {{ medicationOrdersCount }}
+          </p>
+
+          <h4 class="text-sm dark:text-gray-200 col-span-4 text-right font-extrabold">
+            Total Value (Unit Price Sum):
+          </h4>
+          <p class="text-sm text-primary col-span-2 inline text-right font-extrabold">
+            {{ medicationOrdersTotalUnitValue | currency:'USD':'symbol' }}
+          </p>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="flex justify-end">
+    <div class="max-w-1/3 grid grid-cols-6 gap-x-14 gap-y-2">
+      <h4 class="text-sm dark:text-gray-200 col-span-4 text-right font-extrabold">
+        Subtotal:
+      </h4>
+      <p class="text-sm text-primary col-span-2 inline text-right font-extrabold">
+        {{ data.summary.subTotal | currency:'USD':'symbol' }}
+      </p>
+
+      <h4 class="text-sm dark:text-gray-200 col-span-4 text-right font-semibold">
+        Tax
+      </h4>
+      <p class="text-sm dark:text-gray-200 col-span-2 inline text-right font-extrabold">
+        {{ data.summary.tax | currency:'USD':'symbol' }}
+      </p>
+
+      <h4 class="text-sm dark:text-gray-200 col-span-4 text-right font-extrabold">
+        Total:
+      </h4>
+      <p class="text-sm dark:text-gray-200 col-span-2 inline text-right font-extrabold">
+        {{ data.summary.total | currency:'USD':'symbol' }}
+      </p>
+
+      <h4 class="text-sm dark:text-gray-200 col-span-4 text-right font-extrabold">
+        Amount Due:
+      </h4>
+      <p class="text-sm text-primary col-span-2 inline text-right font-extrabold">
+        {{ (data.status === 'Paid' ? 0 : data.summary.total) | currency:'USD':'symbol' }}
+      </p>
+    </div>
+  </div>
+</div>

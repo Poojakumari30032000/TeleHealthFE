@@ -1,0 +1,64 @@
+{
+    "title": "Product Bundle",
+    "primaryId": "bundleId",
+    "rows": [
+        {
+            "class": "grid grid-cols-1 gap-2 mb-2",
+            "fields": [
+                {
+                    "type": "text",
+                    "label": "Name",
+                    "name": "name",
+                    "placeholder": "Enter Name",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+          "type": "number",
+          "label": "Duration (in Months)",
+          "name": "visits",
+          "placeholder": "Enter duration in months, can't be edited afterwards.",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+        }
+    },
+    {
+          "type": "number",
+          "label": "price ($)",
+          "name": "price",
+          "placeholder": "Enter price in USD",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+        }
+    },
+                {
+                    "type": "textarea",
+                    "label": "Description",
+                    "name": "description",
+                    "placeholder": "Enter Description",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+          "type": "select",
+          "label": "Bundle Category",
+          "name": "categoryId",
+          "placeholder": "Select Bundle Category",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          },
+          "labelKey": ["categoryName"],
+          "valueKey": "categoryId",
+          "fetchUrl": "DropDowns/getAllCategories?FacilityId={FacId}"
+        }
+            ]
+        }
+    ]
+}

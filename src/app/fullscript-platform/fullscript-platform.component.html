@@ -1,0 +1,53 @@
+<div class="w-full h-full">
+
+  <div class="p-3" *ngIf="uiState === 'loading'">
+    Loading Fullscript…
+  </div>
+
+  <div class="p-3" *ngIf="uiState === 'needs-connect'">
+    <div class="mb-2 font-semibold">Connect your Fullscript account</div>
+    <div class="text-sm mb-3 text-gray-600 dark:text-gray-400">
+      Your account is not connected to Fullscript yet. Connect to start building treatment plans.
+    </div>
+
+    <button class="main-btn" type="button" (click)="connectFullscript()">
+      Connect Fullscript
+    </button>
+  </div>
+
+  <div class="p-3" *ngIf="uiState === 'error'">
+    <div class="mb-2 font-semibold text-red-600">Unable to load Fullscript</div>
+    <div class="text-sm mb-3 text-gray-600 dark:text-gray-400">
+      {{ errorMessage }}
+    </div>
+
+    <div class="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-200 dark:border-yellow-800">
+      <h4 class="font-semibold mb-2 text-yellow-800 dark:text-yellow-200">Troubleshooting Steps:</h4>
+      <ol class="list-decimal list-inside space-y-1 text-sm text-yellow-700 dark:text-yellow-300">
+        <li>Go to <a href="https://dashboard.fullscript.com" target="_blank" class="underline">Fullscript API Dashboard</a></li>
+        <li>Select your application</li>
+        <li>Navigate to "Fullscript Embed settings" tab</li>
+        <li>Add your origin URL to the "Origin URI" whitelist (IMPORTANT: Include the port number):
+          <ul class="list-disc list-inside ml-4 mt-1">
+            <li>Current origin: <code class="bg-yellow-100 dark:bg-yellow-800 px-1 rounded font-mono">{{ currentOrigin || 'N/A' }}</code></li>
+            <li><strong>Add this exact URL:</strong> <code class="bg-yellow-100 dark:bg-yellow-800 px-1 rounded font-mono font-bold">{{ currentOrigin }}/*</code></li>
+            <li>Also try without wildcard: <code class="bg-yellow-100 dark:bg-yellow-800 px-1 rounded font-mono">{{ currentOrigin }}</code></li>
+            <li class="text-red-600 dark:text-red-400 font-semibold mt-2">⚠️ Make sure the port number (4200) is included in the Origin URI!</li>
+          </ul>
+        </li>
+        <li>Verify the public key matches your environment (US Sandbox/CA Sandbox/Production)</li>
+        <li>Save changes and wait a few minutes for propagation</li>
+      </ol>
+    </div>
+
+    <button class="main-btn mt-4" type="button" (click)="retry()">
+      Retry
+    </button>
+  </div>
+
+  <div
+    id="fullscript-embed-container"
+    style="width: 100%; height: 100%;"
+    [style.display]="uiState === 'ready' ? 'block' : 'none'"
+  ></div>
+</div>

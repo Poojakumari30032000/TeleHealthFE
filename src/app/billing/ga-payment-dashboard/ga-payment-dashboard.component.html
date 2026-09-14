@@ -1,0 +1,341 @@
+<div class="space-y-6">
+
+  <div *ngIf="isClinicAdmin" class="rounded-2xl border dark:border-gray-700 bg-white dark:bg-gray-900">
+    <div class="p-4 border-b dark:border-gray-700 flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <h2 class="font-semibold text-lg">Stripe Connect</h2>
+        <p class="text-xs text-gray-500 mt-1">Payments, balances, payouts, disputes and statements for your facility.</p>
+      </div>
+    </div>
+
+    <div class="p-4">
+      <nz-tabset
+        [nzSelectedIndex]="clinicTabIndex"
+        (nzSelectedIndexChange)="onClinicTabChange($event)"
+      >
+
+        <nz-tab nzTitle="Payments">
+          <div class="mb-3 flex items-center justify-between flex-wrap gap-2">
+            <p class="text-xs text-gray-500">View-only: refunds and other actions are not available here.</p>
+            <button class="main-btn mt-0" type="button" (click)="loadClinicPaymentsEmbed()">
+              <i class="fa-solid fa-rotate mr-1"></i>
+              Refresh
+            </button>
+          </div>
+          <div class="relative min-h-[480px]">
+            <div *ngIf="clinicPaymentsLoading" class="absolute inset-0 z-10 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+              <span class="text-gray-500">Loading payments...</span>
+            </div>
+            <div *ngIf="clinicPaymentsError" class="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 px-4 py-3 text-sm mb-3">
+              {{ clinicPaymentsError }}
+            </div>
+            <div #clinicPaymentsEmbedContainer class="min-h-[480px] w-full rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 p-4"></div>
+          </div>
+        </nz-tab>
+
+        <nz-tab nzTitle="Balances">
+          <div class="mb-3 flex items-center justify-between flex-wrap gap-2">
+            <p class="text-xs text-gray-500">Available, pending and reserved balances for your Stripe account.</p>
+            <button class="main-btn mt-0" type="button" (click)="loadClinicFacilityComponent('balances', 'clinicBalancesEmbedContainer')">
+              <i class="fa-solid fa-rotate mr-1"></i>
+              Refresh
+            </button>
+          </div>
+          <div class="relative min-h-[480px]">
+            <div *ngIf="clinicEmbedLoading && clinicTabIndex === 1" class="absolute inset-0 z-10 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+              <span class="text-gray-500">Loading balances...</span>
+            </div>
+            <div *ngIf="clinicEmbedError && clinicTabIndex === 1" class="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 px-4 py-3 text-sm mb-3">
+              {{ clinicEmbedError }}
+            </div>
+            <div #clinicBalancesEmbedContainer class="min-h-[480px] w-full rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 p-4"></div>
+          </div>
+        </nz-tab>
+
+        <nz-tab nzTitle="Payouts">
+          <div class="mb-3 flex items-center justify-between flex-wrap gap-2">
+            <p class="text-xs text-gray-500">Recent and scheduled payouts to your bank account.</p>
+            <button class="main-btn mt-0" type="button" (click)="loadClinicFacilityComponent('payouts', 'clinicPayoutsEmbedContainer')">
+              <i class="fa-solid fa-rotate mr-1"></i>
+              Refresh
+            </button>
+          </div>
+          <div class="relative min-h-[480px]">
+            <div *ngIf="clinicEmbedLoading && clinicTabIndex === 2" class="absolute inset-0 z-10 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+              <span class="text-gray-500">Loading payouts...</span>
+            </div>
+            <div *ngIf="clinicEmbedError && clinicTabIndex === 2" class="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 px-4 py-3 text-sm mb-3">
+              {{ clinicEmbedError }}
+            </div>
+            <div #clinicPayoutsEmbedContainer class="min-h-[480px] w-full rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 p-4"></div>
+          </div>
+        </nz-tab>
+
+        <nz-tab nzTitle="Disputes">
+          <div class="mb-3 flex items-center justify-between flex-wrap gap-2">
+            <p class="text-xs text-gray-500">Open and resolved disputes against your facility's charges.</p>
+            <button class="main-btn mt-0" type="button" (click)="loadClinicFacilityComponent('disputes-list', 'clinicDisputesEmbedContainer')">
+              <i class="fa-solid fa-rotate mr-1"></i>
+              Refresh
+            </button>
+          </div>
+          <div class="relative min-h-[480px]">
+            <div *ngIf="clinicEmbedLoading && clinicTabIndex === 3" class="absolute inset-0 z-10 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+              <span class="text-gray-500">Loading disputes...</span>
+            </div>
+            <div *ngIf="clinicEmbedError && clinicTabIndex === 3" class="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 px-4 py-3 text-sm mb-3">
+              {{ clinicEmbedError }}
+            </div>
+            <div #clinicDisputesEmbedContainer class="min-h-[480px] w-full rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 p-4"></div>
+          </div>
+        </nz-tab>
+
+        <nz-tab nzTitle="Reporting">
+          <div class="mb-3 flex items-center justify-between flex-wrap gap-2">
+            <p class="text-xs text-gray-500">1099 tax forms, payout statements and other documents Stripe generates for your account.</p>
+            <button class="main-btn mt-0" type="button" (click)="loadClinicFacilityComponent('documents', 'clinicReportingEmbedContainer')">
+              <i class="fa-solid fa-rotate mr-1"></i>
+              Refresh
+            </button>
+          </div>
+          <div class="relative min-h-[480px]">
+            <div *ngIf="clinicEmbedLoading && clinicTabIndex === 4" class="absolute inset-0 z-10 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+              <span class="text-gray-500">Loading reporting...</span>
+            </div>
+            <div *ngIf="clinicEmbedError && clinicTabIndex === 4" class="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 px-4 py-3 text-sm mb-3">
+              {{ clinicEmbedError }}
+            </div>
+            <div #clinicReportingEmbedContainer class="min-h-[480px] w-full rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 p-4"></div>
+          </div>
+        </nz-tab>
+      </nz-tabset>
+    </div>
+  </div>
+
+  <div *ngIf="isGlobalAdmin" class="rounded-2xl border dark:border-gray-700 bg-white dark:bg-gray-900">
+    <div class="p-4 border-b dark:border-gray-700 flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <h2 class="font-semibold text-lg">Global Admin Stripe Connect</h2>
+        <p class="text-xs text-gray-500 mt-1">Facilities with Stripe account and onboarded (charges enabled)</p>
+      </div>
+      <a href="https://dashboard.stripe.com" target="_blank" rel="noopener noreferrer" class="main-btn mt-0">
+        <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>
+        Open Stripe Dashboard
+      </a>
+    </div>
+
+    <div class="p-4">
+      <nz-tabset
+        [nzSelectedIndex]="stripeTabIndex"
+        (nzSelectedIndexChange)="onStripeTabChange($event)"
+      >
+        <nz-tab nzTitle="Facilities">
+          <nz-table
+            [nzData]="stripeFacilities"
+            [nzLoading]="stripeFacilitiesLoading"
+            nzBordered
+            nzSize="middle"
+            [nzScroll]="{ x: '1100px' }"
+          >
+            <thead>
+            <tr>
+              <th>Facility ID</th>
+              <th>Facility Name</th>
+              <th>Onboarding Status</th>
+              <th>Charges Enabled</th>
+              <th>Payouts Enabled</th>
+              <th>Updated</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let row of stripeFacilities">
+              <td>{{ row?.facilityId || '--' }}</td>
+              <td>{{ row?.facilityName || '--' }}</td>
+              <td>{{ stripeOnboardingStatus(row) }}</td>
+              <td>{{ stripeChargesEnabled(row) ? 'Yes' : 'No' }}</td>
+              <td>{{ stripePayoutsEnabled(row) ? 'Yes' : 'No' }}</td>
+              <td>{{ row?.updatedAt ? (row.updatedAt | date:'medium') : '--' }}</td>
+            </tr>
+
+            <tr *ngIf="!stripeFacilitiesLoading && stripeFacilities.length === 0">
+              <td [attr.colspan]="6" class="text-center py-6 text-gray-500">
+                No facilities with Stripe account and onboarded status found.
+              </td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </nz-tab>
+
+        <nz-tab nzTitle="Payments">
+          <div class="mb-4 flex flex-wrap items-center gap-3">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Facility</label>
+            <nz-select
+              [(ngModel)]="selectedFacilityIdForEmbed"
+              (ngModelChange)="onFacilityForEmbedChange()"
+              nzPlaceHolder="Select a facility"
+              nzAllowClear
+              nzShowSearch
+              style="min-width: 260px"
+            >
+              <nz-option
+                *ngFor="let f of stripeFacilities"
+                [nzValue]="getFacilityOptionId(f)"
+                [nzLabel]="getFacilityOptionLabel(f)"
+              ></nz-option>
+            </nz-select>
+          </div>
+          <div *ngIf="selectedFacilityIdForEmbed == null" class="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 px-4 py-6 text-sm">
+            Select a facility above to view Stripe Payments for that facility.
+          </div>
+          <ng-container *ngIf="selectedFacilityIdForEmbed != null">
+            <div *ngIf="embedLoading" class="h-[720px] rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+              <span class="text-gray-500">Loading Stripe Payments...</span>
+            </div>
+            <ng-container *ngIf="!embedLoading">
+              <div *ngIf="embedError" class="rounded-xl border border-red-200 bg-red-50 text-red-800 px-4 py-3 text-sm mb-3">
+                {{ embedError }}
+              </div>
+              <div #paymentsEmbedContainer class="min-h-[720px] w-full rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 p-4"></div>
+            </ng-container>
+          </ng-container>
+        </nz-tab>
+
+        <nz-tab nzTitle="Balances">
+          <div class="mb-4 flex flex-wrap items-center gap-3">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Facility</label>
+            <nz-select
+              [(ngModel)]="selectedFacilityIdForEmbed"
+              (ngModelChange)="onFacilityForEmbedChange()"
+              nzPlaceHolder="Select a facility"
+              nzAllowClear
+              nzShowSearch
+              style="min-width: 260px"
+            >
+              <nz-option
+                *ngFor="let f of stripeFacilities"
+                [nzValue]="getFacilityOptionId(f)"
+                [nzLabel]="getFacilityOptionLabel(f)"
+              ></nz-option>
+            </nz-select>
+          </div>
+          <div *ngIf="selectedFacilityIdForEmbed == null" class="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 px-4 py-6 text-sm">
+            Select a facility above to view Stripe Balances for that facility.
+          </div>
+          <ng-container *ngIf="selectedFacilityIdForEmbed != null">
+            <div *ngIf="embedLoading" class="h-[720px] rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+              <span class="text-gray-500">Loading Stripe Balances...</span>
+            </div>
+            <ng-container *ngIf="!embedLoading">
+              <div *ngIf="embedError" class="rounded-xl border border-red-200 bg-red-50 text-red-800 px-4 py-3 text-sm mb-3">
+                {{ embedError }}
+              </div>
+              <div #balancesEmbedContainer class="min-h-[720px] w-full rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 p-4"></div>
+            </ng-container>
+          </ng-container>
+        </nz-tab>
+
+        <nz-tab nzTitle="Payouts">
+          <div class="mb-4 flex flex-wrap items-center gap-3">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Facility</label>
+            <nz-select
+              [(ngModel)]="selectedFacilityIdForEmbed"
+              (ngModelChange)="onFacilityForEmbedChange()"
+              nzPlaceHolder="Select a facility"
+              nzAllowClear
+              nzShowSearch
+              style="min-width: 260px"
+            >
+              <nz-option
+                *ngFor="let f of stripeFacilities"
+                [nzValue]="getFacilityOptionId(f)"
+                [nzLabel]="getFacilityOptionLabel(f)"
+              ></nz-option>
+            </nz-select>
+          </div>
+          <div *ngIf="selectedFacilityIdForEmbed == null" class="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 px-4 py-6 text-sm">
+            Select a facility above to view Stripe Payouts for that facility.
+          </div>
+          <ng-container *ngIf="selectedFacilityIdForEmbed != null">
+            <div *ngIf="embedLoading" class="h-[720px] rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+              <span class="text-gray-500">Loading Stripe Payouts...</span>
+            </div>
+            <ng-container *ngIf="!embedLoading">
+              <div *ngIf="embedError" class="rounded-xl border border-red-200 bg-red-50 text-red-800 px-4 py-3 text-sm mb-3">
+                {{ embedError }}
+              </div>
+              <div #payoutsEmbedContainer class="min-h-[720px] w-full rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 p-4"></div>
+            </ng-container>
+          </ng-container>
+        </nz-tab>
+
+        <nz-tab nzTitle="Disputes">
+          <div class="mb-4 flex flex-wrap items-center gap-3">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Facility</label>
+            <nz-select
+              [(ngModel)]="selectedFacilityIdForEmbed"
+              (ngModelChange)="onFacilityForEmbedChange()"
+              nzPlaceHolder="Select a facility"
+              nzAllowClear
+              nzShowSearch
+              style="min-width: 260px"
+            >
+              <nz-option
+                *ngFor="let f of stripeFacilities"
+                [nzValue]="getFacilityOptionId(f)"
+                [nzLabel]="getFacilityOptionLabel(f)"
+              ></nz-option>
+            </nz-select>
+          </div>
+          <div *ngIf="selectedFacilityIdForEmbed == null" class="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 px-4 py-6 text-sm">
+            Select a facility above to view Stripe Disputes for that facility.
+          </div>
+          <ng-container *ngIf="selectedFacilityIdForEmbed != null">
+            <div *ngIf="embedLoading" class="h-[720px] rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+              <span class="text-gray-500">Loading Stripe Disputes...</span>
+            </div>
+            <ng-container *ngIf="!embedLoading">
+              <div *ngIf="embedError" class="rounded-xl border border-red-200 bg-red-50 text-red-800 px-4 py-3 text-sm mb-3">
+                {{ embedError }}
+              </div>
+              <div #disputesEmbedContainer class="min-h-[720px] w-full rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 p-4"></div>
+            </ng-container>
+          </ng-container>
+        </nz-tab>
+
+        <nz-tab nzTitle="Reporting">
+          <div class="mb-4 flex flex-wrap items-center gap-3">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Facility</label>
+            <nz-select
+              [(ngModel)]="selectedFacilityIdForEmbed"
+              (ngModelChange)="onFacilityForEmbedChange()"
+              nzPlaceHolder="Select a facility"
+              nzAllowClear
+              nzShowSearch
+              style="min-width: 260px"
+            >
+              <nz-option
+                *ngFor="let f of stripeFacilities"
+                [nzValue]="getFacilityOptionId(f)"
+                [nzLabel]="getFacilityOptionLabel(f)"
+              ></nz-option>
+            </nz-select>
+          </div>
+          <div *ngIf="selectedFacilityIdForEmbed == null" class="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 px-4 py-6 text-sm">
+            Select a facility above to view Stripe Reporting (1099 tax forms, payout statements, etc.) for that facility.
+          </div>
+          <ng-container *ngIf="selectedFacilityIdForEmbed != null">
+            <div *ngIf="embedLoading" class="h-[720px] rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+              <span class="text-gray-500">Loading Stripe Reporting...</span>
+            </div>
+            <ng-container *ngIf="!embedLoading">
+              <div *ngIf="embedError" class="rounded-xl border border-red-200 bg-red-50 text-red-800 px-4 py-3 text-sm mb-3">
+                {{ embedError }}
+              </div>
+              <div #reportingEmbedContainer class="min-h-[720px] w-full rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-800 p-4"></div>
+            </ng-container>
+          </ng-container>
+        </nz-tab>
+      </nz-tabset>
+    </div>
+  </div>
+</div>

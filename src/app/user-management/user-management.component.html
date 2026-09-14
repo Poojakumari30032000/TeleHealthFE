@@ -1,0 +1,944 @@
+<nz-tabset nzType="card" [(nzSelectedIndex)]="activeTabIndex" class="mt-2 user-management-tabs">
+
+  <nz-tab nzTitle="Global Admin User">
+
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <h3 class="text-base font-semibold m-0 dark:text-gray-200">
+        <i class="fa-solid fa-user-shield mr-2 text-primary"></i>
+        Global Admins
+      </h3>
+
+      <button
+        nz-button
+        nzType="default"
+        nzShape="round"
+        class="um-add-btn"
+        (click)="openAddGaModal()"
+        aria-label="Add Global Admin"
+        type="button"
+      >
+        <i class="fa-solid fa-plus"></i>
+        <span class="ml-2 hidden md:inline">Add Global Admin</span>
+        <span class="md:hidden">Add</span>
+      </button>
+    </div>
+
+    <div class="mt-3 p-4 rounded-lg bg-primary-50 border border-primary-100 dark:bg-gray-800 dark:border-gray-700 grid grid-cols-1 sm:grid-cols-3 gap-4 um-filter-grid">
+      <div>
+        <label class="label-C-F">Name</label>
+        <input
+          nz-input
+          class="input-C mt-1"
+          placeholder="Search by name"
+          [(ngModel)]="searchName"
+          (keyup.enter)="applyFilters()"
+        />
+      </div>
+
+      <div>
+        <label class="label-C-F">Status</label>
+        <nz-select
+          class="w-full mt-1"
+          nzPlaceHolder="Select status"
+          nzAllowClear
+          [(ngModel)]="selectedStatus"
+        >
+          <nz-option *ngFor="let s of statusOptions" [nzValue]="s" [nzLabel]="s"></nz-option>
+        </nz-select>
+      </div>
+
+      <div class="flex items-end gap-2">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="um-filter-action"
+          (click)="applyFilters()"
+          [nzLoading]="gaLoading"
+          [disabled]="gaLoading"
+          type="button"
+        >
+          Apply Filters
+        </button>
+
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="um-filter-action"
+          (click)="clearFilters()"
+          [disabled]="gaLoading"
+          type="button"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <nz-table
+      [nzData]="gaRows"
+      [nzFrontPagination]="false"
+      [nzLoading]="gaLoading"
+      [nzTotal]="gaTotal"
+      [nzPageIndex]="gaPageIndex"
+      [nzPageSize]="gaPageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[5,10,20,50,100]"
+      (nzQueryParams)="onGaQueryParams($event)"
+      class="rounded-lg overflow-hidden mt-3 user-management-table"
+    >
+      <thead>
+        <tr>
+          <th nzWidth="220px">Name</th>
+          <th nzWidth="160px">Role Title</th>
+          <th nzWidth="150px">Phone</th>
+          <th nzWidth="210px">Email</th>
+          <th nzWidth="120px">Status</th>
+          <th nzWidth="200px" class="text-right">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let row of gaRows">
+          <td class="font-medium">{{ row.userName || '--' }}</td>
+          <td class="text-gray-600 dark:text-gray-400">{{ row.roleTitleName || '—' }}</td>
+          <td>{{ row.phone || '—' }}</td>
+          <td>{{ row.email || '—' }}</td>
+          <td>
+            <span class="ui-status-badge" [ngClass]="statusBadgeClass(row.status)">{{ row.status || '—' }}</span>
+          </td>
+          <td class="text-right whitespace-nowrap">
+            <button nz-button nzType="default" nzShape="circle" class="mr-2 action-icon-btn" (click)="openEditGaModal(row)" title="Edit">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+
+            <button
+              nz-button
+              nzType="default"
+              nzShape="circle"
+              class="mr-2 action-icon-btn"
+              [nzLoading]="rowToggleLoadingId === row.userId"
+              (click)="toggleStatus(row)"
+              [title]="(row.status || '').toLowerCase() === 'active' ? 'Deactivate' : 'Activate'"
+            >
+              <i class="fa-solid" [ngClass]="(row.status || '').toLowerCase() === 'active' ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
+            </button>
+
+          </td>
+        </tr>
+
+        <tr *ngIf="!gaLoading && gaRows.length === 0">
+          <td colspan="6" class="text-center py-6 text-gray-500">No records found.</td>
+        </tr>
+      </tbody>
+    </nz-table>
+
+    <nz-modal
+      [(nzVisible)]="isGaModalVisible"
+      [nzTitle]="isEditMode ? 'Edit Global Admin' : 'Add Global Admin'"
+      [nzMaskClosable]="false"
+      (nzOnCancel)="closeGaModal()"
+      [nzFooter]="gaModalFooter"
+      [nzWidth]="'96vw'"
+      [nzStyle]="{ 'max-width.px': 700 }"
+      [nzBodyStyle]="{ 'max-height': 'calc(100vh - 180px)', 'overflow': 'auto', 'padding': '16px' }"
+    >
+      <div *nzModalContent>
+        <form [formGroup]="signUpForm" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="label-C">First Name <span class="text-red-600">*</span></label>
+            <input nz-input class="input-C mt-1" placeholder="Enter first name" formControlName="firstName" (blur)="onBlurTrim($event, true)" />
+            <div class="text-red-600 text-xs mt-1" *ngIf="signUpForm.get('firstName')?.touched && signUpForm.get('firstName')?.invalid">
+              First Name is required.
+            </div>
+          </div>
+
+          <div>
+            <label class="label-C">Middle Name</label>
+            <input nz-input class="input-C mt-1" placeholder="Enter middle name" formControlName="middleName" (blur)="onBlurTrim($event, true)" />
+          </div>
+
+          <div>
+            <label class="label-C">Last Name <span class="text-red-600">*</span></label>
+            <input nz-input class="input-C mt-1" placeholder="Enter last name" formControlName="lastName" (blur)="onBlurTrim($event, true)" />
+            <div class="text-red-600 text-xs mt-1" *ngIf="signUpForm.get('lastName')?.touched && signUpForm.get('lastName')?.invalid">
+              Last Name is required.
+            </div>
+          </div>
+
+          <div>
+            <label class="label-C">Email <span class="text-red-600">*</span></label>
+            <input nz-input class="input-C mt-1" placeholder="name@example.com" formControlName="email" (blur)="onBlurEmailCheck()" />
+            <div class="text-red-600 text-xs mt-1" *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid">
+              <span *ngIf="signUpForm.get('email')?.errors?.['required']">Email is required.</span>
+              <span *ngIf="signUpForm.get('email')?.errors?.['email']">Invalid email.</span>
+              <span *ngIf="signUpForm.get('email')?.errors?.['duplicate']">Email already exists.</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="label-C">Phone</label>
+            <input nz-input class="input-C mt-1" placeholder="(555) 123-4567" formControlName="phone" (input)="onPhoneInput($event)" />
+          </div>
+
+          <div>
+            <label class="label-C">Role Title</label>
+            <nz-select
+              class="w-full mt-1"
+              nzPlaceHolder="Select role title"
+              nzAllowClear
+              nzShowSearch
+              formControlName="roleTitleId"
+              [nzLoading]="rtLoading"
+              [nzShowArrow]="true"
+            >
+              <nz-option *ngFor="let rt of rtRows" [nzValue]="rt.id" [nzLabel]="rt.name"></nz-option>
+            </nz-select>
+          </div>
+        </form>
+      </div>
+
+      <ng-template #gaModalFooter>
+        <button nz-button (click)="closeGaModal()" [disabled]="saving">Cancel</button>
+        <button
+          nz-button
+          nzType="primary"
+          [disabled]="signUpForm.invalid || saving || emailDuplicateCheck"
+          [nzLoading]="saving || emailDuplicateCheck"
+          (click)="submitGa()"
+        >
+          {{ isEditMode ? 'Save Changes' : 'Create' }}
+        </button>
+      </ng-template>
+    </nz-modal>
+  </nz-tab>
+
+  <nz-tab nzTitle="Providers">
+
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <h3 class="text-base font-semibold m-0 dark:text-gray-200">
+        <i class="fa-solid fa-user-doctor mr-2 text-primary"></i>
+        Providers
+      </h3>
+
+      <button
+        nz-button
+        nzType="default"
+        nzShape="round"
+        class="um-add-btn"
+        (click)="openAddProviderModal()"
+        aria-label="Add Provider"
+        type="button"
+      >
+        <i class="fa-solid fa-plus"></i>
+        <span class="ml-2 hidden md:inline">Add Provider</span>
+        <span class="md:hidden">Add</span>
+      </button>
+    </div>
+
+    <div class="mt-3 p-4 rounded-lg bg-primary-50 border border-primary-100 dark:bg-gray-800 dark:border-gray-700 grid grid-cols-1 sm:grid-cols-3 gap-4 um-filter-grid">
+      <div>
+        <label class="label-C-F">Name</label>
+        <input
+          nz-input
+          class="input-C mt-1"
+          placeholder="Search by name"
+          [(ngModel)]="prSearchName"
+          (keyup.enter)="providerApplyFilters()"
+        />
+      </div>
+
+      <div>
+        <label class="label-C-F">Status</label>
+        <nz-select
+          class="w-full mt-1"
+          nzPlaceHolder="Select status"
+          nzAllowClear
+          [(ngModel)]="prSelectedStatus"
+        >
+          <nz-option *ngFor="let s of statusOptions" [nzValue]="s" [nzLabel]="s"></nz-option>
+        </nz-select>
+      </div>
+
+      <div class="flex items-end gap-2">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="um-filter-action"
+          (click)="providerApplyFilters()"
+          [nzLoading]="prLoading"
+          [disabled]="prLoading"
+          type="button"
+        >
+          Apply Filters
+        </button>
+
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="um-filter-action"
+          (click)="providerClearFilters()"
+          [disabled]="prLoading"
+          type="button"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <nz-table
+      [nzData]="prRows"
+      [nzFrontPagination]="false"
+      [nzLoading]="prLoading"
+      [nzTotal]="prTotal"
+      [nzPageIndex]="prPageIndex"
+      [nzPageSize]="prPageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[5,10,20,50,100]"
+      (nzQueryParams)="onProviderQueryParams($event)"
+      class="rounded-lg overflow-hidden mt-3 user-management-table"
+    >
+      <thead>
+        <tr>
+          <th nzWidth="240px">Name</th>
+          <th nzWidth="160px">Phone</th>
+          <th nzWidth="220px">Email</th>
+          <th nzWidth="120px">Status</th>
+          <th nzWidth="200px" class="text-right">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let row of prRows">
+          <td class="font-medium">{{ row.userName || '--' }}</td>
+          <td>{{ row.phone || '—' }}</td>
+          <td>{{ row.email || '—' }}</td>
+          <td>
+            <span class="ui-status-badge" [ngClass]="statusBadgeClass(row.status)">{{ row.status || '—' }}</span>
+          </td>
+          <td class="text-right whitespace-nowrap">
+            <button
+              nz-button
+              nzType="default"
+              nzShape="circle"
+              class="mr-2 action-icon-btn"
+              (click)="openEditProviderModal(row)"
+              [nzLoading]="prRowEditLoadingId === row.userId"
+              title="Edit"
+            >
+              <i class="fa-solid fa-pen"></i>
+            </button>
+
+            <button
+              nz-button
+              nzType="default"
+              nzShape="circle"
+              class="mr-2 action-icon-btn"
+              [nzLoading]="prRowToggleLoadingId === row.userId"
+              (click)="toggleProviderStatus(row)"
+              [title]="(row.status || '').toLowerCase() === 'active' ? 'Deactivate' : 'Activate'"
+            >
+              <i class="fa-solid" [ngClass]="(row.status || '').toLowerCase() === 'active' ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
+            </button>
+
+          </td>
+        </tr>
+
+        <tr *ngIf="!prLoading && prRows.length === 0">
+          <td colspan="5" class="text-center py-6 text-gray-500">No records found.</td>
+        </tr>
+      </tbody>
+    </nz-table>
+
+    <nz-modal
+      [(nzVisible)]="isProviderModalVisible"
+      [nzTitle]="providerEditMode ? 'Edit Provider' : 'Add Provider'"
+      [nzMaskClosable]="false"
+      (nzOnCancel)="closeProviderModal()"
+      [nzFooter]="providerModalFooter"
+      [nzWidth]="'96vw'"
+      [nzStyle]="{ 'max-width.px': 900 }"
+      [nzBodyStyle]="{ 'max-height': 'calc(100vh - 180px)', 'overflow': 'auto', 'padding': '16px' }"
+    >
+      <div *nzModalContent>
+        <form [formGroup]="providerForm" class="grid grid-cols-1 gap-2">
+
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <div class="col-span-full">
+              <label class="label-C">NPI <span class="text-red-600">*</span></label>
+              <input nz-input class="input-C mt-1" placeholder="Enter NPI" formControlName="npi" (blur)="onBlurTrim($event, true)" />
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('npi','required')">NPI is required.</div>
+            </div>
+
+            <div>
+              <label class="label-C">First Name <span class="text-red-600">*</span></label>
+              <input nz-input class="input-C mt-1" placeholder="Enter First Name" formControlName="firstName" (blur)="onBlurTrim($event, true)" />
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('firstName','required')">Required.</div>
+            </div>
+
+            <div>
+              <label class="label-C">Middle Name</label>
+              <input nz-input class="input-C mt-1" placeholder="Enter Middle Name" formControlName="middleName" (blur)="onBlurTrim($event, true)" />
+            </div>
+
+            <div>
+              <label class="label-C">Last Name <span class="text-red-600">*</span></label>
+              <input nz-input class="input-C mt-1" placeholder="Enter Last Name" formControlName="lastName" (blur)="onBlurTrim($event, true)" />
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('lastName','required')">Required.</div>
+            </div>
+
+            <div>
+              <label class="label-C">Title</label>
+              <input nz-input class="input-C mt-1" placeholder="Enter Title" formControlName="title" (blur)="onBlurTrim($event, true)" />
+            </div>
+
+            <div>
+              <label class="label-C">Gender <span class="text-red-600">*</span></label>
+              <nz-select class="w-full mt-1" nzPlaceHolder="Select Gender" formControlName="gender">
+                <nz-option nzLabel="Male" nzValue="Male"></nz-option>
+                <nz-option nzLabel="Female" nzValue="Female"></nz-option>
+              </nz-select>
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('gender','required')">Required.</div>
+            </div>
+
+            <div>
+              <label class="label-C">Date Of Birth <span class="text-red-600">*</span></label>
+              <nz-date-picker class="datepicker-C w-full" formControlName="dob" nzFormat="MM/dd/yyyy" nzPlaceHolder="mm/dd/yyyy"></nz-date-picker>
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('dob','required')">Required.</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-2 mb-2">
+            <div>
+              <label class="label-C">Email <span class="text-red-600">*</span></label>
+              <input nz-input class="input-C mt-1" placeholder="Enter Email" formControlName="email" (blur)="onProviderEmailCheck()" />
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('email','required')">Required.</div>
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('email','email')">Invalid email.</div>
+              <div class="text-red-600 text-xs mt-1" *ngIf="providerForm.get('email')?.errors?.['duplicate']">Email already exists.</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <div>
+              <label class="label-C">Phone <span class="text-red-600">*</span></label>
+              <input nz-input class="input-C mt-1" placeholder="(###) ###-####" formControlName="phone" (input)="onProviderPhoneInput($event)" />
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('phone','required')">Required.</div>
+            </div>
+
+            <div>
+              <label class="label-C">Provider Type <span class="text-red-600">*</span></label>
+              <nz-select class="w-full mt-1" nzPlaceHolder="Select Provider Type" formControlName="providerType">
+                <nz-option nzLabel="Proxy" nzValue="Proxy"></nz-option>
+                <nz-option nzLabel="Prescribing" nzValue="Prescribing"></nz-option>
+                <nz-option nzLabel="EPCS Coorfinator" nzValue="EPCS Coorfinator"></nz-option>
+                <nz-option nzLabel="Permanent" nzValue="Permanent"></nz-option>
+              </nz-select>
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('providerType','required')">Required.</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-2 mb-2">
+            <div>
+              <label class="label-C">Address <span class="text-red-600">*</span></label>
+              <input nz-input class="input-C mt-1" placeholder="Enter Address" formControlName="address" (blur)="onBlurTrim($event, true)" />
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('address','required')">Required.</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <div>
+              <label class="label-C">State <span class="text-red-600">*</span></label>
+              <nz-select class="w-full mt-1" nzPlaceHolder="Select State" nzShowSearch formControlName="stateId" [nzLoading]="allStatesLoading">
+                <nz-option *ngFor="let s of allStates" [nzValue]="s.id" [nzLabel]="s.name"></nz-option>
+              </nz-select>
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('stateId','required')">Required.</div>
+            </div>
+
+            <div>
+              <label class="label-C">City <span class="text-red-600">*</span></label>
+              <nz-select
+                class="w-full mt-1"
+                nzPlaceHolder="Select City"
+                nzShowSearch
+                formControlName="cityId"
+                [nzLoading]="citiesByStateLoading"
+                [nzDisabled]="!providerForm.get('stateId')?.value"
+              >
+                <nz-option *ngFor="let c of citiesByState" [nzValue]="c.id" [nzLabel]="c.name"></nz-option>
+              </nz-select>
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('cityId','required')">Required.</div>
+            </div>
+
+            <div class="col-span-1">
+              <label class="label-C">Zip Code <span class="text-red-600">*</span></label>
+
+              <input
+                nz-input
+                class="input-C mt-1"
+                formControlName="zipCode"
+                placeholder="Enter zip code"
+                maxlength="5"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                (input)="onZipInput($event)"
+              />
+
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('zipCode','required')">Required.</div>
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('zipCode','pattern')">Only numbers allowed.</div>
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('zipCode','maxlength')">Max 5 digits.</div>
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('zipCode','minlength')">Must be 5 digits.</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <div>
+              <label class="label-C">Tax ID</label>
+              <input nz-input class="input-C mt-1" placeholder="Enter Tax ID" formControlName="taxId" (blur)="onBlurTrim($event, true)" />
+            </div>
+            <div>
+              <label class="label-C">Medicaid #</label>
+              <input nz-input class="input-C mt-1" placeholder="Enter Medicaid" formControlName="medicaid" (blur)="onBlurTrim($event, true)" />
+            </div>
+            <div>
+              <label class="label-C">CAQH ID</label>
+              <input nz-input class="input-C mt-1" placeholder="Enter CAQH ID" formControlName="caqhId" (blur)="onBlurTrim($event, true)" />
+            </div>
+            <div>
+              <label class="label-C">License <span class="text-red-600">*</span></label>
+              <input nz-input class="input-C mt-1" placeholder="Enter License" formControlName="license" (blur)="onBlurTrim($event, true)" />
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('license','required')">Required.</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-2 mb-2">
+            <div>
+              <label class="label-C">SSN</label>
+              <input nz-input class="input-C mt-1" placeholder="Enter SSN" formControlName="ssn" (blur)="onBlurTrim($event, true)" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <div>
+              <label class="label-C">DEA #</label>
+              <input nz-input class="input-C mt-1" placeholder="Enter DEA" formControlName="dea" (blur)="onBlurTrim($event, true)" />
+            </div>
+
+            <div>
+              <label class="label-C">Condition Treated <span class="text-red-600">*</span></label>
+              <nz-select
+                class="w-full mt-1"
+                nzMode="multiple"
+                nzPlaceHolder="Select Condition Treated"
+                formControlName="categoryId"
+                [nzLoading]="categoriesLoading"
+              >
+                <nz-option *ngFor="let cat of categories" [nzValue]="cat.categoryId" [nzLabel]="cat.categoryName"></nz-option>
+              </nz-select>
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('categoryId','required')">Required.</div>
+            </div>
+
+            <div>
+              <label class="label-C">Licensed State <span class="text-red-600">*</span></label>
+
+              <nz-select
+                class="w-full mt-1"
+                nzMode="multiple"
+                nzPlaceHolder="Select Licensed States"
+                nzShowSearch
+                [nzMaxTagCount]="3"
+                formControlName="licenseStateIds"
+                [nzLoading]="allStatesLoading"
+              >
+                <nz-option
+                  *ngFor="let s of allStates"
+                  [nzValue]="s.id"
+                  [nzLabel]="s.name + ' - ' + s.shortName"
+                ></nz-option>
+              </nz-select>
+
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('licenseStateIds','required')">Required.</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-2 mb-2">
+            <div>
+              <label class="label-C">Bio <span class="text-red-600">*</span></label>
+              <textarea nz-input class="input-C mt-1" placeholder="Enter Bio" formControlName="bio" (blur)="onBlurTrim($event, true)"></textarea>
+              <div class="text-red-600 text-xs mt-1" *ngIf="hasProviderError('address','required')">Required.</div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <ng-template #providerModalFooter>
+        <button nz-button (click)="closeProviderModal()" [disabled]="saving">Cancel</button>
+        <button
+          nz-button
+          nzType="primary"
+          [disabled]="providerForm.invalid || saving || providerEmailDupCheck"
+          [nzLoading]="saving || providerEmailDupCheck"
+          (click)="submitProvider()"
+        >
+          {{ providerEditMode ? 'Save Changes' : 'Create' }}
+        </button>
+      </ng-template>
+    </nz-modal>
+  </nz-tab>
+
+  <nz-tab nzTitle="Tech Support">
+
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <h3 class="text-base font-semibold m-0 dark:text-gray-200">
+        <i class="fa-solid fa-headset mr-2 text-primary"></i>
+        Tech Support
+      </h3>
+
+      <button
+        nz-button
+        nzType="default"
+        nzShape="round"
+        class="um-add-btn"
+        (click)="openAddTechModal()"
+        aria-label="Add Tech Support"
+        type="button"
+      >
+        <i class="fa-solid fa-plus"></i>
+        <span class="ml-2 hidden md:inline">Add Tech Support</span>
+        <span class="md:hidden">Add</span>
+      </button>
+    </div>
+
+    <div class="mt-3 p-4 rounded-lg bg-primary-50 border border-primary-100 dark:bg-gray-800 dark:border-gray-700 grid grid-cols-1 sm:grid-cols-3 gap-4 um-filter-grid">
+      <div>
+        <label class="label-C-F">Name</label>
+        <input
+          nz-input
+          class="input-C mt-1"
+          placeholder="Search by name"
+          [(ngModel)]="techSearchName"
+          (keyup.enter)="techApplyFilters()"
+        />
+      </div>
+
+      <div>
+        <label class="label-C-F">Status</label>
+        <nz-select
+          class="w-full mt-1"
+          nzPlaceHolder="Select status"
+          nzAllowClear
+          [(ngModel)]="techSelectedStatus"
+        >
+          <nz-option *ngFor="let s of statusOptions" [nzValue]="s" [nzLabel]="s"></nz-option>
+        </nz-select>
+      </div>
+
+      <div class="flex items-end gap-2">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="um-filter-action"
+          (click)="techApplyFilters()"
+          [nzLoading]="techLoading"
+          [disabled]="techLoading"
+          type="button"
+        >
+          Apply Filters
+        </button>
+
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="um-filter-action"
+          (click)="techClearFilters()"
+          [disabled]="techLoading"
+          type="button"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <nz-table
+      [nzData]="techRows"
+      [nzFrontPagination]="false"
+      [nzLoading]="techLoading"
+      [nzTotal]="techTotal"
+      [nzPageIndex]="techPageIndex"
+      [nzPageSize]="techPageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[5,10,20,50,100]"
+      (nzQueryParams)="onTechQueryParams($event)"
+      class="rounded-lg overflow-hidden mt-3 user-management-table"
+    >
+      <thead>
+      <tr>
+        <th nzWidth="240px">Name</th>
+        <th nzWidth="160px">Phone</th>
+        <th nzWidth="220px">Email</th>
+        <th nzWidth="120px">Status</th>
+        <th nzWidth="200px" class="text-right">Actions</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr *ngFor="let row of techRows">
+        <td class="font-medium">{{ row.userName || '--' }}</td>
+        <td>{{ row.phone || '—' }}</td>
+        <td>{{ row.email || '—' }}</td>
+        <td>
+          <span class="ui-status-badge" [ngClass]="statusBadgeClass(row.status)">{{ row.status || '—' }}</span>
+        </td>
+
+        <td class="text-right whitespace-nowrap">
+          <button
+            nz-button
+            nzType="default"
+            nzShape="circle"
+            class="mr-2 action-icon-btn"
+            (click)="openEditTechModal(row)"
+            title="Edit"
+          >
+            <i class="fa-solid fa-pen"></i>
+          </button>
+
+          <button
+            nz-button
+            nzType="default"
+            nzShape="circle"
+            class="mr-2 action-icon-btn"
+            [nzLoading]="techRowToggleLoadingId === row.userId"
+            (click)="toggleTechStatus(row)"
+            [title]="(row.status || '').toLowerCase() === 'active' ? 'Deactivate' : 'Activate'"
+          >
+            <i
+              class="fa-solid"
+              [ngClass]="(row.status || '').toLowerCase() === 'active' ? 'fa-toggle-on' : 'fa-toggle-off'"
+            ></i>
+          </button>
+        </td>
+      </tr>
+
+      <tr *ngIf="!techLoading && techRows.length === 0">
+        <td colspan="5" class="text-center py-6 text-gray-500">No records found.</td>
+      </tr>
+      </tbody>
+    </nz-table>
+
+    <nz-modal
+      [(nzVisible)]="isTechModalVisible"
+      [nzTitle]="techEditMode ? 'Edit Tech Support' : 'Add Tech Support'"
+      [nzMaskClosable]="false"
+      (nzOnCancel)="closeTechModal()"
+      [nzFooter]="techModalFooter"
+      [nzWidth]="'96vw'"
+      [nzStyle]="{ 'max-width.px': 700 }"
+      [nzBodyStyle]="{ 'max-height': 'calc(100vh - 180px)', 'overflow': 'auto', 'padding': '16px' }"
+    >
+      <div *nzModalContent>
+        <form [formGroup]="techForm" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="label-C">First Name <span class="text-red-600">*</span></label>
+            <input
+              nz-input
+              class="input-C mt-1"
+              placeholder="Enter first name"
+              formControlName="firstName"
+              (blur)="onBlurTrim($event, true)"
+            />
+            <div class="text-red-600 text-xs mt-1" *ngIf="techForm.get('firstName')?.touched && techForm.get('firstName')?.invalid">
+              First Name is required.
+            </div>
+          </div>
+
+          <div>
+            <label class="label-C">Middle Name</label>
+            <input
+              nz-input
+              class="input-C mt-1"
+              placeholder="Enter middle name"
+              formControlName="middleName"
+              (blur)="onBlurTrim($event, true)"
+            />
+          </div>
+
+          <div>
+            <label class="label-C">Last Name <span class="text-red-600">*</span></label>
+            <input
+              nz-input
+              class="input-C mt-1"
+              placeholder="Enter last name"
+              formControlName="lastName"
+              (blur)="onBlurTrim($event, true)"
+            />
+            <div class="text-red-600 text-xs mt-1" *ngIf="techForm.get('lastName')?.touched && techForm.get('lastName')?.invalid">
+              Last Name is required.
+            </div>
+          </div>
+
+          <div>
+            <label class="label-C">Email <span class="text-red-600">*</span></label>
+            <input
+              nz-input
+              class="input-C mt-1"
+              placeholder="name@example.com"
+              formControlName="email"
+              (blur)="onTechEmailCheck()"
+            />
+            <div class="text-red-600 text-xs mt-1" *ngIf="techForm.get('email')?.touched && techForm.get('email')?.invalid">
+              <span *ngIf="techForm.get('email')?.errors?.['required']">Email is required.</span>
+              <span *ngIf="techForm.get('email')?.errors?.['email']">Invalid email.</span>
+              <span *ngIf="techForm.get('email')?.errors?.['duplicate']">Email already exists.</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="label-C">Phone</label>
+            <input
+              nz-input
+              class="input-C mt-1"
+              placeholder="(555) 123-4567"
+              formControlName="phone"
+              (input)="onTechPhoneInput($event)"
+            />
+          </div>
+        </form>
+      </div>
+
+      <ng-template #techModalFooter>
+        <button nz-button (click)="closeTechModal()" [disabled]="techSaving">Cancel</button>
+        <button
+          nz-button
+          nzType="primary"
+          [disabled]="techForm.invalid || techSaving || techEmailDuplicateCheck"
+          [nzLoading]="techSaving || techEmailDuplicateCheck"
+          (click)="submitTech()"
+        >
+          {{ techEditMode ? 'Save Changes' : 'Create' }}
+        </button>
+      </ng-template>
+    </nz-modal>
+  </nz-tab>
+
+  <nz-tab nzTitle="Role Titles">
+
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <h3 class="text-base font-semibold m-0 dark:text-gray-200">
+        <i class="fa-solid fa-tags mr-2 text-primary"></i>
+        Role Titles
+      </h3>
+
+      <button
+        nz-button
+        nzType="default"
+        nzShape="round"
+        class="um-add-btn"
+        (click)="openAddRtModal()"
+        aria-label="Add Role Title"
+        type="button"
+      >
+        <i class="fa-solid fa-plus"></i>
+        <span class="ml-2 hidden md:inline">Add Role Title</span>
+        <span class="md:hidden">Add</span>
+      </button>
+    </div>
+
+    <div class="mt-3 p-4 rounded-lg bg-primary-50 border border-primary-100 dark:bg-gray-800 dark:border-gray-700 grid grid-cols-1 sm:grid-cols-3 gap-4 um-filter-grid">
+      <div>
+        <label class="label-C-F">Name</label>
+        <input
+          nz-input
+          class="input-C mt-1"
+          placeholder="Search by name"
+          [(ngModel)]="rtSearchName"
+        />
+      </div>
+    </div>
+
+    <nz-table
+      [nzData]="filteredRtRows"
+      [nzFrontPagination]="true"
+      [nzLoading]="rtLoading"
+      [nzPageSize]="100"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[5,10,20,50,100]"
+      class="rounded-lg overflow-hidden mt-3 user-management-table"
+    >
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th nzWidth="200px" class="text-right">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let row of filteredRtRows">
+          <td class="font-medium">{{ row.name || '--' }}</td>
+          <td class="text-right whitespace-nowrap">
+            <button
+              nz-button
+              nzType="default"
+              nzShape="circle"
+              class="mr-2 action-icon-btn"
+              (click)="openEditRtModal(row)"
+              title="Edit"
+            >
+              <i class="fa-solid fa-pen"></i>
+            </button>
+          </td>
+        </tr>
+
+        <tr *ngIf="!rtLoading && filteredRtRows.length === 0">
+          <td colspan="2" class="text-center py-6 text-gray-500">No records found.</td>
+        </tr>
+      </tbody>
+    </nz-table>
+
+    <nz-modal
+      [(nzVisible)]="isRtModalVisible"
+      [nzTitle]="rtEditMode ? 'Edit Role Title' : 'Add Role Title'"
+      [nzMaskClosable]="false"
+      (nzOnCancel)="closeRtModal()"
+      [nzFooter]="rtModalFooter"
+      [nzWidth]="'96vw'"
+      [nzStyle]="{ 'max-width.px': 500 }"
+      [nzBodyStyle]="{ 'padding': '16px' }"
+    >
+      <div *nzModalContent>
+        <form [formGroup]="rtForm">
+          <div>
+            <label class="label-C">Role Title Name <span class="text-red-600">*</span></label>
+            <input
+              nz-input
+              class="input-C mt-1"
+              placeholder="e.g. Senior Administrator"
+              formControlName="roleTitleName"
+              (blur)="onBlurTrim($event, true)"
+            />
+            <div class="text-red-600 text-xs mt-1" *ngIf="rtForm.get('roleTitleName')?.touched && rtForm.get('roleTitleName')?.invalid">
+              <span *ngIf="rtForm.get('roleTitleName')?.errors?.['required']">Role Title Name is required.</span>
+              <span *ngIf="rtForm.get('roleTitleName')?.errors?.['maxlength']">Max 150 characters.</span>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <ng-template #rtModalFooter>
+        <button nz-button (click)="closeRtModal()" [disabled]="rtSaving">Cancel</button>
+        <button
+          nz-button
+          nzType="primary"
+          [disabled]="rtForm.invalid || rtSaving"
+          [nzLoading]="rtSaving"
+          (click)="submitRt()"
+        >
+          {{ rtEditMode ? 'Save Changes' : 'Create' }}
+        </button>
+      </ng-template>
+    </nz-modal>
+  </nz-tab>
+
+</nz-tabset>

@@ -1,0 +1,255 @@
+<ng-container *ngIf="!isLoading; else loadingMain">
+  @if (apptData) {
+    <div class="appt-workspace-shell">
+      <section class="appt-summary-hero">
+        <div class="appt-summary-identity">
+          <div class="appt-avatar">
+            {{ (apptData.firstName || 'P')[0] }}{{ (apptData.lastName || 'A')[0] }}
+          </div>
+
+          <div>
+            <div class="appt-summary-name">
+              {{
+                apptData.firstName && apptData.lastName
+                  ? apptData.firstName + ' ' + apptData.lastName
+                  : (apptData.firstName || apptData.lastName || '--')
+              }}
+            </div>
+            <div class="appt-summary-meta">
+              <span>Appointment #{{ apptData.patientAppointmentId || '--' }}</span>
+              <span>{{ apptData.email || '--' }}</span>
+              <span>{{ apptData.phoneNumber || '--' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="appt-kpi-grid">
+          <div class="appt-kpi-card">
+            <div class="appt-kpi-label">Date</div>
+            <div class="appt-kpi-value">{{ (apptData.startDate | date: 'MM/dd/yyyy') || '--' }}</div>
+          </div>
+          <div class="appt-kpi-card">
+            <div class="appt-kpi-label">Start Time</div>
+            <div class="appt-kpi-value">{{ apptData.startTime || '--' }}</div>
+          </div>
+          <div class="appt-kpi-card">
+            <div class="appt-kpi-label">Duration</div>
+            <div class="appt-kpi-value">{{ (apptData.duration || 0) + ' min' }}</div>
+          </div>
+          <div class="appt-kpi-card">
+            <div class="appt-kpi-label">Appointment Status</div>
+            <div>
+              <span class="ui-status-badge" [ngClass]="getStatusClass(apptData.status)">
+                {{ apptData.status || '—' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      @if (meetingWindowOpen) {
+        <div class="appt-meeting-banner">
+          <div class="appt-meeting-pulse"></div>
+          <i class="fa-solid fa-video"></i>
+          <span class="appt-meeting-label">Meeting in Progress</span>
+          <div class="appt-meeting-actions">
+            <button nz-button nzType="default" nzShape="round" (click)="rejoinMeeting()">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              <span class="ml-2">Rejoin</span>
+            </button>
+            <button nz-button nzType="default" nzShape="round" class="appt-end-btn" (click)="endMeeting()">
+              <i class="fa-solid fa-phone-slash"></i>
+              <span class="ml-2">End</span>
+            </button>
+          </div>
+        </div>
+      }
+
+      <section class="appt-action-row">
+        @if (canUpdateAppointmentStatus) {
+          <button
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="appt-cta-btn mb-0"
+            (click)="updateApptStatus()"
+          >
+            <i class="fa-regular fa-pen-to-square"></i>
+            <span class="ml-2 hidden md:inline-block">Update Status</span>
+          </button>
+        }
+
+        @if (canJoinMeeting) {
+          <button
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="appt-cta-btn mb-0"
+            (click)="openZoomMeeting()"
+          >
+            <i class="fa-solid fa-video"></i>
+            <span class="ml-2 hidden md:inline-block">Start Appointment</span>
+          </button>
+        }
+      </section>
+
+      <section class="appt-overview-grid">
+        <article class="appt-info-panel">
+          <div class="appt-info-head">
+            <h4 class="appt-panel-title">
+              <i class="fa-solid fa-user mr-2 text-primary"></i>Patient Snapshot
+            </h4>
+          </div>
+
+          <div class="appt-pair-grid">
+            <div>
+              <label>Patient Name</label>
+              <span>
+                {{
+                  apptData.firstName && apptData.lastName
+                    ? apptData.firstName + ' ' + apptData.lastName
+                    : (apptData.firstName || apptData.lastName || '--')
+                }}
+              </span>
+            </div>
+            <div><label>Email</label><span>{{ apptData.email || '--' }}</span></div>
+            <div><label>Phone</label><span>{{ apptData.phoneNumber || '--' }}</span></div>
+            <div><label>Gender</label><span>{{ apptData.gender || '--' }}</span></div>
+            <div><label>Date Of Birth</label><span>{{ (apptData.dob | date: 'MM/dd/yyyy') || '--' }}</span></div>
+            <div><label>Patient ID</label><span>{{ apptData.patientId || '--' }}</span></div>
+            <div class="appt-col-span-2"><label>Address</label><span>{{ apptData.address || '--' }}</span></div>
+          </div>
+        </article>
+
+        <article class="appt-info-panel">
+          <div class="appt-info-head">
+            <h4 class="appt-panel-title">
+              <i class="fa-regular fa-calendar-days mr-2 text-primary"></i>Appointment Detail
+            </h4>
+
+          </div>
+
+          <div class="appt-pair-grid">
+            <div><label>Package</label><span>{{ apptData.productName || '--' }}</span></div>
+            @if (userRole != 'Clinic Admin') {
+            <div><label>Provider</label><span>{{ apptData.providerName || '--' }}</span></div>
+            }
+            <div><label>Date</label><span>{{ (apptData.startDate | date: 'MM/dd/yyyy') || '--' }}</span></div>
+            <div><label>Duration</label><span>{{ (apptData.duration || 0) + ' min' }}</span></div>
+            <div><label>Start Time</label><span>{{ apptData.startTime || '--' }}</span></div>
+            <div><label>End Time</label><span>{{ apptData.endTime || '--' }}</span></div>
+
+            <div><label>Appointment ID</label><span>{{ apptData.patientAppointmentId || '--' }}</span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="appt-workflow-shell">
+        <div class="appt-workflow-title">
+          <i class="fa-solid fa-diagram-project mr-2 text-primary"></i>Linked Treatment
+        </div>
+
+        @if (treatmentViewRows.length === 0) {
+          <div class="appt-empty-state">
+            <i class="fa-regular fa-file-lines"></i>
+            <span>No treatment data available for this appointment.</span>
+          </div>
+        } @else {
+          <div class="appt-records-list">
+            @for (r of treatmentViewRows; track trackByTreatmentId) {
+              <article
+                class="appt-record-row"
+                [class.appt-record-row-clickable]="!!r.patientTreatmentId"
+                [class.appt-record-row-disabled]="!r.patientTreatmentId"
+                role="button"
+                tabindex="0"
+                [attr.aria-disabled]="!r.patientTreatmentId"
+                [attr.title]="r.patientTreatmentId ? 'Open treatment detail' : 'Treatment unavailable'"
+                (click)="r.patientTreatmentId ? openTreatment(r.patientTreatmentId) : null"
+                (keydown.enter)="r.patientTreatmentId ? openTreatment(r.patientTreatmentId) : null"
+                (keydown.space)="r.patientTreatmentId ? openTreatment(r.patientTreatmentId) : null; $event.preventDefault()">
+
+                <div class="appt-record-main">
+                  <div class="appt-record-title">Treatment #{{ r.treatmentId || '--' }}</div>
+                  <div class="appt-record-subtitle">{{ r.bundleName || '--' }}</div>
+                </div>
+
+                <div class="appt-record-facts">
+                  <div class="appt-fact">
+                    <label>Start Date</label>
+                    <span>{{ formatDate(r.startDate) }}</span>
+                  </div>
+                  <div class="appt-fact">
+                    <label>Category</label>
+                    <span>{{ r.name || '--' }}</span>
+                  </div>
+                  <div class="appt-fact">
+                    <label>Prescriptions</label>
+                    <span>{{ r.prescriptionsCount ?? '--' }}</span>
+                  </div>
+                  <div class="appt-fact">
+                    <label>Orders</label>
+                    <span>{{ r.orderCount ?? '--' }}</span>
+                  </div>
+                </div>
+
+                <div class="appt-record-end">
+                  <span class="ui-status-badge" [ngClass]="getStatusClass(r.status)">
+                    {{ r.status || '--' }}
+                  </span>
+                  <button
+                    nz-button
+                    nzType="default"
+                    nzShape="circle"
+                    (click)="$event.stopPropagation(); openTreatment(r.patientTreatmentId)"
+                    [disabled]="!r.patientTreatmentId"
+                    [attr.title]="r.patientTreatmentId ? 'Open treatment detail' : null">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  } @else {
+    <div class="appt-state-panel">
+      <div class="text-center">
+        <i class="fa-solid fa-exclamation-circle text-2xl text-red-500 mb-4"></i>
+        <p class="text-xl text-red-500">No data found or an error occurred.</p>
+        <p class="text-gray-500 text-sm mt-2">Please try again later.</p>
+        <button nz-button nzType="default" nzShape="round" class="appt-cta-btn mt-4" (click)="getApptData()">
+          <i class="fa-solid fa-rotate-right mr-2"></i> Try Again
+        </button>
+      </div>
+    </div>
+  }
+</ng-container>
+
+<ng-template #loadingMain>
+  <div class="appt-state-panel">
+    <div class="text-center">
+      <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Appointment Data...</p>
+    </div>
+  </div>
+</ng-template>
+
+<nz-modal
+  [(nzVisible)]="showUpdateAppointmentModal"
+  nzTitle="Update Appointment Status"
+  (nzOnCancel)="handleCancelUpdateAppointment()"
+  (nzOnOk)="handleUpdateAppointment()"
+  [nzOkLoading]="savingStatus">
+
+  <div *nzModalContent class="grid gap-4">
+    <nz-select class="w-full" nzPlaceHolder="Select Status" [(ngModel)]="selectedStatus">
+      <nz-option nzLabel="Scheduled" nzValue="Scheduled"></nz-option>
+      <nz-option nzLabel="Completed" nzValue="Completed"></nz-option>
+      <nz-option nzLabel="Missed" nzValue="Missed"></nz-option>
+    </nz-select>
+  </div>
+</nz-modal>
+
+<app-comman-form-modal #commanModel [apiUrl]="this.modalApiUrl"></app-comman-form-modal>

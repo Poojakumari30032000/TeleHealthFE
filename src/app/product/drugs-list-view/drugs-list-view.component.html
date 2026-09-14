@@ -1,0 +1,1128 @@
+<nz-tabset
+  nzType="card"
+  [nzSelectedIndex]="activeTabIndex"
+  (nzSelectedIndexChange)="onTabChange($event)"
+  class="mt-2 drug-workflow-tabs"
+>
+  <nz-tab nzTitle="Rx Catalog">
+    <ng-container *ngTemplateOutlet="catalogContent"></ng-container>
+  </nz-tab>
+
+  @if (userRole === 'Global Admin') {
+    <nz-tab nzTitle="Catalogs">
+      <div class="drug-workspace-shell">
+
+        <section class="drug-filter-shell">
+          <div class="drug-filter-toolbar">
+            <div class="drug-filter-toolbar-left">
+              <button
+                nz-button
+                nzType="default"
+                nzShape="round"
+                class="drug-filter-toggle"
+                (click)="catalogShowFilters = !catalogShowFilters"
+                [attr.aria-expanded]="catalogShowFilters"
+                type="button"
+              >
+                <i class="fa-solid fa-sliders"></i>
+                <span>Filters</span>
+                <span *ngIf="catalogSearchQuery" class="drug-filter-count-pill">1</span>
+                <i class="fa-solid fa-chevron-down drug-filter-chevron" [class.rotate-180]="catalogShowFilters"></i>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2 flex-wrap">
+              <button
+                *ngIf="catalogSearchQuery"
+                nz-button
+                nzType="default"
+                nzShape="round"
+                class="drug-filter-clear"
+                (click)="catalogSearchQuery = ''; loadCatalogs()"
+                type="button"
+              >
+                Reset
+              </button>
+              <button
+                nz-button
+                nzType="default"
+                nzShape="round"
+                class="drug-filter-clear"
+                (click)="openCatalogDialog()"
+                type="button"
+              >
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Catalog</span>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="catalogShowFilters" class="drug-filter-grid">
+            <div>
+              <label class="label-C-F drug-filter-label">Name:</label>
+              <input
+                nz-input
+                placeholder="Search by name"
+                class="input-C drug-filter-input"
+                [(ngModel)]="catalogSearchQuery"
+                (input)="catalogSearchChanged()"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section class="drug-table-shell">
+          <nz-table
+            [nzData]="catalogsData"
+            [nzLoading]="catalogsLoading"
+            [nzFrontPagination]="true"
+            [nzPageSize]="100"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[10, 20, 50, 100]"
+            class="w-full drug-table"
+          >
+            <thead>
+              <tr>
+                <th nzWidth="120px">Actions</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th nzWidth="280px" class="drug-catalog-facility-column">Assigned Clinics</th>
+                <th nzWidth="120px">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (catalogsLoaded && catalogsData.length === 0) {
+                <tr>
+                  <td colspan="5" class="text-center py-8 text-gray-400">
+                    <i class="fa-regular fa-folder-open mr-2"></i>No drug catalogs found.
+                  </td>
+                </tr>
+              }
+              @for (item of catalogsData; track trackByCatalogId($index, item)) {
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-2">
+                        <button
+                          nz-button
+                          nzType="default"
+                          nzShape="circle"
+                          class="action-icon-btn"
+                          (click)="openEditCatalogDialog(item)"
+                          title="Edit"
+                        >
+                          <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                        <button
+                          nz-button
+                          nzType="default"
+                          nzShape="circle"
+                          class="action-icon-btn"
+                          (click)="toggleCatalogStatus(item)"
+                          [title]="item.isActive ? 'Deactivate' : 'Activate'"
+                        >
+                          <i class="fa-solid" [ngClass]="item.isActive ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
+                        </button>
+
+                    </div>
+                  </td>
+                  <td>{{ item.catalogName }}</td>
+                  <td>
+                    <span
+                      nz-tooltip
+                      [nzTooltipTitle]="item.description || ''"
+                      [nzTooltipTrigger]="hasLongCatalogDescription(item.description) ? 'hover' : null"
+                      nzTooltipOverlayClassName="drug-catalog-description-tooltip"
+                      [nzTooltipOverlayStyle]="{ width: '520px', 'max-width': '520px' }"
+                    >
+                      {{ getTruncatedCatalogDescription(item.description) }}
+                    </span>
+                  </td>
+                  <td class="drug-catalog-facility-column">
+                    <div class="drug-catalog-facility-tags">
+                      @for (name of getVisibleCatalogFacilityNames(item); track name) {
+                        <span class="drug-catalog-tag">{{ name }}</span>
+                      }
+                      @if (getHiddenCatalogFacilityCount(item) > 0) {
+                        <span
+                          class="drug-catalog-tag drug-catalog-tag--more"
+                          nz-tooltip
+                          [nzTooltipTitle]="getHiddenCatalogFacilityTooltip(item)"
+                          nzTooltipPlacement="top"
+                        >
+                          +{{ getHiddenCatalogFacilityCount(item) }} more
+                        </span>
+                      }
+                      @if (getCatalogFacilityNames(item).length === 0) {
+                        <span class="text-gray-400 text-xs">Not Assigned</span>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(item.isActive ? 'Active' : 'Archived')">
+                      {{ item.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </nz-table>
+        </section>
+      </div>
+    </nz-tab>
+  }
+  @if (userRole === 'Global Admin') {
+    <nz-tab nzTitle="Pharmacy">
+      <div class="drug-workspace-shell">
+        <section class="drug-filter-shell">
+          <div class="drug-filter-toolbar">
+            <div class="drug-filter-toolbar-left">
+              <h3 class="text-base font-semibold m-0">Pharmacies</h3>
+            </div>
+            <button nz-button nzType="primary" nzShape="round" (click)="openAddPharmacy()" type="button">
+              <i class="fa-solid fa-plus"></i>
+              <span class="ml-1">Add Pharmacy</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="drug-table-shell">
+          <nz-table
+            #pharmacyTable
+            [nzData]="pharmacyData"
+            [nzLoading]="pharmacyLoading"
+            [nzFrontPagination]="true"
+            [nzPageSize]="20"
+            [nzShowSizeChanger]="true"
+            [nzPageSizeOptions]="[10, 20, 50, 100]"
+            class="w-full drug-table"
+          >
+            <thead>
+              <tr>
+                <th nzWidth="160px">Actions</th>
+                <th>Pharmacy Name</th>
+                <th nzWidth="160px">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of pharmacyTable.data; trackBy: trackByPharmacyId">
+                <td>
+                  <div class="flex items-center gap-3">
+                    <button
+                      nz-button
+                      nzType="default"
+                      nzShape="circle"
+                      class="action-icon-btn"
+                      nz-tooltip
+                      nzTooltipTitle="Edit"
+                      (click)="openEditPharmacy(row)"
+                    >
+                      <i class="fa-regular fa-pen-to-square"></i>
+                    </button>
+                    <nz-switch
+                      nzSize="small"
+                      [ngModel]="row.status !== 'Archived'"
+                      [nzLoading]="!!row._statusSaving"
+                      [nzDisabled]="!!row._statusSaving"
+                      nz-tooltip
+                      [nzTooltipTitle]="row.status !== 'Archived' ? 'Active — click to archive' : 'Archived — click to activate'"
+                      (ngModelChange)="togglePharmacyStatus(row, $event)"
+                    ></nz-switch>
+                  </div>
+                </td>
+                <td class="truncate">{{ row.pharmacyName }}</td>
+                <td>
+                  <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(row.status)">
+                    {{ row.status }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </section>
+      </div>
+    </nz-tab>
+  }
+  @if (userRole === 'Global Admin') {
+    <nz-tab nzTitle="Clinic Rx Catalog View">
+      <app-clinic-drug-gaview></app-clinic-drug-gaview>
+    </nz-tab>
+  }
+</nz-tabset>
+
+<ng-template #catalogContent>
+<div class="drug-workspace-shell">
+  <section class="drug-filter-shell">
+    <div class="drug-filter-toolbar">
+      <div class="drug-filter-toolbar-left">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="drug-filter-toggle"
+          (click)="showFilters = !showFilters"
+          [attr.aria-expanded]="showFilters"
+          type="button"
+        >
+          <i class="fa-solid fa-sliders"></i>
+          <span>Filters</span>
+          <span *ngIf="appliedFilters.length > 0" class="drug-filter-count-pill">
+            {{ appliedFilters.length }}
+          </span>
+          <i class="fa-solid fa-chevron-down drug-filter-chevron" [class.rotate-180]="showFilters"></i>
+        </button>
+
+        <span *ngIf="!showFilters && appliedFilters.length > 0" class="drug-filter-summary">
+          {{ appliedFilters.length }} active filters
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2 flex-wrap">
+        <button
+          *ngIf="appliedFilters.length > 0"
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="drug-filter-clear"
+          (click)="clearFilters()"
+          type="button"
+        >
+          Reset
+        </button>
+
+        <ng-container *ngIf="isCustomCatalog">
+          <span
+            *appHasAnyPermission="['product_edit']"
+            nz-tooltip
+            [nzTooltipTitle]="addDrugDisabledReason"
+            [nzTooltipTrigger]="!canAddDrug ? 'hover' : null"
+            class="inline-flex"
+          >
+            <button
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="drug-filter-clear"
+              [disabled]="!canAddDrug"
+              (click)="openPricingDialog()"
+              type="button"
+            >
+              <i class="fa-solid fa-plus"></i>
+              <span>Add Drug</span>
+            </button>
+          </span>
+        </ng-container>
+
+        <ng-container *appHasAnyPermission="['product_edit']">
+          <button
+            *ngIf="userRole === 'Global Admin' && selectedCatalogId"
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="drug-filter-clear drug-bulk-import-btn"
+            type="button"
+            [disabled]="!canAddDrug"
+            (click)="openDrugBulkImportModal()"
+          >
+            <i class="fa-solid fa-file-arrow-up"></i>
+            <span>Bulk import</span>
+          </button>
+        </ng-container>
+      </div>
+    </div>
+
+    <div *ngIf="appliedFilters.length > 0 && !showFilters" class="drug-filter-chip-row">
+      @for (filter of appliedFilters; track filter.name) {
+        @if(filter.name !== 'ProductType'){
+          <button class="drug-filter-chip" type="button" (click)="removeFilter(filter.name)">
+            <span>{{ filter.name }}: {{ filter.value }}</span>
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        }
+      }
+    </div>
+
+    <div *ngIf="showFilters" class="drug-filter-grid">
+      <div>
+        <label class="label-C-F drug-filter-label">Catalog:</label>
+        <nz-select
+          class="w-full drug-filter-select"
+          nzPlaceHolder="Select Catalog"
+          nzShowSearch
+          nzAllowClear
+          [nzShowArrow]="true"
+          [nzLoading]="catalogFilterLoading"
+          [(ngModel)]="selectedCatalogId"
+          (ngModelChange)="applyFilter()"
+        >
+          <nz-option *ngFor="let cat of catalogFilterOptions" [nzValue]="cat.catalogId" [nzLabel]="cat.catalogName"></nz-option>
+        </nz-select>
+      </div>
+      <div>
+        <label class="label-C-F drug-filter-label">Title:</label>
+        <input
+          nz-input
+          placeholder="Search by name"
+          title="Search by name"
+          id="search"
+          class="input-C drug-filter-input"
+          [(ngModel)]="searchQuery"
+          (input)="searchTermChanged()"
+        />
+      </div>
+      <div>
+        <label class="label-C-F drug-filter-label">Status:</label>
+        <nz-select
+          class="w-full drug-filter-select"
+          nzPlaceHolder="Select Status"
+          nzShowSearch
+          nzAllowClear
+          [nzShowArrow]="true"
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="applyFilter()"
+        >
+          <nz-option *ngFor="let option of productStatusOptions" [nzValue]="option" [nzLabel]="option"></nz-option>
+        </nz-select>
+      </div>
+      <div>
+        <label class="label-C-F drug-filter-label">Controlled Substance:</label>
+        <nz-select
+          class="w-full drug-filter-select"
+          nzPlaceHolder="All"
+          nzAllowClear
+          [nzShowArrow]="true"
+          [(ngModel)]="selectedControlledSubstance"
+          (ngModelChange)="applyFilter()"
+        >
+          <nz-option *ngFor="let opt of controlledSubstanceOptions" [nzValue]="opt.value" [nzLabel]="opt.label"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+  </section>
+
+  @if (!selectedCatalogId && !loading) {
+    <div class="drug-no-catalog-hint">
+      <i class="fa-solid fa-layer-group drug-no-catalog-hint__icon"></i>
+      <p class="drug-no-catalog-hint__text">Select a catalog from the filters above to view its drugs</p>
+    </div>
+  }
+
+  <section class="drug-table-shell" *ngIf="selectedCatalogId || loading">
+    @if(userRole === 'Global Admin'){
+      <nz-table
+        [nzData]="tableData"
+        [nzLoading]="loading"
+        [nzFrontPagination]="false"
+        [nzPageIndex]="pageIndex"
+        [nzPageSize]="pageSize"
+        [nzTotal]="total"
+        [nzShowSizeChanger]="true"
+        [nzPageSizeOptions]="[10, 20, 50, 100]"
+        (nzQueryParams)="onQueryParamsChange($event)"
+        [nzScroll]="{ x: '1950px' }"
+        class="w-full drug-table"
+      >
+        <thead>
+        <tr>
+          <th nzWidth="170px">Actions</th>
+          <th nzWidth="240px">Product Name</th>
+          <th nzWidth="180px">Pharmacy</th>
+          <th nzWidth="160px">Strength</th>
+          <th nzWidth="160px">Dosage Form</th>
+          <th nzWidth="140px">Package Size</th>
+          <th nzWidth="180px">Controlled Substance</th>
+          <th nzWidth="150px">Pharmacy Price</th>
+          <th nzWidth="120px">Markup</th>
+          <th nzWidth="120px">Markup Type</th>
+          <th nzWidth="170px">Wholesale Price</th>
+          <th nzWidth="200px">Suggested Retail Price</th>
+          <th nzWidth="120px">Status</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr
+          *ngFor="let row of tableData; trackBy: trackByDrugId"
+          role="button"
+          tabindex="0"
+          (keydown.enter)="onAdminRowActivate(row)"
+          (keydown.space)="onAdminRowActivate(row); $event.preventDefault()"
+        >
+          <td>
+            <div class="flex items-center gap-2">
+              <button
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                class="action-icon-btn"
+                *appHasAnyPermission="['product_edit']"
+                (click)="$event.stopPropagation(); openEditPricingDialog(row)"
+                title="Edit"
+              >
+                <i class="fa-regular fa-pen-to-square"></i>
+              </button>
+
+              <button
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                class="action-icon-btn"
+                (click)="$event.stopPropagation(); openUnassignFacilitiesModal(row)"
+                title="Unassign Clinics"
+              >
+                <i class="fa-solid fa-link-slash"></i>
+              </button>
+
+              <button
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                class="action-icon-btn"
+                (click)="$event.stopPropagation(); updateStatus(row)"
+                title="Update Status"
+              >
+                <i class="fa-solid" [ngClass]="(row.status || '').toLowerCase() === 'active' ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
+              </button>
+            </div>
+          </td>
+
+          <td class="truncate">{{ row.name }}</td>
+          <td class="truncate">{{ row.pharmacyName }}</td>
+          <td>{{ row.strenght }}</td>
+          <td>{{ row.dosageForm }}</td>
+          <td>{{ row.packageSize }}</td>
+          <td>{{ row.controlSubstance ? 'Yes' : 'No' }}</td>
+          <td>{{ (row.pharmacyPrice ?? 0) | currency:'USD':'symbol':'1.2-2' }}</td>
+          <td>
+            <ng-container *ngIf="isPercentageMarkup(row); else amountMarkup">
+              {{ ((row.markupPercent ?? row.markup ?? 0) / 100) | percent:'1.0-2' }}
+            </ng-container>
+            <ng-template #amountMarkup>
+              {{ (row.markupPercent ?? row.markup ?? 0) | currency:'USD':'symbol':'1.2-2' }}
+            </ng-template>
+          </td>
+          <td>{{row.markupType}}</td>
+          <td>{{ (row.wholesalePrice ?? 0) | currency:'USD':'symbol':'1.2-2' }}</td>
+          <td>{{ (row.suggestedRetail ?? 0) | currency:'USD':'symbol':'1.2-2' }}</td>
+          <td>
+            <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(row.status)">
+              {{ row.status }}
+            </span>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    }
+    @else{
+      <nz-table
+        [nzData]="tableData"
+        [nzLoading]="loading"
+        [nzFrontPagination]="false"
+        [nzPageIndex]="pageIndex"
+        [nzPageSize]="pageSize"
+        [nzTotal]="total"
+        [nzShowSizeChanger]="true"
+        [nzPageSizeOptions]="[10, 20, 50, 100]"
+        (nzQueryParams)="onQueryParamsChange($event)"
+        [nzScroll]="{ x: '1800px' }"
+        class="w-full drug-table"
+      >
+        <thead>
+        <tr>
+          <th nzWidth="130px">Actions</th>
+          <th nzWidth="240px">Product Name</th>
+          <th *ngIf="showPharmacyName" nzWidth="180px">Pharmacy</th>
+          <th nzWidth="160px">Strength</th>
+          <th nzWidth="160px">Dosage Form</th>
+          <th nzWidth="140px">Package Size</th>
+          <th nzWidth="180px">Controlled Substance</th>
+          <th nzWidth="170px">Wholesale Price</th>
+          <th nzWidth="200px">Suggested Retail Price</th>
+          <th nzWidth="200px">Clinic Sale Price</th>
+          <th nzWidth="120px">Status</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr *ngFor="let row of tableData; trackBy: trackByDrugId">
+          <td>
+            <button nz-button nzType="default" nzShape="circle" class="action-icon-btn" (click)="editClinicSalePrice(row)">
+              <i class="fas fa-pencil"></i>
+            </button>
+          </td>
+          <td class="truncate">{{ row.name }}</td>
+          <td *ngIf="showPharmacyName" class="truncate">{{ row.pharmacyName }}</td>
+          <td>{{ row.strenght }}</td>
+          <td>{{ row.dosageForm }}</td>
+          <td>{{ row.packageSize }}</td>
+          <td>{{ row.controlSubstance ? 'Yes' : 'No' }}</td>
+          <td>{{ (row.wholesalePrice ?? 0) | currency:'USD':'symbol':'1.2-2' }}</td>
+          <td>{{ (row.suggestedRetail ?? 0) | currency:'USD':'symbol':'1.2-2' }}</td>
+          <td>{{ (row.clinicSuggestedRetailPrice ?? 0) | currency:'USD':'symbol':'1.2-2'}}</td>
+          <td>
+            <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(row.status)">
+              {{ row.status }}
+            </span>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    }
+  </section>
+
+  <nz-modal
+    [(nzVisible)]="drugBulkImportVisible"
+    nzTitle="Bulk import drugs"
+    [nzFooter]="null"
+    nzWidth="820px"
+    [nzMaskClosable]="!drugBulkImportSubmitting"
+    [nzClosable]="!drugBulkImportSubmitting"
+    (nzOnCancel)="closeDrugBulkImportModal()"
+  >
+    <ng-container *nzModalContent>
+      <div class="bulk-import-modal-body">
+        <div class="bulk-import-toolbar">
+          <button
+            nz-button
+            nzType="default"
+            type="button"
+            (click)="downloadDrugBulkImportTemplate()"
+            [disabled]="drugBulkImportSubmitting"
+          >
+            <i class="fa-solid fa-download mr-2"></i>
+            Download template (.xlsx)
+          </button>
+          <p class="bulk-import-hint" ngNonBindable>
+            Single <strong>Drugs</strong> sheet. Columns: Product Name, Strength, Dosage Form, Package Size, Controlled
+            Substance, Pharmacy Price, Markup Type, Markup Amount, Wholesale Price, Suggested Retail Price. Drugs are
+            imported into the catalog you selected in the filter (catalog 1 = system; other catalogs = custom).
+          </p>
+        </div>
+
+        <div
+          class="bulk-import-dropzone"
+          [class.bulk-import-dropzone-active]="drugBulkImportDragOver"
+          (dragover)="onDrugBulkDragOver($event)"
+          (dragleave)="onDrugBulkDragLeave($event)"
+          (drop)="onDrugBulkDrop($event)"
+          (click)="drugBulkFileInput.click()"
+          role="button"
+          tabindex="0"
+          (keydown.enter)="drugBulkFileInput.click()"
+        >
+          <input
+            #drugBulkFileInput
+            type="file"
+            accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            class="bulk-import-file-input-hide"
+            (change)="onDrugBulkFileInputChange($event)"
+          />
+          <div class="bulk-import-dropzone-inner">
+            <i class="fa-solid fa-cloud-arrow-up bulk-import-dropzone-icon"></i>
+            <div>
+              <span class="font-medium">Drop your filled workbook here</span>
+              <span class="text-gray-500"> or click to browse</span>
+            </div>
+            <div *ngIf="drugBulkImportFile" class="bulk-import-file-name">
+              <i class="fa-regular fa-file-excel mr-1"></i>{{ drugBulkImportFile.name }}
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="drugBulkImportResult?.importSucceeded" class="bulk-import-success-panel">
+          <div class="bulk-import-success-title">
+            <i class="fa-solid fa-circle-check"></i>
+            {{ hasDrugBulkImportFailures(drugBulkImportResult) ? 'Import finished (partial success)' : 'Import completed' }}
+          </div>
+          <p class="bulk-import-success-msg">{{ drugBulkImportLastMessage }}</p>
+          <p class="text-sm text-gray-600" *ngIf="drugBulkImportResult">
+            {{ drugBulkImportResult.drugsCreated }} drug(s) added.
+          </p>
+        </div>
+
+        <div
+          *ngIf="drugBulkImportResult && (!drugBulkImportResult.importSucceeded || hasDrugBulkImportFailures(drugBulkImportResult))"
+          class="bulk-import-error-panel"
+        >
+          <div class="bulk-import-error-title">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            {{
+              drugBulkImportResult.importSucceeded
+                ? 'Some rows failed — see details below.'
+                : drugBulkImportLastMessage || 'No changes were saved.'
+            }}
+          </div>
+          <nz-table
+            *ngIf="(drugBulkImportResult.parseAndValidationErrors?.length ?? 0) > 0"
+            [nzData]="drugBulkImportResult.parseAndValidationErrors!"
+            [nzShowPagination]="false"
+            nzSize="small"
+            class="bulk-import-errors-table mt-2"
+          >
+            <thead>
+              <tr>
+                <th nzWidth="120px">Sheet</th>
+                <th nzWidth="70px">Row</th>
+                <th nzWidth="200px">Drug name</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of drugBulkImportResult.parseAndValidationErrors; trackBy: trackByDrugBulkIssue">
+                <td>{{ row.sheet }}</td>
+                <td>{{ row.row || '—' }}</td>
+                <td>{{ row.name || '—' }}</td>
+                <td>{{ row.message }}</td>
+              </tr>
+            </tbody>
+          </nz-table>
+
+          <nz-table
+            *ngIf="(drugBulkImportResult.drugsFailed?.length ?? 0) > 0"
+            [nzData]="drugBulkImportResult.drugsFailed!"
+            [nzShowPagination]="false"
+            nzSize="small"
+            class="bulk-import-errors-table mt-2"
+            nzTitle="Drugs not created"
+          >
+            <thead>
+              <tr>
+                <th nzWidth="240px">Drug name</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of drugBulkImportResult.drugsFailed">
+                <td>{{ row.name || '—' }}</td>
+                <td>{{ row.message }}</td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+
+        <div class="bulk-import-actions">
+          <button nz-button type="button" (click)="closeDrugBulkImportModal()" [disabled]="drugBulkImportSubmitting">
+            Close
+          </button>
+          <button
+            nz-button
+            nzType="primary"
+            type="button"
+            (click)="runDrugBulkImport()"
+            [disabled]="!drugBulkImportFile || drugBulkImportSubmitting"
+            [nzLoading]="drugBulkImportSubmitting"
+          >
+            Import
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </nz-modal>
+</div>
+</ng-template>
+
+<nz-modal
+  [(nzVisible)]="isPricingModalVisible"
+  [nzTitle]="editingDrugId ? 'Edit Drug' : 'Drug Pricing Form'"
+  [nzMaskClosable]="false"
+  (nzOnCancel)="closePricingDialog()"
+  [nzFooter]="pricingFooter"
+  [nzWidth]="'96vw'"
+  [nzStyle]="{ 'max-width.px': 1100 }"
+  [nzBodyStyle]="{
+    'max-height': 'calc(100vh - 180px)',
+    'overflow': 'auto',
+    'padding': '16px'
+  }"
+>
+  <div *nzModalContent>
+    <form [formGroup]="pricingForm" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+
+      <div class="col-span-1">
+        <label class="label-C">Product Name <span class="text-red-600">*</span></label>
+        <input nz-input class="input-C mt-1"
+               placeholder="Enter Product Name"
+               formControlName="name"
+               (blur)="onBlurTrim($event, true)" />
+        <div class="text-red-600 text-xs mt-1" *ngIf="pricingForm.get('name')?.touched && pricingForm.get('name')?.invalid">
+          <span *ngIf="pricingForm.get('name')?.errors?.['required']">Product Name is required.</span>
+          <span *ngIf="pricingForm.get('name')?.errors?.['whitespace']">Only spaces are not allowed.</span>
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <label class="label-C">Strength <span class="text-red-600">*</span></label>
+        <input nz-input class="input-C mt-1"
+               placeholder="e.g., 10 mg, 2 mg/mL"
+               formControlName="strenght"
+               (blur)="onBlurTrim($event, true)" />
+        <div class="text-red-600 text-xs mt-1" *ngIf="pricingForm.get('strenght')?.touched && pricingForm.get('strenght')?.invalid">
+          <span *ngIf="pricingForm.get('strenght')?.errors?.['required']">Strength is required.</span>
+          <span *ngIf="pricingForm.get('strenght')?.errors?.['whitespace']">Only spaces are not allowed.</span>
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <label class="label-C">Dosage Form <span class="text-red-600">*</span></label>
+        <nz-select class="w-full mt-1"
+                   nzPlaceHolder="Select Dosage Form"
+                   [nzShowArrow]="true"
+                   nzShowSearch
+                   formControlName="dosageForm">
+          <nz-option [nzValue]="''" [nzLabel]="'-- Select --'" [nzDisabled]="true"></nz-option>
+          <nz-option *ngFor="let opt of dosageFormOptions" [nzValue]="opt" [nzLabel]="opt"></nz-option>
+        </nz-select>
+        <div class="text-red-600 text-xs mt-1" *ngIf="pricingForm.get('dosageForm')?.touched && pricingForm.get('dosageForm')?.invalid">
+          Dosage Form is required.
+        </div>
+      </div>
+
+      <div class="col-span-1" *ngIf="userRole === 'Global Admin'">
+        <label class="label-C">Pharmacy</label>
+        <nz-select class="w-full mt-1"
+                   nzPlaceHolder="Select Pharmacy"
+                   [nzShowArrow]="true"
+                   nzShowSearch
+                   nzAllowClear
+                   formControlName="pharmacyId">
+          <nz-option *ngFor="let p of pharmacyOptions" [nzValue]="p.pharmacyId" [nzLabel]="p.pharmacyName"></nz-option>
+        </nz-select>
+      </div>
+
+      <div class="col-span-1">
+        <label class="label-C">Package Size <span class="text-red-600">*</span></label>
+        <input nz-input class="input-C mt-1"
+               placeholder="e.g., 30 count, 5 mL"
+               formControlName="packageSize"
+               (blur)="onBlurTrim($event, true)" />
+        <div class="text-red-600 text-xs mt-1" *ngIf="pricingForm.get('packageSize')?.touched && pricingForm.get('packageSize')?.invalid">
+          <span *ngIf="pricingForm.get('packageSize')?.errors?.['required']">Package Size is required.</span>
+          <span *ngIf="pricingForm.get('packageSize')?.errors?.['whitespace']">Only spaces are not allowed.</span>
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <label class="label-C">Controlled Substance <span class="text-red-600">*</span></label>
+        <nz-radio-group class="mt-1 block" formControlName="controlSubstance">
+          <label nz-radio [nzValue]="true" class="mr-4">Yes</label>
+          <label nz-radio [nzValue]="false">No</label>
+        </nz-radio-group>
+        <div class="text-red-600 text-xs mt-1" *ngIf="pricingForm.get('controlSubstance')?.touched && pricingForm.get('controlSubstance')?.invalid">
+          Please select Yes or No.
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <label class="label-C">Pharmacy Price ($) <span class="text-red-600">*</span></label>
+        <input nz-input type="number" class="input-C mt-1"
+               placeholder="e.g., 24.99"
+               formControlName="price"
+               step="0.01" />
+        <div class="text-red-600 text-xs mt-1" *ngIf="pricingForm.get('price')?.touched && pricingForm.get('price')?.invalid">
+          <span *ngIf="pricingForm.get('price')?.errors?.['required']">Pharmacy Price is required.</span>
+          <span *ngIf="pricingForm.get('price')?.errors?.['min']">Must be 0 or greater.</span>
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <label class="label-C">Markup Type <span class="text-red-600">*</span></label>
+        <nz-select class="w-full mt-1"
+                   nzPlaceHolder="Select Markup Type"
+                   [nzShowArrow]="true"
+                   formControlName="markupType">
+          <nz-option *ngFor="let opt of markupTypeOptions" [nzValue]="opt" [nzLabel]="opt"></nz-option>
+        </nz-select>
+        <div class="text-red-600 text-xs mt-1" *ngIf="pricingForm.get('markupType')?.touched && pricingForm.get('markupType')?.invalid">
+          Markup Type is required.
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <label class="label-C">
+          {{ pricingForm.get('markupType')?.value === 'Amount' ? 'Markup Amount ($)' : 'Markup (%)' }}
+          <span class="text-red-600">*</span>
+        </label>
+        <input nz-input type="number" class="input-C mt-1"
+               [placeholder]="pricingForm.get('markupType')?.value === 'Amount' ? 'e.g., 25.00' : 'e.g., 25'"
+               formControlName="markup"
+               step="0.01" />
+        <div class="text-red-600 text-xs mt-1" *ngIf="pricingForm.get('markup')?.touched && pricingForm.get('markup')?.invalid">
+          <span *ngIf="pricingForm.get('markup')?.errors?.['required']">Markup is required.</span>
+          <span *ngIf="pricingForm.get('markup')?.errors?.['min']">Cannot be negative.</span>
+          <span *ngIf="pricingForm.get('markupType')?.value === 'Percentage' && pricingForm.get('markup')?.errors?.['max']">Cannot exceed 100%.</span>
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <label class="label-C">Wholesale Price ($)</label>
+        <input nz-input type="number" class="input-C mt-1"
+               placeholder="Auto-calculated"
+               formControlName="comparePrice"
+               [disabled]="true" />
+        <div class="text-gray-500 text-xs mt-1">
+          <ng-container *ngIf="pricingForm.get('markupType')?.value === 'Amount'; else percentageFormula">
+            Calculated as <em>Pharmacy Price + Markup Amount</em>
+          </ng-container>
+          <ng-template #percentageFormula>
+            Calculated as <em>Pharmacy Price × (1 + Markup/100)</em>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <label class="label-C">Suggested Retail Price ($) <span class="text-red-600">*</span></label>
+        <input nz-input type="number" class="input-C mt-1"
+               placeholder="Enter retail price"
+               formControlName="suggestedRetail"
+               step="0.01" />
+        <div class="text-red-600 text-xs mt-1" *ngIf="pricingForm.get('suggestedRetail')?.touched && pricingForm.get('suggestedRetail')?.invalid">
+          <span *ngIf="pricingForm.get('suggestedRetail')?.errors?.['required']">Suggested Retail Price is required.</span>
+          <span *ngIf="pricingForm.get('suggestedRetail')?.errors?.['min']">Must be 0 or greater.</span>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <ng-template #pricingFooter>
+    <button nz-button (click)="closePricingDialog()">Cancel</button>
+    <button nz-button nzType="primary"
+            [disabled]="pricingForm.invalid || isSaving"
+            [nzLoading]="isSaving"
+            (click)="submitPricing()">
+      {{ editingDrugId ? 'Update' : 'Save' }}
+    </button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="isPharmacyModalVisible"
+  [nzTitle]="editingPharmacyId ? 'Edit Pharmacy' : 'Add Pharmacy'"
+  [nzMaskClosable]="false"
+  (nzOnCancel)="closePharmacyDialog()"
+  [nzFooter]="pharmacyFooter"
+  [nzWidth]="'480px'"
+>
+  <div *nzModalContent>
+    <form [formGroup]="pharmacyForm">
+      <div>
+        <label class="label-C">Pharmacy Name <span class="text-red-600">*</span></label>
+        <input nz-input class="input-C mt-1"
+               placeholder="Enter Pharmacy Name"
+               formControlName="pharmacyName"
+               (blur)="onBlurTrim($event, true)" />
+        <div class="text-red-600 text-xs mt-1"
+             *ngIf="pharmacyForm.get('pharmacyName')?.touched && pharmacyForm.get('pharmacyName')?.invalid">
+          <span *ngIf="pharmacyForm.get('pharmacyName')?.errors?.['required']">Pharmacy Name is required.</span>
+          <span *ngIf="pharmacyForm.get('pharmacyName')?.errors?.['whitespace']">Only spaces are not allowed.</span>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <ng-template #pharmacyFooter>
+    <button nz-button (click)="closePharmacyDialog()">Cancel</button>
+    <button nz-button nzType="primary"
+            [disabled]="pharmacyForm.invalid || pharmacySaving"
+            [nzLoading]="pharmacySaving"
+            (click)="submitPharmacy()">
+      {{ editingPharmacyId ? 'Update' : 'Save' }}
+    </button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="isUnassignModalVisible"
+  [nzTitle]="'Unassign Clinics - ' + (unassignDrugName || 'Drug')"
+  [nzMaskClosable]="false"
+  (nzOnCancel)="closeUnassignFacilitiesModal()"
+  [nzFooter]="unassignFacilitiesFooter"
+  [nzWidth]="'96vw'"
+  [nzStyle]="{ 'max-width.px': 720 }"
+  [nzBodyStyle]="{
+    'max-height': 'calc(100vh - 180px)',
+    'overflow': 'auto',
+    'padding': '16px'
+  }"
+>
+  <div *nzModalContent>
+    <div *ngIf="!isUnassignLoading; else unassignFacilitiesLoading" class="space-y-4">
+      <div>
+        <label class="label-C">Clinics that should not see this drug</label>
+        <nz-select
+          class="w-full mt-1"
+          nzMode="multiple"
+          nzPlaceHolder="Select Clinics"
+          nzShowSearch
+          nzAllowClear
+          [(ngModel)]="selectedUnassignedFacilityIds"
+        >
+          <nz-option
+            *ngFor="let facility of facilityOptions"
+            [nzValue]="facility.facilityId"
+            [nzLabel]="facility.titlelong || facility.titleshort"
+          ></nz-option>
+        </nz-select>
+      </div>
+
+      <div>
+        <label class="label-C">Already Unassigned Clinics</label>
+        <div *ngIf="selectedUnassignedFacilityNames.length > 0; else noUnassignedFacilities" class="drug-filter-chip-row mt-2">
+          <span class="drug-filter-chip" *ngFor="let name of selectedUnassignedFacilityNames">
+            {{ name }}
+          </span>
+        </div>
+        <ng-template #noUnassignedFacilities>
+          <p class="text-sm text-gray-500 mt-2 mb-0">This drug is currently visible to all Clinics.</p>
+        </ng-template>
+      </div>
+    </div>
+
+    <ng-template #unassignFacilitiesLoading>
+      <div class="py-10 text-center text-gray-500">
+        <i class="fa-solid fa-arrows-spin animate-spin text-primary text-2xl"></i>
+        <p class="mt-3 mb-0">Loading Clinics...</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <ng-template #unassignFacilitiesFooter>
+    <button nz-button (click)="closeUnassignFacilitiesModal()">Cancel</button>
+    <button
+      nz-button
+      nzType="primary"
+      [disabled]="isUnassignLoading || isUnassignSaving"
+      [nzLoading]="isUnassignSaving"
+      (click)="submitUnassignFacilities()"
+    >
+      Save
+    </button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="isClinicPricingModalVisible"
+  nzTitle="Drug Pricing Form"
+  [nzMaskClosable]="false"
+  (nzOnCancel)="closeClinicSalePriceModal()"
+  [nzFooter]="clinicSalePricingFooter"
+  [nzWidth]="'96vw'"
+  [nzStyle]="{ 'max-width.px': 550 }"
+  [nzBodyStyle]="{
+    'max-height': 'calc(100vh - 180px)',
+    'overflow': 'auto',
+    'padding': '16px'
+  }"
+>
+  <div *nzModalContent>
+
+      <div class="col-span-1">
+        <label class="label-C">Clinic Sale Price ($)</label>
+        <input nz-input type="number" class="input-C mt-1"
+               placeholder="Enter clinic sale price"
+               [(ngModel)]="clinicSalePrice"
+               step="0.01" />
+      </div>
+
+  </div>
+
+  <ng-template #clinicSalePricingFooter>
+    <button nz-button (click)="closeClinicSalePriceModal()">Cancel</button>
+    <button nz-button nzType="primary"
+            [disabled]="isSaving"
+            [nzLoading]="isSaving"
+            (click)="submitEditClinicSalePrice()">
+      Save
+    </button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="isCatalogModalVisible"
+  [nzTitle]="editingCatalogId ? 'Edit Drug Catalog' : 'Add Drug Catalog'"
+  [nzFooter]="catalogModalFooter"
+  [nzMaskClosable]="false"
+  (nzOnCancel)="closeCatalogDialog()"
+  [nzWidth]="'96vw'"
+  [nzStyle]="{ 'max-width.px': 520 }"
+  [nzBodyStyle]="{
+    'max-height': 'calc(100vh - 180px)',
+    'overflow': 'auto',
+    'padding': '16px'
+  }"
+>
+  <div *nzModalContent>
+    <form [formGroup]="catalogForm" class="space-y-4">
+
+      <div>
+        <label class="label-C">Catalog Name <span class="text-red-600">*</span></label>
+        <input
+          nz-input
+          formControlName="catalogName"
+          placeholder="Enter catalog name"
+          class="input-C mt-1"
+          (blur)="onBlurTrim($event, true)"
+        />
+        <div class="text-red-600 text-xs mt-1" *ngIf="catalogForm.get('catalogName')?.touched && catalogForm.get('catalogName')?.invalid">
+          <span *ngIf="catalogForm.get('catalogName')?.errors?.['required']">Catalog name is required.</span>
+          <span *ngIf="catalogForm.get('catalogName')?.errors?.['whitespace']">Only spaces are not allowed.</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="label-C">Description</label>
+        <textarea
+          nz-input
+          formControlName="description"
+          placeholder="Optional description"
+          [nzAutosize]="{ minRows: 2, maxRows: 5 }"
+          class="input-C mt-1"
+          (blur)="onBlurTrim($event)"
+        ></textarea>
+      </div>
+
+      <div>
+        <label class="label-C">Assign Clinics</label>
+        <nz-select
+          formControlName="facilityIds"
+          nzMode="multiple"
+          nzPlaceHolder="Select clinics to assign"
+          nzShowSearch
+          nzAllowClear
+          class="w-full mt-1"
+          [nzDropdownRender]="selectAllFacilitiesTpl"
+        >
+          <nz-option
+            *ngFor="let opt of facilityOptions"
+            [nzValue]="opt.facilityId"
+            [nzLabel]="opt.titlelong || opt.titleshort"
+          ></nz-option>
+        </nz-select>
+      </div>
+
+      <ng-template #selectAllFacilitiesTpl>
+        <div style="padding: 6px 12px; border-bottom: 1px solid #f0f0f0;">
+          <label nz-checkbox
+            [nzChecked]="allFacilitiesSelected"
+            [nzIndeterminate]="!allFacilitiesSelected && (catalogForm.get('facilityIds')?.value?.length ?? 0) > 0"
+            (nzCheckedChange)="toggleSelectAllFacilities()">
+            Select All
+          </label>
+        </div>
+      </ng-template>
+
+    </form>
+  </div>
+
+  <ng-template #catalogModalFooter>
+    <button nz-button (click)="closeCatalogDialog()">Cancel</button>
+    <button
+      nz-button
+      nzType="primary"
+      [nzLoading]="isCatalogSaving"
+      [disabled]="isCatalogSaving || catalogForm.invalid"
+      (click)="submitCatalog()"
+    >
+      {{ editingCatalogId ? 'Update' : 'Save' }}
+    </button>
+  </ng-template>
+</nz-modal>

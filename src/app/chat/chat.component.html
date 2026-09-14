@@ -1,0 +1,489 @@
+<div class="ch-shell lg:flex lg:flex-row" [ngClass]="embeddedInView ? 'cus-h-embed' : 'cus-h-max-full h-screen'">
+
+  <div id="chatList" class="ch-sidebar lg:w-[360px] xl:w-[400px]"
+    *ngIf="!embeddedInView && (((!chatService.currentOpenedChat() && !chatService.currentOpenedChannel()) || screenWidth >= lgBreakpoint))">
+
+    <div class="ch-sidebar-header">
+      <div class="ch-search-wrap">
+        <i class="fa-solid fa-magnifying-glass ch-search-icon"></i>
+        <input class="ch-search-input" nz-input placeholder="Search conversations…" type="text" [(ngModel)]="searchTerm" />
+      </div>
+      @if(userRoleId() !== 6) {
+        @if(userRole != 'Patient') {
+          <button class="ch-compose-btn" (click)="openComposeModal()" title="New Message">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+        }
+      }
+    </div>
+
+    <div class="ch-tabs"
+      *ngIf="(!chatService.currentOpenedChat() && !chatService.currentOpenedChannel()) || screenWidth >= lgBreakpoint">
+      <button *ngIf="canShowDirectMessages"
+        class="ch-tab" [class.ch-tab--active]="!showChannelsTab"
+        (click)="switchToDirectMessages()">
+        <i class="fa-solid fa-user"></i>
+        <span>Direct</span>
+      </button>
+      <button *ngIf="chatService.canViewChannels()"
+        class="ch-tab" [class.ch-tab--active]="showChannelsTab"
+        (click)="switchToChannels()">
+        <i class="fa-solid fa-users"></i>
+        <span>Patient Portal Messages</span>
+      </button>
+    </div>
+
+    <div class="ch-conv-list overflow-y-auto"
+      [ngClass]="embeddedInView ? 'cus-max-userList-h-embed' : 'cus-max-userList-h'">
+
+      @if(showChannelsTab) {
+        @for (channel of chatService.chatChannels() | search: 'channelName,individualReceiverName': searchTerm;
+              track channel.channelId || channel.individualReceiverId) {
+          <button class="ch-conv-item"
+            [class.ch-conv-item--active]="(channel.channelId === chatService.currentOpenedChannel()?.channelId && !channel.isIndividualMessage) || (channel.isIndividualMessage && channel.individualReceiverId === chatService.currentOpenedChannel()?.individualReceiverId)"
+            (click)="selectChannel(channel)">
+
+            <div class="ch-conv-avatar-channel">
+              <i class="fas" [ngClass]="channel.isIndividualMessage ? 'fa-user' : 'fa-users'"></i>
+            </div>
+
+            <div class="ch-conv-body">
+              <div class="ch-conv-row1">
+                <span class="ch-conv-name" [title]="channel.channelName">{{ channel.channelName | titlecase }}</span>
+                <span class="ch-conv-time">{{ channel.lastMessageTime || '' }}</span>
+              </div>
+              <div class="ch-conv-row2">
+                <span class="ch-conv-preview" [ngClass]="{'ch-conv-preview--unread': channel.unreadCount > 0}">
+                  {{ (channel.lastMessage || 'No messages yet') | slice:0:38 }}<ng-container *ngIf="(channel.lastMessage?.length || 0) > 38">…</ng-container>
+                </span>
+                @if(channel.unreadCount > 0) {
+                  <span class="ch-unread-badge">{{ channel.unreadCount > 99 ? '99+' : channel.unreadCount }}</span>
+                }
+              </div>
+            </div>
+          </button>
+        } @empty {
+          <div *ngIf="chatService.isLoadingChannels(); else noChannels">
+            @for (item of [1,2,3,4]; track item) {
+              <div class="ch-skeleton-item">
+                <div class="ch-skeleton-avatar"></div>
+                <div class="ch-skeleton-body">
+                  <div class="ch-skeleton-line ch-skeleton-line--wide"></div>
+                  <div class="ch-skeleton-line ch-skeleton-line--narrow"></div>
+                </div>
+              </div>
+            }
+          </div>
+          <ng-template #noChannels>
+            <div class="ch-empty-list">
+              <i class="fa-solid fa-users-slash"></i>
+              <p>{{ searchTerm ? 'No patient portal messages match your search' : 'No patient portal messages found' }}</p>
+            </div>
+          </ng-template>
+        }
+      }
+
+      @if(!showChannelsTab && canShowDirectMessages) {
+        @for (user of chatService.onlineUsers() | search: 'userName,facilityName': searchTerm; track user.userId) {
+          <button class="ch-conv-item"
+            [class.ch-conv-item--active]="user.userId === chatService.currentOpenedChat()?.userId"
+            (click)="selectUser(user)">
+
+            <div class="ch-conv-avatar-wrap">
+              <img class="ch-conv-avatar-img"
+                [src]="user.profilePic || 'assets/img/userPlaceholderImg.jpg'"
+                alt="Profile picture of {{ user.userName }}" />
+              <span class="ch-online-dot"
+                [ngClass]="user.isOnline ? 'ch-online-dot--online' : 'ch-online-dot--offline'"></span>
+            </div>
+
+            <div class="ch-conv-body">
+              <div class="ch-conv-row1">
+                <span class="ch-conv-name">
+                  {{ user.userName | titlecase }}
+                  @if(user.facilityName) {
+                    <span class="ch-conv-facility">· {{ user.facilityName }}</span>
+                  }
+                </span>
+                <span class="ch-conv-time">{{ user.lastMsgTime || '' }}</span>
+              </div>
+              <div class="ch-conv-row2">
+                <span *ngIf="!user.isTyping else typing"
+                  class="ch-conv-preview"
+                  [ngClass]="{'ch-conv-preview--unread': user.unreadCount > 0}">
+                  {{ (user.lastMessage || 'No messages yet') | slice:0:38 }}<ng-container *ngIf="(user.lastMessage?.length || 0) > 38">…</ng-container>
+                </span>
+                @if(user.unreadCount > 0) {
+                  <span class="ch-unread-badge">{{ user.unreadCount > 99 ? '99+' : user.unreadCount }}</span>
+                }
+              </div>
+            </div>
+          </button>
+        } @empty {
+          <div *ngIf="chatService.isLoadingUsers(); else noUsersChat">
+            @for (item of [1,2,3,4]; track item) {
+              <div class="ch-skeleton-item">
+                <div class="ch-skeleton-avatar"></div>
+                <div class="ch-skeleton-body">
+                  <div class="ch-skeleton-line ch-skeleton-line--wide"></div>
+                  <div class="ch-skeleton-line ch-skeleton-line--narrow"></div>
+                </div>
+              </div>
+            }
+          </div>
+          <ng-template #noUsersChat>
+            <div class="ch-empty-list">
+              <i class="fa-solid fa-users-slash"></i>
+              <p>{{ searchTerm ? 'No conversations match your search' : 'No chats found' }}</p>
+            </div>
+          </ng-template>
+        }
+      }
+    </div>
+  </div>
+
+  @if(chatService.currentOpenedChat() || chatService.currentOpenedChannel()) {
+    <div id="chatDetail" class="ch-main w-full flex-col">
+
+      <div class="ch-header">
+        <div class="ch-header__left">
+          @if(!embeddedInView) {
+            <button class="ch-back-btn" (click)="goBack()" title="Back">
+              <i class="fa-solid fa-arrow-left"></i>
+            </button>
+          }
+
+          @if(chatService.currentOpenedChannel()) {
+            <div class="ch-header-avatar-channel">
+              <i class="fas"
+                [ngClass]="chatService.currentOpenedChannel()?.isIndividualMessage ? 'fa-user' : 'fa-users'"></i>
+            </div>
+            <div class="ch-header-info">
+              <h3 class="ch-header-name">{{ chatService.currentOpenedChannel()?.channelName | titlecase }}</h3>
+              <p class="ch-header-sub">
+                @if(chatService.currentOpenedChannel()?.isIndividualMessage) {
+                  <i class="fas fa-user"></i>
+                  Individual Message
+                  @if(chatService.currentOpenedChannel()?.individualReceiverName) {
+                    · {{ chatService.currentOpenedChannel()?.individualReceiverName }}
+                  }
+                } @else if(chatService.currentOpenedChannel()?.channelType === 'Treatment') {
+                  <i class="fas fa-stethoscope"></i>
+                  Treatment Channel
+                } @else {
+                  <i class="fas fa-users"></i>
+                  Channel
+                }
+              </p>
+              @if(chatService.currentOpenedChannel()?.channelType === 'Treatment') {
+                <div class="ch-header-tags">
+                  @if(userRole !== 'Patient') {
+                    <button *ngIf="chatService.currentOpenedChannel()?.patientId"
+                      class="ch-header-tag" (click)="openCurrentChannelPatientDetail()">
+                      <i class="fa-solid fa-user-injured"></i> Patient Detail
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          @if(chatService.currentOpenedChat() && !chatService.currentOpenedChannel()) {
+            <div class="ch-header-avatar-wrap">
+              <img class="ch-header-avatar-img"
+                [src]="chatService.currentOpenedChat()?.profilePic || 'assets/img/userPlaceholderImg.jpg'"
+                alt="Profile picture" />
+              <span class="ch-header-status-dot"
+                [ngClass]="chatService.currentOpenedChat()?.isOnline ? 'ch-status-dot--online' : 'ch-status-dot--offline'"></span>
+            </div>
+            <div class="ch-header-info">
+              <h3 class="ch-header-name">
+                {{ chatService.currentOpenedChat()?.userName | titlecase }}
+                @if(chatService.currentOpenedChat()?.facilityName) {
+                  <span class="ch-header-facility">· {{ chatService.currentOpenedChat()?.facilityName }}</span>
+                }
+              </h3>
+              <p class="ch-header-sub">
+                @if(chatService.currentOpenedChat()?.isOnline) {
+                  <span class="ch-status-pill ch-status-pill--online"><span class="ch-status-dot--online-sm"></span>Online</span>
+                } @else {
+                  <span class="ch-status-pill ch-status-pill--offline"><span class="ch-status-dot--offline-sm"></span>Offline</span>
+                }
+                @if(chatService.currentOpenedChat()?.isTyping) {
+                  <span class="ch-typing-badge">typing…</span>
+                }
+              </p>
+            </div>
+          }
+        </div>
+
+        <div class="ch-header__right">
+
+          <div class="ch-conn-badge" [title]="getConnectionStatusText()">
+            @if(isConnected()) {
+              <span class="ch-conn-dot ch-conn-dot--on"></span>
+              <span class="ch-conn-label">Connected</span>
+            } @else if(isReconnecting()) {
+              <span class="ch-conn-dot ch-conn-dot--warn"></span>
+              <span class="ch-conn-label">Reconnecting…</span>
+            } @else {
+              <span class="ch-conn-dot ch-conn-dot--off"></span>
+              <span class="ch-conn-label">Disconnected</span>
+            }
+          </div>
+
+          @if(chatService.chatMessages().length > 0 && chatService.chatMessages().length >= (this.pageNumber * 50)) {
+            <button class="ch-load-more-btn"
+              (click)="chatService.currentOpenedChannel() ? loadChannelMessage() : loadMessage()"
+              [disabled]="chatService.isLoading()">
+              @if(chatService.isLoading()) {
+                <i class="fa-solid fa-arrows-spin fa-spin"></i> Loading…
+              } @else {
+                <i class="fa-solid fa-arrow-up"></i> Load More
+              }
+            </button>
+          }
+        </div>
+      </div>
+
+      <div #msgBox class="ch-messages"
+        [ngClass]="embeddedInView ? 'cus-max-userMsg-h-embed' : 'cus-max-userMsg-h'"
+        [ngStyle]="{ '--dynamicHeight': dynamicHeight + 'px' }">
+
+        @if(chatService.chatMessages().length === 0 && !chatService.isLoading()) {
+          <div class="ch-empty-state">
+            <div class="ch-empty-icon">
+              <i class="fa-regular fa-comments"></i>
+            </div>
+            <p class="ch-empty-title">No messages yet</p>
+            <p class="ch-empty-sub">Start the conversation by sending a message below</p>
+          </div>
+        }
+
+        @for (message of chatService.chatMessages(); let i = $index; track message.id || i) {
+
+          <div class="ch-date-sep"
+            *ngIf="(i === 0 || chatService.chatMessages()[i]?.time !== chatService.chatMessages()[i - 1]?.time) && message.time">
+            <span class="ch-date-label">{{ message.time }}</span>
+          </div>
+
+          <div class="ch-msg-row"
+            [ngClass]="message.senderId === this.currentUserId.toString() ? 'ch-msg-row--sent' : 'ch-msg-row--received'">
+            <div class="ch-msg-wrap">
+
+              @if(chatService.currentOpenedChannel() && message.senderId !== this.currentUserId.toString() && message.senderName) {
+                <p class="ch-sender-name">{{ message.senderName }}</p>
+              }
+
+              <div class="ch-bubble group"
+                [ngClass]="message.senderId === this.currentUserId.toString() ? 'ch-bubble--sent' : 'ch-bubble--received'">
+                <p class="ch-bubble-text">{{ message.content }}</p>
+                <div class="ch-bubble-footer">
+                  <span class="ch-bubble-time opacity-0 group-hover:opacity-100 transition-opacity">
+                    {{ getMessageTime(message) }}
+                  </span>
+                  @if(message.senderId === this.currentUserId.toString()
+                      && message.id < 1000000000000
+                      && message.content !== 'This message was deleted') {
+                    @if(userRole !== 'Patient') {
+                      <button class="ch-delete-btn opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Delete message"
+                        (click)="$event.stopPropagation(); chatService.deleteMessage(message.id)">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    }
+                  }
+                  @if(message.senderId === this.currentUserId.toString()) {
+                    <span class="ch-receipt">
+                      @if(message.isRead) {
+                        <i class="fa-solid fa-check-double ch-receipt--read" title="Read"></i>
+                      } @else {
+                        <i class="fa-solid fa-check ch-receipt--sent" title="Sent"></i>
+                      }
+                    </span>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        @if(chatService.isLoading() && chatService.chatMessages().length === 0) {
+          <div class="ch-empty-state">
+            <i class="fa-solid fa-arrows-spin fa-spin ch-spinner"></i>
+            <p class="ch-empty-sub">Loading messages…</p>
+          </div>
+        }
+      </div>
+
+      @if(shouldShowInput()) {
+        <div class="ch-input-area">
+          <button class="ch-emoji-btn"
+            (click)="toggleEmojiPicker($event)"
+            nzTrigger="click" nz-dropdown [nzDropdownMenu]="menu"
+            nzPlacement="topLeft" title="Add emoji">
+            <i class="fa-regular fa-face-smile"></i>
+          </button>
+
+          <div class="ch-textarea-wrap">
+            <textarea class="ch-textarea" nz-input
+              placeholder="Type a message…"
+              rows="1"
+              [(ngModel)]="messageInput"
+              (keydown)="handleEnterKey($event)"
+              (input)="adjustHeight(messageTextarea); chatService.notifyTyping()"
+              (focus)="chatService.notifyTyping()"
+              (blur)="chatService.notifyNotTyping()"
+              #messageTextarea
+              style="min-height: 40px; max-height: 120px; overflow-y: auto;">
+            </textarea>
+            @if(messageInput.trim().length > 0) {
+              <button class="ch-clear-btn"
+                (click)="messageInput = ''; adjustHeight(messageTextarea)">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            }
+          </div>
+
+          <button class="ch-send-btn"
+            (click)="chatService.currentOpenedChannel() ? (canSendMessageInChannel() ? sendChannelMessage() : null) : sendMessage()"
+            [disabled]="!messageInput.trim() || (!chatService.currentOpenedChat() && !chatService.currentOpenedChannel()) || !isConnected() || (chatService.currentOpenedChannel() && !canSendMessageInChannel())"
+            [title]="!isConnected() ? 'Not connected' : (chatService.currentOpenedChannel() && !canSendMessageInChannel() ? 'View only' : 'Send message')">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+      } @else if(chatService.currentOpenedChannel() && !shouldShowInput()) {
+        <div class="ch-view-only animate-fade-in">
+          <i class="fa-solid fa-eye"></i>
+          <span>You have view-only access to this channel</span>
+        </div>
+      }
+    </div>
+
+  } @else if(embeddedInView) {
+    <div id="embeddedDefaultScreen" class="w-full h-full flex items-center justify-center">
+      <div class="ch-empty-state">
+        @if(isEmbeddedConversationLoading()) {
+          <i class="fa-solid fa-arrows-spin fa-spin ch-spinner"></i>
+          <p class="ch-empty-sub">Loading conversation…</p>
+        } @else {
+          <div class="ch-empty-icon"><i class="fa-regular fa-comments"></i></div>
+          <p class="ch-empty-sub">Conversation is unavailable.</p>
+        }
+      </div>
+    </div>
+
+  } @else if((!chatService.currentOpenedChat() && !chatService.currentOpenedChannel()) || screenWidth < lgBreakpoint) {
+    <div id="defaultScreen" class="w-full items-center justify-center lg:flex hidden">
+      <div class="ch-welcome">
+        <div class="ch-welcome-icon">
+          <i class="fa-regular fa-comments"></i>
+        </div>
+        <h3 class="ch-welcome-title">Your Messages</h3>
+        <p class="ch-welcome-sub">Select a conversation from the sidebar to start chatting</p>
+      </div>
+    </div>
+  }
+
+</div>
+
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <emoji-mart
+    [darkMode]="isDarkMode ? true : false"
+    title="Pick your emoji…"
+    emoji="point_up"
+    (emojiClick)="addEmoji($event)"
+    (click)="$event.stopPropagation()">
+  </emoji-mart>
+</nz-dropdown-menu>
+
+<nz-dropdown-menu #usersMenu="nzDropdownMenu">
+  <div class="ch-compose-panel">
+    <div class="ch-compose-panel__header">
+      <h3>New Chat</h3>
+    </div>
+    <div class="ch-compose-panel__search">
+      <i class="fa-solid fa-magnifying-glass ch-search-icon"></i>
+      <input nz-input placeholder="Search by Name" class="ch-search-input" [(ngModel)]="composeSearchTerm" />
+    </div>
+    <div class="ch-compose-panel__list">
+      <div *ngFor="let user of users | search: 'userName': composeSearchTerm"
+        class="ch-compose-user-row"
+        (click)="selectUser(user)">
+        <img [src]="user.profilePic || 'assets/img/userPlaceholderImg.jpg'"
+          class="ch-compose-user-img" [alt]="user.userName" />
+        <div class="ch-compose-user-info">
+          <div class="ch-compose-user-name">{{ user.userName | titlecase }}</div>
+          <div class="ch-compose-user-type">
+            {{ user.userType }}@if(user.facilityName){ · {{ user.facilityName }} }
+          </div>
+        </div>
+      </div>
+      <div *ngIf="(users | search: 'userName': composeSearchTerm).length === 0" class="ch-empty-list">
+        <i class="fa-solid fa-user-slash"></i>
+        <p>No user found</p>
+      </div>
+    </div>
+  </div>
+</nz-dropdown-menu>
+
+<ng-template #typing>
+  <div class="ch-typing-dots">
+    <span class="ch-typing-text">Typing</span>
+    <span class="ch-dot"></span>
+    <span class="ch-dot"></span>
+    <span class="ch-dot"></span>
+  </div>
+</ng-template>
+
+<nz-modal
+  [(nzVisible)]="showComposeModal"
+  nzTitle="New Message"
+  (nzOnCancel)="closeComposeModal()"
+  [nzFooter]="null"
+  [nzWidth]="500">
+  <div *nzModalContent>
+    <div class="ch-modal-search">
+      <i class="fa-solid fa-magnifying-glass ch-search-icon"></i>
+      <input class="ch-search-input w-full" nz-input placeholder="Search users…" type="text" [(ngModel)]="composeSearchTerm" />
+    </div>
+    <div class="max-h-96 overflow-y-auto mt-3">
+      @if(isLoadingComposeUsers) {
+        <div class="flex flex-col gap-1">
+          @for (item of [1,2,3]; track item) {
+            <div class="ch-skeleton-item">
+              <div class="ch-skeleton-avatar"></div>
+              <div class="ch-skeleton-body">
+                <div class="ch-skeleton-line ch-skeleton-line--wide"></div>
+                <div class="ch-skeleton-line ch-skeleton-line--narrow"></div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else if(composeUsers.length === 0) {
+        <div class="ch-empty-list">
+          <i class="fa-solid fa-user-slash"></i>
+          <p>No users available</p>
+        </div>
+      } @else {
+        @for (user of composeUsers | search: 'userName': composeSearchTerm; track user.userId) {
+          <button class="ch-compose-user-row" (click)="selectComposeUser(user)">
+            <span class="ch-compose-avatar-wrap">
+              <img src="assets/img/userPlaceholderImg.jpg"
+                class="ch-compose-user-img"
+                alt="Profile picture of {{ user.userName }}" />
+            </span>
+            <div class="ch-compose-user-info">
+              @if(user.facilityName && user.facilityName !== '') {
+                <div class="ch-compose-user-name">{{ user.userName | titlecase }} · {{ user.facilityName }}</div>
+              } @else {
+                <div class="ch-compose-user-name">{{ user.userName | titlecase }}</div>
+              }
+              <div class="ch-compose-user-type">{{ user.userType }}</div>
+            </div>
+          </button>
+        }
+      }
+    </div>
+  </div>
+</nz-modal>

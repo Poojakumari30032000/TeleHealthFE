@@ -1,0 +1,147 @@
+<div class="mb-2">
+    <div class="justify-between gap-4 flex items-center">
+        <h3 class="title">Appointment</h3>
+        <button class="main-btn" (click)="AddEditAppointment()">
+            <i class="fa-solid fa-plus"></i>
+            <span class="ml-2 hidden md:inline-block">
+                Add Appointment
+            </span>
+        </button>
+    </div>
+    <p class="w-full text-gray-500 dark:text-gray-400">
+        Create appointments in your system, providing a central hub to manage different booking categories, navigate sections to view all appointments, including upcoming, completed, missed, and canceled.
+    </p>
+</div>
+
+<nz-collapse [nzAccordion]="true" class="tab">
+    <nz-collapse-panel nzHeader="Booked / Upcoming">
+        <div class="flex items-center gap-4 mb-2">
+            <div class="mb-2">
+                <input nz-input placeholder="Search Appointment..." class="input-C" />
+            </div>
+            <div class="mb-2">
+                <nz-range-picker nzFormat="MM/dd/YYYY" class="datepicker-C"></nz-range-picker>
+            </div>
+        </div>
+        <div class="py-2 rounded-lg">
+            <app-dynamic-table
+                [apiEndpoint]="'https://api.example.com/table-data'"
+                [columns]="[
+                    { title: 'Service', key: 'service', width: 'auto' },
+                    { title: 'Provider', key: 'provider', width: 'auto' },
+                    { title: 'Patient', key: 'patient', width: 'auto' },
+                    { title: 'Date', key: 'date', width: 'auto' },
+                    { title: 'Start Time', key: 'startTime', width: 'auto' },
+                    { title: 'End Time', key: 'endTime', width: 'auto' },
+                ]"
+                [filters]="[
+                    { name : 'facilityId', value : 1 }
+                ]"
+                [showActions]="true"
+                [actions]="[
+                    { label: 'View', icon: 'fa fa-eye', callback: navigateToSlots },
+                    { label: 'Edit', icon: 'fa-regular fa-pen-to-square', callback: AddEditAppointment },
+                    { label: 'Re-Schedule', icon: 'fa-regular fa-calendar-check', callback: reScheduleAppointment },
+                    { label: 'Delete', icon: 'fa fa-trash', type: 'danger', callback: onDelete },
+                ]"
+            ></app-dynamic-table>
+        </div>
+    </nz-collapse-panel>
+    <nz-collapse-panel nzHeader="Completed">
+        <div class="flex items-center gap-4 mb-2">
+            <div class="mb-2">
+                <input nz-input placeholder="Search Appointment..." class="input-C" />
+            </div>
+            <div class="mb-2">
+                <nz-range-picker nzFormat="MM/dd/YYYY" class="datepicker-C"></nz-range-picker>
+            </div>
+        </div>
+        <div class="py-2 rounded-lg">
+            <app-dynamic-table
+                [apiEndpoint]="'https://api.example.com/table-data'"
+                [columns]="[
+                    { title: 'Service', key: 'service', width: 'auto' },
+                    { title: 'Provider', key: 'provider', width: 'auto' },
+                    { title: 'Patient', key: 'patient', width: 'auto' },
+                    { title: 'Date', key: 'date', width: 'auto' },
+                    { title: 'Start Time', key: 'startTime', width: 'auto' },
+                    { title: 'End Time', key: 'endTime', width: 'auto' },
+                ]"
+                [filters]="[
+                    { name : 'facilityId', value : 1 }
+                ]"
+                [showActions]="true"
+                [actions]="[
+                    { label: 'View', icon: 'fa fa-eye', callback: navigateToSlots },
+                ]"
+            ></app-dynamic-table>
+        </div>
+    </nz-collapse-panel>
+    <nz-collapse-panel nzHeader="Missed">
+        <div class="flex items-center gap-4 mb-2">
+            <div class="mb-2">
+                <input nz-input placeholder="Search Appointment..." class="input-C" />
+            </div>
+            <div class="mb-2">
+                <nz-range-picker nzFormat="MM/dd/YYYY" class="datepicker-C"></nz-range-picker>
+            </div>
+        </div>
+        <div class="py-2 rounded-lg">
+            <app-dynamic-table
+                [apiEndpoint]="'https://api.example.com/table-data'"
+                [columns]="[
+                    { title: 'Service', key: 'service', width: 'auto' },
+                    { title: 'Provider', key: 'provider', width: 'auto' },
+                    { title: 'Patient', key: 'patient', width: 'auto' },
+                    { title: 'Date', key: 'date', width: 'auto' },
+                    { title: 'Start Time', key: 'startTime', width: 'auto' },
+                    { title: 'End Time', key: 'endTime', width: 'auto' },
+                ]"
+                [filters]="[
+                    { name : 'facilityId', value : 1 }
+                ]"
+                [showActions]="true"
+                [actions]="[
+                    { label: 'View', icon: 'fa fa-eye', callback: navigateToSlots },
+                    { label: 'Re-Schedule', icon: 'fa-regular fa-calendar-check', callback: reScheduleAppointment },
+                    { label: 'Delete', icon: 'fa fa-trash', type: 'danger', callback: onDelete },
+                ]"
+            ></app-dynamic-table>
+        </div>
+    </nz-collapse-panel>
+    <nz-collapse-panel nzHeader="Canceled">
+        <div class="flex items-center gap-4 mb-2">
+            <div class="mb-2">
+                <input nz-input placeholder="Search Appointment..." class="input-C" />
+            </div>
+            <div class="mb-2">
+                <nz-range-picker nzFormat="MM/dd/YYYY" class="datepicker-C"></nz-range-picker>
+            </div>
+        </div>
+        <div class="py-2 rounded-lg">
+            <app-dynamic-table
+                [apiEndpoint]="'https://api.example.com/table-data'"
+                [columns]="[
+                    { title: 'Service', key: 'service', width: 'auto' },
+                    { title: 'Provider', key: 'provider', width: 'auto' },
+                    { title: 'Patient', key: 'patient', width: 'auto' },
+                    { title: 'Date', key: 'date', width: 'auto' },
+                    { title: 'Start Time', key: 'startTime', width: 'auto' },
+                    { title: 'End Time', key: 'endTime', width: 'auto' },
+                ]"
+                [filters]="[
+                    { name : 'facilityId', value : 1 }
+                ]"
+                [showActions]="true"
+                [actions]="[
+                    { label: 'View', icon: 'fa fa-eye', callback: navigateToSlots },
+                ]"
+            ></app-dynamic-table>
+        </div>
+    </nz-collapse-panel>
+</nz-collapse>
+
+<app-comman-form-modal #commanModel
+    [apiUrl]="this.modalApiUrl"
+></app-comman-form-modal>
+

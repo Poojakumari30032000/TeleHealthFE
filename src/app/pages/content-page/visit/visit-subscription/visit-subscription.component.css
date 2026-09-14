@@ -1,0 +1,35 @@
+.onVisit-radio ::ng-deep .ant-radio-wrapper-checked , .onVisit-checkBox.ant-checkbox-wrapper-checked{
+    border-color: var(--primary-color) !important;
+    background-color: var(--lightP-color) !important;
+}
+
+.onVisit-radio ::ng-deep .ant-radio-wrapper-checked:is(.dark *) , .onVisit-checkBox.ant-checkbox-wrapper-checked:is(.dark *){
+    border-color: var(--primary-color) !important;
+    background-color: theme('colors.gray.700') !important;
+}
+
+.onVisit-radio ::ng-deep .ant-radio-wrapper::after{
+    display: none !important;
+}
+
+.onVisit-radio ::ng-deep span.ant-radio + *{
+    display: flex;
+    gap: 1.5rem;
+    flex-direction: row;
+}
+.onVisit-radio ::ng-deep .ant-radio{
+    display: none !important;
+}
+
+::ng-deep .ant-drawer-content:is(.dark *){
+    background-color: theme('colors.gray.800') !important;
+    color: theme('colors.gray.200') !important;
+}
+
+::ng-deep .ant-drawer-header:is(.dark *){
+    border-color: theme('colors.gray.600') !important;
+}
+
+::ng-deep .ant-drawer-title:is(.dark *){
+    color: theme('colors.gray.200') !important;
+}

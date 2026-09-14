@@ -1,0 +1,581 @@
+:host {
+  display: block;
+}
+
+:host ::ng-deep .drug-workflow-tabs > .ant-tabs-nav {
+  margin-bottom: 12px;
+}
+
+:host ::ng-deep .drug-workflow-tabs > .ant-tabs-nav .ant-tabs-nav-wrap {
+  background: #f8fafc;
+  border: 1px solid #e5eaf3;
+  border-radius: 10px;
+  padding: 4px;
+}
+
+:host ::ng-deep .drug-workflow-tabs.ant-tabs-card .ant-tabs-tab {
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  color: var(--primary-color);
+  font-weight: 600;
+  padding: 7px 12px !important;
+  margin: 0 4px 0 0 !important;
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .drug-workflow-tabs.ant-tabs-card .ant-tabs-tab:hover {
+  background: #eef3ff !important;
+  color: var(--primary-color);
+}
+
+:host ::ng-deep .drug-workflow-tabs.ant-tabs-card .ant-tabs-tab-active {
+  background: #ffffff !important;
+  color: var(--primary-color) !important;
+  border-color: #d3dcf0 !important;
+  box-shadow: 0 1px 3px rgba(21, 34, 66, 0.1);
+}
+
+:host
+  ::ng-deep
+  .drug-workflow-tabs.ant-tabs-card
+  .ant-tabs-tab
+  .ant-tabs-tab-btn {
+  color: inherit !important;
+}
+
+:host ::ng-deep .drug-workflow-tabs > .ant-tabs-content-holder {
+  border-top: 1px solid #e6ebf4;
+  padding-top: 4px;
+}
+
+.drug-workspace-shell {
+  padding: 0.2rem 0.2rem 0.4rem;
+  border-radius: 16px;
+}
+
+.drug-filter-shell,
+.drug-table-shell {
+  position: relative;
+}
+
+.drug-filter-shell {
+  margin-bottom: 0.75rem;
+  border: 1px solid #d9e5f4;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+  padding: 0.75rem;
+}
+
+.drug-filter-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.drug-filter-toolbar-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.62rem;
+}
+
+.drug-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.drug-filter-count-pill {
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.35rem;
+  background: var(--primary-color);
+  color: #ffffff;
+  font-size: 0.72rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.drug-filter-chevron {
+  font-size: 0.68rem;
+  transition: transform 0.2s ease;
+}
+
+.drug-filter-summary {
+  color: #627796;
+  font-size: 0.85rem;
+}
+
+.drug-filter-clear {
+  font-weight: 600;
+}
+
+.drug-filter-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+}
+
+.drug-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid #cddbf1;
+  border-radius: 999px;
+  background: #f4f8ff;
+  color: #365c9f;
+  height: 29px;
+  padding: 0 0.65rem;
+  font-size: 0.79rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.drug-filter-chip:hover {
+  background: #ebf2ff;
+  border-color: #b7caea;
+}
+
+.drug-filter-grid {
+  margin-top: 0.72rem;
+  padding: 0.82rem;
+  border: 1px solid #dde8f6;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f8fbff 0%, #f5f8ff 100%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.82rem;
+}
+
+.drug-filter-label {
+  color: var(--primary-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.28rem;
+}
+
+:host ::ng-deep .drug-filter-grid .ant-select {
+  margin-top: 0 !important;
+}
+
+.drug-filter-grid .drug-filter-input,
+.drug-filter-grid .drug-filter-select {
+  margin-top: 0 !important;
+}
+
+:host
+  ::ng-deep
+  .drug-filter-grid
+  .ant-select:not(.ant-select-customize-input)
+  .ant-select-selector,
+.drug-filter-grid .drug-filter-input {
+  border-color: #d3def0 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  min-height: 34px !important;
+  height: 34px !important;
+}
+
+:host
+  ::ng-deep
+  .drug-filter-grid
+  .ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
+  padding: 0 9px !important;
+}
+
+:host ::ng-deep .drug-filter-grid .ant-select-selection-item,
+:host ::ng-deep .drug-filter-grid .ant-select-selection-placeholder {
+  line-height: 32px !important;
+}
+
+.drug-filter-grid .drug-filter-input {
+  padding-top: 0.18rem !important;
+  padding-bottom: 0.18rem !important;
+}
+
+:host ::ng-deep .drug-filter-grid .ant-select-selector:hover,
+.drug-filter-grid .drug-filter-input:hover {
+  border-color: #aac0e6 !important;
+}
+
+:host ::ng-deep .drug-filter-grid .ant-select-focused .ant-select-selector,
+.drug-filter-grid .drug-filter-input:focus {
+  border-color: #5f8fdd !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12) !important;
+}
+
+.drug-table-shell {
+  border: 1px solid #d8e3f3;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+:host ::ng-deep .drug-table .ant-table {
+  background: transparent;
+}
+
+:host ::ng-deep .drug-table .ant-table-thead > tr > th {
+  background: #f4f8ff;
+  color: #31538a;
+  font-size: 12px;
+  font-weight: 700;
+  border-bottom: 1px solid #d9e6f7;
+}
+
+:host ::ng-deep .drug-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #edf2fa;
+  transition: background-color 0.16s ease;
+}
+
+:host ::ng-deep .drug-table .ant-table-tbody > tr.drug-row-clickable:hover > td {
+  background: #f7fbff;
+}
+
+.drug-row-clickable {
+  cursor: pointer;
+}
+
+.drug-row-clickable:focus-visible {
+  outline: 2px solid #8cb4ff;
+  outline-offset: -2px;
+}
+
+.action-icon-btn {
+  cursor: pointer !important;
+}
+
+:host-context(.dark) .drug-filter-shell,
+:host-context(.dark) .drug-table-shell {
+  border-color: rgba(148, 163, 184, 0.24);
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: none;
+}
+
+:host-context(.dark) ::ng-deep .drug-workflow-tabs > .ant-tabs-nav .ant-tabs-nav-wrap {
+  background: #1f2a3b;
+  border-color: #32445f;
+}
+
+:host-context(.dark) ::ng-deep .drug-workflow-tabs.ant-tabs-card .ant-tabs-tab {
+  color: var(--primary-color);
+}
+
+:host-context(.dark) ::ng-deep .drug-workflow-tabs.ant-tabs-card .ant-tabs-tab:hover {
+  background: #2a3850 !important;
+}
+
+:host-context(.dark) ::ng-deep .drug-workflow-tabs.ant-tabs-card .ant-tabs-tab-active {
+  background: #27344a !important;
+  color: var(--primary-color) !important;
+  border-color: #3f5476 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+:host-context(.dark) ::ng-deep .drug-workflow-tabs > .ant-tabs-content-holder {
+  border-top-color: #31445f;
+}
+
+:host-context(.dark) .drug-filter-toggle,
+:host-context(.dark) .drug-filter-clear {
+  color: #d2e2ff !important;
+}
+
+:host-context(.dark) .drug-filter-summary {
+  color: #94a3b8;
+}
+
+:host-context(.dark) .drug-filter-label {
+  color: var(--primary-color);
+}
+
+:host-context(.dark) .drug-filter-chip {
+  border-color: rgba(96, 165, 250, 0.35);
+  background: rgba(37, 99, 235, 0.14);
+  color: #bfdbfe;
+}
+
+:host-context(.dark) .drug-filter-grid {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+:host-context(.dark) ::ng-deep .drug-filter-grid .ant-select-selector,
+:host-context(.dark) .drug-filter-grid .drug-filter-input {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: rgba(100, 116, 139, 0.6) !important;
+  color: #dbeafe !important;
+}
+
+:host-context(.dark)
+  ::ng-deep
+  .drug-filter-grid
+  .drug-filter-select.ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: rgba(100, 116, 139, 0.6) !important;
+  color: #dbeafe !important;
+}
+
+:host-context(.dark) ::ng-deep .drug-filter-grid .ant-select-selection-item,
+:host-context(.dark) .drug-filter-grid .drug-filter-input {
+  color: #dbeafe !important;
+}
+
+:host-context(.dark)
+  ::ng-deep
+  .drug-filter-grid
+  .drug-filter-select.ant-select
+  .ant-select-selection-search-input {
+  background: transparent !important;
+  color: #dbeafe !important;
+  -webkit-text-fill-color: #dbeafe;
+}
+
+:host-context(.dark) ::ng-deep .drug-filter-grid .ant-select-selection-placeholder,
+:host-context(.dark) .drug-filter-grid .drug-filter-input::placeholder {
+  color: #8ea3c7 !important;
+}
+
+:host-context(.dark) ::ng-deep .drug-filter-grid .ant-select-arrow {
+  color: #9fb4d9 !important;
+}
+
+:host-context(.dark) ::ng-deep .drug-table .ant-table-thead > tr > th {
+  background: rgba(30, 41, 59, 0.86);
+  border-bottom-color: rgba(148, 163, 184, 0.24);
+  color: #d2e0fb;
+}
+
+:host-context(.dark) ::ng-deep .drug-table .ant-table-tbody > tr > td {
+  border-bottom-color: rgba(148, 163, 184, 0.18);
+}
+
+:host-context(.dark) ::ng-deep .drug-table .ant-table-tbody > tr.drug-row-clickable:hover > td {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+@media (max-width: 640px) {
+  .drug-workspace-shell {
+    padding: 0.15rem;
+  }
+
+  .drug-filter-shell {
+    padding: 0.62rem;
+  }
+
+  .drug-filter-grid {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0.7rem;
+  }
+
+  .drug-filter-toolbar,
+  .drug-filter-toolbar-left {
+    align-items: stretch;
+  }
+
+  .drug-filter-toggle,
+  .drug-filter-clear {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.drug-no-catalog-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: #9eb3d4;
+  gap: 0.6rem;
+}
+.drug-no-catalog-hint__icon {
+  font-size: 2.4rem;
+  opacity: 0.55;
+}
+.drug-no-catalog-hint__text {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+:host-context(.dark) .drug-no-catalog-hint {
+  color: #4a6080;
+}
+
+::ng-deep .drug-catalog-description-tooltip {
+  max-width: 520px;
+}
+
+::ng-deep .drug-catalog-description-tooltip .ant-tooltip-inner {
+  width: 520px;
+  max-width: 520px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.drug-catalog-facility-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+}
+
+:host ::ng-deep .drug-table .ant-table-thead > tr > th.drug-catalog-facility-column,
+:host ::ng-deep .drug-table .ant-table-tbody > tr > td.drug-catalog-facility-column {
+  min-width: 280px;
+}
+
+.drug-catalog-tag {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.drug-catalog-tag--more {
+  cursor: help;
+}
+
+:host-context(.dark) .drug-catalog-tag {
+  background: rgba(67, 56, 202, 0.2);
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.36);
+}
+
+.drug-bulk-import-btn {
+  margin-left: 0.25rem;
+}
+
+.bulk-import-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bulk-import-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bulk-import-hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.bulk-import-dropzone {
+  border: 2px dashed #c7d2e8;
+  border-radius: 12px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  background: #f8fafc;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.bulk-import-dropzone:hover,
+.bulk-import-dropzone-active {
+  border-color: var(--primary-color, #2563eb);
+  background: #eef4ff;
+}
+
+.bulk-import-dropzone-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.bulk-import-dropzone-icon {
+  font-size: 2rem;
+  color: var(--primary-color, #2563eb);
+  opacity: 0.85;
+}
+
+.bulk-import-file-name {
+  margin-top: 0.35rem;
+  font-size: 0.875rem;
+  color: #0f172a;
+  word-break: break-all;
+}
+
+.bulk-import-file-input-hide {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.bulk-import-success-panel {
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  color: #065f46;
+}
+
+.bulk-import-success-title {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bulk-import-success-msg {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+}
+
+.bulk-import-error-panel {
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+}
+
+.bulk-import-error-title {
+  font-weight: 600;
+  color: #9a3412;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.bulk-import-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+:host ::ng-deep .bulk-import-errors-table .ant-table {
+  background: #fff;
+  border-radius: 8px;
+}

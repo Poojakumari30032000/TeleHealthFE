@@ -1,0 +1,23 @@
+{
+    "title": "Add Note",
+    "primaryId": "id",
+    "rows": [
+        {
+            "class": "mb-2 pb-2",
+            "fields": [
+                {
+                    "type": "textarea",
+                    "label": "Note",
+                    "name": "name",
+                    "placeholder": "Enter your note",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                }
+                
+            ]
+        }
+        
+    ]
+}

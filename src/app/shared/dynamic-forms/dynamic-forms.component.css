@@ -1,0 +1,135 @@
+.visually-hidden,
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.payment-mode-cards-inner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  max-width: 100%;
+}
+
+@media (max-width: 639px) {
+  .payment-mode-cards-inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+.payment-mode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 5rem;
+  padding: 1rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 2px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+  font: inherit;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 479px) {
+  .payment-mode-card {
+    min-height: 4.5rem;
+    padding: 1rem;
+  }
+}
+
+.payment-mode-card:focus-visible {
+  box-shadow: 0 0 0 2px var(--primary-color, #1890ff);
+}
+
+.payment-mode-card-unselected {
+  border-color: #e5e7eb;
+  background-color: #fff;
+}
+
+:host-context(.dark) .payment-mode-card-unselected,
+.dark .payment-mode-card-unselected {
+  border-color: #4b5563;
+  background-color: #374151;
+}
+
+.payment-mode-card-selected {
+  border-color: var(--primary-color, #1890ff);
+  background-color: rgba(24, 144, 255, 0.08);
+}
+
+:host-context(.dark) .payment-mode-card-selected,
+.dark .payment-mode-card-selected {
+  background-color: rgba(24, 144, 255, 0.18);
+}
+
+.payment-mode-card:not(:disabled):hover.payment-mode-card-unselected {
+  border-color: rgba(24, 144, 255, 0.5);
+  background-color: rgba(24, 144, 255, 0.04);
+}
+
+.payment-mode-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.payment-mode-card-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+}
+
+.payment-mode-card-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+
+  filter: brightness(0) saturate(100%) invert(32%) sepia(98%) saturate(2500%) hue-rotate(198deg) brightness(98%) contrast(101%);
+}
+
+:host-context(.dark) .payment-mode-card-logo img,
+.dark .payment-mode-card-logo img {
+  filter: brightness(0) saturate(100%) invert(32%) sepia(98%) saturate(2500%) hue-rotate(198deg) brightness(98%) contrast(101%);
+}
+
+.payment-mode-card-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.onDrag-File ::ng-deep .ant-upload.ant-upload-drag{
+    border-radius: 1rem;
+}
+
+.onDrag-File ::ng-deep .ant-upload.ant-upload-drag:is(.dark *){
+    background: theme('colors.gray.800') !important;
+}
+
+.onFileUpload.w-full ::ng-deep .ant-upload.ant-upload-select {
+    width: 100% !important;
+}
+
+.payment-mode-cards--locked .payment-mode-card {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+.payment-mode-cards--locked .payment-mode-card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}

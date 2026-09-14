@@ -1,0 +1,29 @@
+{
+  "title": "Prescription Status",
+  "primaryId": "id",
+  "rows": [
+    {
+      "class": "grid grid-cols-1 gap-4",
+      "fields": [
+        {
+          "type": "select",
+          "label": "Status",
+          "name": "status",
+          "placeholder": "Select Prescription Status",
+          "options": [
+            {"label": "Pending", "value": "Pending"},
+            {"label": "Complete", "value": "Complete"}
+          ],
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "label": "Type",
+          "name": "type",
+          "placeholder": ""
+        }
+      ]
+    }
+  ]
+}

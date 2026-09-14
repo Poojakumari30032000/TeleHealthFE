@@ -1,0 +1,161 @@
+<div *ngIf="errorMsg" class="invoice-alert invoice-alert-error">
+  {{ errorMsg }}
+</div>
+
+<div *ngIf="loading" class="invoice-alert invoice-alert-loading">
+  Loading {{ docLabelLower }}...
+</div>
+
+<div *ngIf="!loading && data" class="invoice-ehr-shell">
+  <section class="invoice-ehr-hero">
+    <div class="invoice-ehr-identity">
+      <div class="invoice-ehr-avatar">
+        {{ (data.customerName || 'C').charAt(0) }}{{ (docLabel || 'I').charAt(0) }}
+      </div>
+      <div>
+        <div class="invoice-ehr-name">{{ data.customerName || '--' }}</div>
+        <div class="invoice-ehr-meta">
+          <span>{{ docLabel }} #{{ data.invoiceId || '--' }}</span>
+          <span>{{ getInvoiceTypeDisplayLabel(data.invoiceType) }}</span>
+          <span>{{ data.createdDate | date:'MMM d, y, h:mm a' }}</span>
+          <span>{{ data.invoiceNumber || '--' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="invoice-kpi-grid">
+      <div class="invoice-kpi-card">
+        <div class="invoice-kpi-label">Line Items</div>
+        <div class="invoice-kpi-value">{{ lineItems.length }}</div>
+      </div>
+      <div class="invoice-kpi-card">
+        <div class="invoice-kpi-label">Quantity</div>
+        <div class="invoice-kpi-value">{{ totalQty }}</div>
+      </div>
+      <div class="invoice-kpi-card">
+        <div class="invoice-kpi-label">Subtotal</div>
+        <div class="invoice-kpi-value">{{ subtotalAmount | currency:'USD':'symbol' }}</div>
+      </div>
+      <div class="invoice-kpi-card">
+        <div class="invoice-kpi-label">Amount Due</div>
+        <div class="invoice-kpi-value">{{ totalAmount | currency:'USD':'symbol' }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="invoice-action-row">
+    <button
+      *ngIf="userRole === 'Clinic Admin' && data?.status === 'Pending'"
+      nz-button
+      nzType="default"
+      nzShape="round"
+      [disabled]="paymentLoading"
+      [nzLoading]="paymentLoading"
+      class="invoice-cta-btn"
+      (click)="openPayBillConfirm()"
+      title="Pay Bill"
+    >
+      <i class="fa-solid fa-credit-card"></i>
+      <span class="ml-2">Pay Now</span>
+    </button>
+  </section>
+
+  <section class="invoice-overview-grid">
+    <article class="invoice-info-card">
+      <div class="invoice-info-head">
+        <h4 class="invoice-info-title">
+          <i class="fa-solid fa-building mr-2 text-primary"></i>Clinic Snapshot
+        </h4>
+      </div>
+
+      <div class="invoice-info-grid">
+        <div><label>Clinic</label><span>{{ data.customerName || '--' }}</span></div>
+        <div><label>Status</label><span>{{ data.isActive ? 'Active' : 'Inactive' }}</span></div>
+        <div><label>Email</label><span>{{ data.email || '--' }}</span></div>
+        <div><label>Phone #</label><span>{{ data.facilityPhone || '--' }}</span></div>
+        <div><label>Address</label><span>{{ data.facilityAddress || '--' }}</span></div>
+
+      </div>
+    </article>
+
+    <article class="invoice-info-card">
+      <div class="invoice-info-head">
+        <h4 class="invoice-info-title">
+          <i class="fa-regular fa-file-lines mr-2 text-primary"></i>{{ docLabel }} Detail
+        </h4>
+
+      </div>
+
+      <div class="invoice-info-grid">
+        <div><label>{{ docLabel }} #</label><span>{{ data.invoiceId || '--' }}</span></div>
+        <div><label>{{ docLabel }} Number</label><span>{{ data.invoiceNumber || '--' }}</span></div>
+        <div><label>{{ docLabel }} Type</label><span>{{ getInvoiceTypeDisplayLabel(data.invoiceType) }}</span></div>
+        <div><label>Created Date</label><span>{{ data.createdDate | date:'MM/dd/yyyy, h:mm a' }}</span></div>
+        <div>
+          <label>Payment Status</label>
+          <span class="ui-status-badge" [ngClass]="statusPillClasses(data.status)">
+            {{ data.status || '--' }}
+          </span>
+        </div>
+      </div>
+    </article>
+
+    <article class="invoice-info-card invoice-info-card-summary">
+      <div class="invoice-info-head">
+        <h4 class="invoice-info-title">
+          <i class="fa-solid fa-receipt mr-2 text-primary"></i>Financial Summary
+        </h4>
+      </div>
+
+      <div class="invoice-summary-list">
+        <div class="invoice-summary-row">
+          <label>Subtotal</label>
+          <span>{{ subtotalAmount | currency:'USD':'symbol' }}</span>
+        </div>
+        <div class="invoice-summary-row">
+          <label>Quantity</label>
+          <span>{{ totalQty }}</span>
+        </div>
+        <div class="invoice-summary-row invoice-summary-row-total">
+          <label>Total / Amount Due</label>
+          <span>{{ totalAmount | currency:'USD':'symbol' }}</span>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="invoice-workspace-card">
+    <div class="invoice-workspace-title">
+      <i class="fa-solid fa-file-lines mr-2 text-primary"></i>Line Items
+      <span class="invoice-workspace-count">({{ lineItems.length }})</span>
+    </div>
+
+    <nz-table
+      [nzData]="lineItems"
+      [nzFrontPagination]="false"
+      [nzShowPagination]="false"
+      [nzScroll]="{ x: '1080px' }"
+      class="invoice-products-table manual-invoice-products-table"
+      nzSize="small"
+    >
+      <thead>
+      <tr>
+        <th nzWidth="620px">Detail</th>
+        <th class="text-center" nzWidth="110px">Qty</th>
+        <th class="text-right" nzWidth="150px">Unit Price</th>
+        <th class="text-right" nzWidth="150px">Line Total</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let item of lineItems; trackBy: trackByLineItemId">
+        <td class="invoice-product-cell">
+          <div class="invoice-product-name">{{ item.productLineItemName || '--' }}</div>
+        </td>
+        <td class="text-center">{{ item.qty || 0 }}</td>
+        <td class="text-right">{{ (item.unitPrice || 0) | currency:'USD':'symbol' }}</td>
+        <td class="text-right font-semibold">{{ (item.lineTotal || 0) | currency:'USD':'symbol' }}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </section>
+</div>

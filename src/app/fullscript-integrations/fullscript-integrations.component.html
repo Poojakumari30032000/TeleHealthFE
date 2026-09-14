@@ -1,0 +1,111 @@
+<div class="w-full px-4 sm:px-6 lg:px-8 py-6">
+
+  <div class="w-full max-w-none">
+    <div class="mb-6">
+      <h1 class="text-2xl font-semibold mb-1 text-gray-900 dark:text-gray-100">
+        Fullscript Integration
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        Connect and manage your Fullscript account to create treatment plans and manage patient prescriptions.
+      </p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Connection Status</h2>
+          <div class="flex items-center gap-2">
+            <span
+              class="inline-block w-3 h-3 rounded-full"
+              [class.bg-green-500]="isConnected"
+              [class.bg-red-500]="!isConnected"
+            ></span>
+            <span class="text-gray-700 dark:text-gray-300">
+              {{ isConnected ? 'Connected' : 'Not Connected' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 lg:justify-end">
+          <button
+            *ngIf="!isConnected"
+            class="h-10 px-4 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-60"
+            (click)="connectFullscript()"
+            [disabled]="isLoading"
+          >
+            Connect Fullscript
+          </button>
+
+          <button
+            *ngIf="isConnected"
+            class="h-10 px-4 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+            (click)="disconnectFullscript()"
+          >
+            Disconnect
+          </button>
+
+          <button
+            *ngIf="isConnected && !showEmbed"
+            class="h-10 px-4 rounded-md bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+            (click)="openFullscriptPlatform()"
+          >
+            Open Fullscript Platform
+          </button>
+
+          <button
+            *ngIf="showEmbed"
+            class="h-10 px-4 rounded-md bg-gray-600 text-white hover:bg-gray-700 transition-colors"
+            (click)="closeFullscriptPlatform()"
+          >
+            Close Platform
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="text-center py-10">
+      <div class="inline-block animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600"></div>
+      <p class="mt-3 text-gray-600 dark:text-gray-400">Checking connection status...</p>
+    </div>
+
+    <div
+      *ngIf="showEmbed && isConnected"
+      class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden"
+    >
+
+      <div class="w-full min-h-[520px] h-[calc(100dvh-320px)]">
+        <app-fullscript-platform
+          class="block w-full h-full"
+          [patient]="patientData"
+          entrypoint="catalog"
+        ></app-fullscript-platform>
+      </div>
+    </div>
+
+  <div *ngIf="!showEmbed" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-semibold mb-4">About Fullscript Integration</h2>
+    <div class="space-y-3 text-gray-700 dark:text-gray-300">
+      <p>
+        Fullscript is a platform that allows healthcare providers to create and manage treatment plans,
+        prescribe supplements, and track patient orders.
+      </p>
+      <div>
+        <h3 class="font-semibold mb-2">Features:</h3>
+        <ul class="list-disc list-inside space-y-1 ml-4">
+          <li>Create and manage treatment plans</li>
+          <li>Prescribe supplements and products</li>
+          <li>Track patient orders and deliveries</li>
+          <li>Access to Fullscript's product catalog</li>
+          <li>Manage patient prescriptions</li>
+        </ul>
+      </div>
+      <div *ngIf="!isConnected" class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded">
+        <p class="text-sm">
+          <strong>Getting Started:</strong> Click the "Connect Fullscript" button above to authorize
+          this application to access your Fullscript account. You'll be redirected to Fullscript's
+          authorization page.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

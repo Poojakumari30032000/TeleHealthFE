@@ -1,0 +1,119 @@
+<div class="flex items-center justify-between flex-grow flex-wrap gap-4">
+  <button class="filters-btns m-0" (click)="this.showFilters = !this.showFilters;" >
+    <i class="fa-solid fa-sliders mr-1"></i>
+    Filters
+    <span *ngIf="appliedFilters.length > 0" class="ml-1">
+      ({{ appliedFilters.length }})
+    </span>
+    <i class="fa-solid fa-chevron-down ml-1 text-xs transition-transform duration-200"
+      [class.rotate-180]="showFilters"
+    ></i>
+  </button>
+  <span *ngFor="let filter of appliedFilters" class="px-2 py-1 text-sm bg-primary-100 text-primary-800 rounded-lg flex items-center gap-1" [class.hidden]="this.showFilters">
+    {{ filter.name }}: {{ filter.value }}
+    <button class="ml-1 hover:text-primary-600" (click)="removeFilter(filter.name)">
+      <i class="fa-solid fa-times"></i>
+    </button>
+  </span>
+  <button *ngIf="appliedFilters.length > 0" class="px-3 border-l border-gray-300 dark:border-gray-600 text-red-600 hover:text-red-700 text-sm mr-auto" (click)="clearFilters()">
+    Clear All
+  </button>
+  <button class="main-btn mb-0 ml-auto" (click)="AddEditPharmacy()">
+        <i class="fa-solid fa-plus"></i>
+        <span class="ml-2 hidden md:inline-block">
+            Add Pharmacy
+        </span>
+    </button>
+</div>
+
+<div *ngIf="showFilters" class="mt-2 p-4 rounded-lg bg-primary-50 border border-primary-100 dark:bg-gray-800 dark:border-gray-700 grid grid-cols-3 items-center gap-4">
+  <div>
+    <label class="label-C-F">Title:</label>
+    <input nz-input placeholder="Search Pharmacy By Name" title="Search Pharmacy By Name"
+        class="input-C" [(ngModel)]="pharmacyTitle" (keyup)="searchTermChanged()" />
+  </div>
+  <div>
+    <label class="label-C-F">Status:</label>
+    <nz-select nzPlaceHolder="Select Status" [(ngModel)]="selectedStatus" nzShowSearch (ngModelChange)="applyFilter()"
+        nzAllowClear class="w-full">
+        <nz-option nzValue="Active" nzLabel="Active"></nz-option>
+        <nz-option nzValue="InActive" nzLabel="In-Active"></nz-option>
+    </nz-select>
+</div>
+</div>
+
+<div class="py-2 rounded-lg">
+    <app-dynamic-table [apiEndpoint]="'Pharmacies/getAllPharmacies'" [columns]="[
+            { title: 'Pharmacy Name', key: 'pharmacyName', width: '220px' },
+            {
+                title: 'Type',
+                key: 'pharmacyType',
+                width: '120px',
+                type: 'badge',
+                badgeMapping: {
+                    'Retail': { class: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' },
+                    'Hospital': { class: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' },
+                    'Mail Order': { class: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300' }
+                }
+            },
+            { title: 'State CS License', key: 'stateCSLicense', width: '140px' },
+            { title: 'DEA No.', key: 'deaNumber', width: '130px' },
+            { title: 'NABP ID', key: 'nabpId', width: '120px' },
+            {
+                title: '24/7',
+                key: 'is24Operation',
+                width: '90px',
+                type: 'badge',
+                badgeMapping: {
+                    true: { class: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300', label: 'Yes' },
+                    false: { class: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300', label: 'No' }
+                }
+            },
+            {
+                title: 'Compounding',
+                key: 'isCompoundingServices',
+                width: '130px',
+                type: 'badge',
+                badgeMapping: {
+                    true: { class: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300', label: 'Available' },
+                    false: { class: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300', label: 'None' }
+                }
+            },
+            { title: 'Pharmacist', key: 'inChargePharmacist', width: '180px' },
+            {
+                title: 'Accreditation',
+                key: 'accereditation',
+                width: '140px',
+                type: 'badge',
+                badgeMapping: {
+                    'ACHC': { class: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' },
+                    'URAC': { class: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' },
+                    'None': { class: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' }
+                }
+            },
+            {
+                title: 'Status',
+                key: 'status',
+                width: '100px',
+                type: 'badge',
+                badgeMapping: {
+                    'Active': { class: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' },
+                    'InActive': { class: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' }
+                }
+            },
+            {
+                title: 'License Expiry',
+                key: 'licenseExpiration',
+                width: '140px',
+                type: 'date'
+            }
+        ]" [filters]="appliedFilters" [showActions]="true" [actions]="[
+            { label: 'View', icon: 'fa fa-eye', callback: onView },
+            { label: 'Edit', icon: 'fa-regular fa-pen-to-square', callback: AddEditPharmacy },
+            { label: 'Update Status', icon: 'fa-solid fa-sync-alt', callback: updateStatus },
+            { label: 'Delete', icon: 'fa fa-trash', type: 'danger', callback: onDelete },
+        ]">
+    </app-dynamic-table>
+</div>
+
+<app-comman-form-modal #commanModel [apiUrl]="this.modalApiUrl" (formClosed)="refreshTable()"></app-comman-form-modal>

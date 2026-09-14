@@ -1,0 +1,505 @@
+<div class="cse-shell">
+
+  <div class="cse-blob cse-blob--top"></div>
+  <div class="cse-blob cse-blob--bottom"></div>
+
+  <div class="cse-container">
+
+    <ng-container *ngIf="signupSuccess; else signupForm">
+      <div class="cse-card cse-success">
+        <div class="cse-success-icon">
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <circle class="cse-success-circle" cx="40" cy="40" r="36" />
+            <path class="cse-success-check" d="M24 41 L36 53 L57 30" fill="none" />
+          </svg>
+        </div>
+        <h1 class="cse-success-title">Welcome to TelehealthUS!</h1>
+        <p class="cse-success-msg">
+          {{ apiSuccessMessage }}
+        </p>
+      </div>
+    </ng-container>
+
+    <ng-template #signupForm>
+
+      <header class="cse-header">
+        <div class="cse-brand">
+          <div class="cse-brand-mark">
+            <i class="fa-solid fa-stethoscope"></i>
+          </div>
+          <div class="cse-brand-text">
+            <span class="cse-brand-name">TeleHealthUS</span>
+            <span class="cse-brand-tag">EHR Platform</span>
+          </div>
+        </div>
+        <p class="cse-tagline">
+          Join the platform thousands of clinicians trust to deliver modern, connected care.
+        </p>
+      </header>
+
+      <nav class="cse-stepper" aria-label="Signup progress">
+        <ng-container *ngFor="let label of stepLabels; let i = index">
+          <button
+            type="button"
+            class="cse-step"
+            [class.cse-step--active]="currentStep === i + 1"
+            [class.cse-step--complete]="currentStep > i + 1"
+            (click)="goToStep((i + 1) === 1 ? 1 : (i + 1) === 2 ? 2 : 3)"
+          >
+            <span class="cse-step-num">
+              <i *ngIf="currentStep > i + 1" class="fa-solid fa-check"></i>
+              <span *ngIf="currentStep <= i + 1">{{ i + 1 }}</span>
+            </span>
+            <span class="cse-step-label">{{ label }}</span>
+          </button>
+          <span *ngIf="i < stepLabels.length - 1" class="cse-step-bar"
+                [class.cse-step-bar--complete]="currentStep > i + 1"></span>
+        </ng-container>
+      </nav>
+
+      <div class="cse-card">
+
+        <div *ngIf="isSubmitting" class="cse-overlay">
+          <div class="cse-overlay-inner">
+            <div class="cse-overlay-spinner">
+              <div class="cse-spinner-ring"></div>
+            </div>
+            <p class="cse-overlay-title">Creating your clinic…</p>
+            <p class="cse-overlay-sub">Hang tight, this only takes a moment.</p>
+          </div>
+        </div>
+
+        <div *ngIf="apiErrorMessage && !isSubmitting" class="cse-alert cse-alert--error">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span>{{ apiErrorMessage }}</span>
+        </div>
+
+        <section *ngIf="currentStep === 1" [formGroup]="step1Form" class="cse-section">
+          <header class="cse-section-head">
+            <span class="cse-section-icon"><i class="fa-solid fa-hospital"></i></span>
+            <div>
+              <h2 class="cse-section-title">Clinic Information</h2>
+              <p class="cse-section-sub">Tell us about your clinic. NPI &amp; Tax ID are optional and can be added later.</p>
+            </div>
+          </header>
+
+          <div class="cse-grid">
+            <div class="cse-field cse-col-2">
+              <label class="cse-label">Clinic Name (Long) <span class="cse-req">*</span></label>
+              <input
+                nz-input
+                type="text"
+                class="input-C"
+                placeholder="e.g. Aurora Family Health Center"
+                formControlName="titleLong"
+                maxlength="150"
+                (blur)="onBlurTrim($event, true)"
+              />
+              <p *ngIf="hasError(step1Form, 'titleLong', 'required')" class="cse-error">Clinic name is required.</p>
+            </div>
+
+            <div class="cse-field">
+              <label class="cse-label">Clinic Name (Short) <span class="cse-req">*</span></label>
+              <input
+                nz-input
+                type="text"
+                class="input-C"
+                placeholder="e.g. Aurora Health"
+                formControlName="titleShort"
+                maxlength="60"
+                (blur)="onBlurTrim($event, true)"
+              />
+              <p *ngIf="hasError(step1Form, 'titleShort', 'required')" class="cse-error">Short name is required.</p>
+            </div>
+
+            <div class="cse-field">
+              <label class="cse-label">
+                Fax
+                <span class="cse-optional">Optional</span>
+              </label>
+              <input
+                nz-input
+                type="tel"
+                class="input-C"
+                placeholder="(555) 123-4567"
+                formControlName="fax"
+                (input)="onPhoneInput($event, 'fax')"
+                maxlength="20"
+              />
+            </div>
+
+            <div class="cse-field">
+              <label class="cse-label">
+                NPI
+                <span class="cse-optional">Optional</span>
+              </label>
+              <input
+                nz-input
+                type="text"
+                class="input-C"
+                placeholder="National Provider Identifier"
+                formControlName="npi"
+                maxlength="20"
+                (blur)="onBlurTrim($event, true)"
+              />
+            </div>
+
+            <div class="cse-field">
+              <label class="cse-label">
+                Federal Tax ID
+                <span class="cse-optional">Optional</span>
+              </label>
+              <input
+                nz-input
+                type="text"
+                class="input-C"
+                placeholder="EIN / Federal Tax Identifier"
+                formControlName="fedearlTaxId"
+                maxlength="20"
+                (blur)="onBlurTrim($event, true)"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section *ngIf="currentStep === 2" [formGroup]="step2Form" class="cse-section">
+          <header class="cse-section-head">
+            <span class="cse-section-icon"><i class="fa-solid fa-location-dot"></i></span>
+            <div>
+              <h2 class="cse-section-title">Clinic Address</h2>
+              <p class="cse-section-sub">Where is your clinic located? You can add a separate billing address if needed.</p>
+            </div>
+          </header>
+
+          <div class="cse-grid">
+            <div class="cse-field cse-col-2">
+              <label class="cse-label">Street Address <span class="cse-req">*</span></label>
+              <input
+                nz-input
+                type="text"
+                class="input-C"
+                placeholder="123 Main St, Suite 200"
+                formControlName="address"
+                maxlength="250"
+                (blur)="onBlurTrim($event, true)"
+              />
+              <p *ngIf="hasError(step2Form, 'address', 'required')" class="cse-error">Address is required.</p>
+            </div>
+
+            <div class="cse-field">
+              <label class="cse-label">State <span class="cse-req">*</span></label>
+              <nz-select
+                class="cse-select"
+                nzPlaceHolder="Select State"
+                nzShowSearch
+                [nzLoading]="loadingStates"
+                formControlName="stateId"
+              >
+                <nz-option *ngFor="let s of states" [nzValue]="s.id" [nzLabel]="s.name"></nz-option>
+              </nz-select>
+              <p *ngIf="hasError(step2Form, 'stateId', 'required')" class="cse-error">State is required.</p>
+            </div>
+
+            <div class="cse-field">
+              <label class="cse-label">City <span class="cse-req">*</span></label>
+              <nz-select
+                class="cse-select"
+                nzPlaceHolder="Select City"
+                nzShowSearch
+                [nzLoading]="loadingCities"
+                formControlName="cityId"
+              >
+                <nz-option *ngFor="let c of cities" [nzValue]="c.id" [nzLabel]="c.name"></nz-option>
+              </nz-select>
+              <p *ngIf="hasError(step2Form, 'cityId', 'required')" class="cse-error">City is required.</p>
+            </div>
+
+            <div class="cse-field">
+              <label class="cse-label">ZIP Code <span class="cse-req">*</span></label>
+              <input
+                nz-input
+                type="text"
+                class="input-C"
+                placeholder="e.g. 78701"
+                formControlName="zipCode"
+                maxlength="10"
+                (blur)="onBlurTrim($event, true)"
+              />
+              <p *ngIf="hasError(step2Form, 'zipCode', 'required')" class="cse-error">ZIP is required.</p>
+              <p *ngIf="hasError(step2Form, 'zipCode', 'pattern')" class="cse-error">Enter a valid US ZIP (12345 or 12345-6789).</p>
+            </div>
+
+            <div class="cse-field cse-col-2">
+              <label class="cse-label">Billing Address <span class="cse-req">*</span></label>
+              <nz-select class="cse-select" formControlName="billingAddressType">
+                <nz-option nzValue="Same as Clinic" nzLabel="Same as clinic address"></nz-option>
+                <nz-option nzValue="Other Address" nzLabel="Use a different billing address"></nz-option>
+              </nz-select>
+            </div>
+          </div>
+
+          <div *ngIf="isOtherBilling" class="cse-billing-block">
+            <h3 class="cse-billing-title">
+              <i class="fa-solid fa-file-invoice-dollar"></i>
+              Billing Address Details
+            </h3>
+            <div class="cse-grid">
+              <div class="cse-field cse-col-2">
+                <label class="cse-label">Billing Street Address <span class="cse-req">*</span></label>
+                <input
+                  nz-input
+                  type="text"
+                  class="input-C"
+                  placeholder="Billing street address"
+                  formControlName="billingAddress"
+                  maxlength="250"
+                  (blur)="onBlurTrim($event, true)"
+                />
+                <p *ngIf="hasError(step2Form, 'billingAddress', 'required')" class="cse-error">Billing address is required.</p>
+              </div>
+              <div class="cse-field">
+                <label class="cse-label">Billing State <span class="cse-req">*</span></label>
+                <nz-select
+                  class="cse-select"
+                  nzPlaceHolder="Select State"
+                  nzShowSearch
+                  [nzLoading]="loadingStates"
+                  formControlName="billingStateId"
+                >
+                  <nz-option *ngFor="let s of states" [nzValue]="s.id" [nzLabel]="s.name"></nz-option>
+                </nz-select>
+                <p *ngIf="hasError(step2Form, 'billingStateId', 'required')" class="cse-error">Required.</p>
+              </div>
+              <div class="cse-field">
+                <label class="cse-label">Billing City <span class="cse-req">*</span></label>
+                <nz-select
+                  class="cse-select"
+                  nzPlaceHolder="Select City"
+                  nzShowSearch
+                  [nzLoading]="loadingBillingCities"
+                  formControlName="billingCityId"
+                >
+                  <nz-option *ngFor="let c of billingCities" [nzValue]="c.id" [nzLabel]="c.name"></nz-option>
+                </nz-select>
+                <p *ngIf="hasError(step2Form, 'billingCityId', 'required')" class="cse-error">Required.</p>
+              </div>
+              <div class="cse-field">
+                <label class="cse-label">Billing ZIP <span class="cse-req">*</span></label>
+                <input
+                  nz-input
+                  type="text"
+                  class="input-C"
+                  placeholder="e.g. 78701"
+                  formControlName="billingZipCode"
+                  maxlength="10"
+                  (blur)="onBlurTrim($event, true)"
+                />
+                <p *ngIf="hasError(step2Form, 'billingZipCode', 'required')" class="cse-error">Required.</p>
+                <p *ngIf="hasError(step2Form, 'billingZipCode', 'pattern')" class="cse-error">Invalid ZIP.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section *ngIf="currentStep === 3" [formGroup]="step3Form" class="cse-section">
+          <header class="cse-section-head">
+            <span class="cse-section-icon"><i class="fa-solid fa-user-shield"></i></span>
+            <div>
+              <h2 class="cse-section-title">Clinic Admin &amp; Security</h2>
+              <p class="cse-section-sub">Set up your admin account. You'll use these credentials to sign in.</p>
+            </div>
+          </header>
+
+          <div class="cse-grid">
+            <div class="cse-field">
+              <label class="cse-label">First Name <span class="cse-req">*</span></label>
+              <input
+                nz-input
+                type="text"
+                class="input-C"
+                placeholder="e.g. Sarah"
+                formControlName="clinicAdminFirstName"
+                maxlength="60"
+                (blur)="onBlurTrim($event, true)"
+              />
+              <p *ngIf="hasError(step3Form, 'clinicAdminFirstName', 'required')" class="cse-error">First name is required.</p>
+            </div>
+
+            <div class="cse-field">
+              <label class="cse-label">Last Name <span class="cse-req">*</span></label>
+              <input
+                nz-input
+                type="text"
+                class="input-C"
+                placeholder="e.g. Johnson"
+                formControlName="clinicAdminLastName"
+                maxlength="60"
+                (blur)="onBlurTrim($event, true)"
+              />
+              <p *ngIf="hasError(step3Form, 'clinicAdminLastName', 'required')" class="cse-error">Last name is required.</p>
+            </div>
+
+            <div class="cse-field">
+              <label class="cse-label">Admin Email <span class="cse-req">*</span></label>
+              <div class="cse-email-wrap">
+                <input
+                  nz-input
+                  type="email"
+                  class="input-C cse-email-input"
+                  placeholder="you@yourclinic.com"
+                  formControlName="email"
+                  maxlength="120"
+                  autocomplete="email"
+                  (blur)="onBlurTrim($event, true)"
+                />
+                <span class="cse-email-status">
+                  <i *ngIf="emailCheckStatus === 'checking'" class="fa-solid fa-circle-notch fa-spin cse-email-spin"></i>
+                  <i *ngIf="emailCheckStatus === 'available'" class="fa-solid fa-circle-check cse-email-ok"></i>
+                  <i *ngIf="emailCheckStatus === 'taken'" class="fa-solid fa-circle-xmark cse-email-bad"></i>
+                </span>
+              </div>
+              <p *ngIf="hasError(step3Form, 'email', 'required')" class="cse-error">Email is required.</p>
+              <p *ngIf="hasError(step3Form, 'email', 'email')" class="cse-error">Enter a valid email address.</p>
+              <p *ngIf="emailCheckStatus === 'available' && !step3Form.get('email')?.invalid"
+                 class="cse-hint cse-hint--ok">
+                <i class="fa-solid fa-circle-check"></i> Email is available
+              </p>
+              <p *ngIf="emailCheckStatus === 'taken'" class="cse-error">
+                A clinic with this email already exists. Please use a different email.
+              </p>
+            </div>
+
+            <div class="cse-field">
+              <label class="cse-label">Admin Phone <span class="cse-req">*</span></label>
+              <input
+                nz-input
+                type="tel"
+                class="input-C"
+                placeholder="(555) 123-4567"
+                formControlName="phone"
+                (input)="onPhoneInput($event, 'phone')"
+                maxlength="20"
+              />
+              <p *ngIf="hasError(step3Form, 'phone', 'required')" class="cse-error">Phone is required.</p>
+            </div>
+
+            <div class="cse-field cse-col-2">
+              <label class="cse-label">Password <span class="cse-req">*</span></label>
+              <div class="cse-password-wrap">
+                <input
+                  nz-input
+                  [type]="showPassword ? 'text' : 'password'"
+                  class="input-C cse-password-input"
+                  placeholder="Create a strong password"
+                  formControlName="password"
+                  autocomplete="new-password"
+                />
+                <button
+                  type="button"
+                  class="cse-password-toggle"
+                  (click)="togglePasswordVisibility('password')"
+                  [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+                >
+                  <i class="fa-solid" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
+                </button>
+              </div>
+              <ul class="cse-pwd-rules">
+                <li [class.cse-pwd-rule--ok]="pwdHasMin">
+                  <i class="fa-solid" [class.fa-circle-check]="pwdHasMin" [class.fa-circle]="!pwdHasMin"></i>
+                  At least 8 characters
+                </li>
+                <li [class.cse-pwd-rule--ok]="pwdHasUpper">
+                  <i class="fa-solid" [class.fa-circle-check]="pwdHasUpper" [class.fa-circle]="!pwdHasUpper"></i>
+                  One uppercase letter
+                </li>
+                <li [class.cse-pwd-rule--ok]="pwdHasLower">
+                  <i class="fa-solid" [class.fa-circle-check]="pwdHasLower" [class.fa-circle]="!pwdHasLower"></i>
+                  One lowercase letter
+                </li>
+                <li [class.cse-pwd-rule--ok]="pwdHasNumber">
+                  <i class="fa-solid" [class.fa-circle-check]="pwdHasNumber" [class.fa-circle]="!pwdHasNumber"></i>
+                  One number
+                </li>
+                <li [class.cse-pwd-rule--ok]="pwdHasSpecial">
+                  <i class="fa-solid" [class.fa-circle-check]="pwdHasSpecial" [class.fa-circle]="!pwdHasSpecial"></i>
+                  One special character
+                </li>
+              </ul>
+            </div>
+
+            <div class="cse-field cse-col-2">
+              <label class="cse-label">Confirm Password <span class="cse-req">*</span></label>
+              <div class="cse-password-wrap">
+                <input
+                  nz-input
+                  [type]="showConfirmPassword ? 'text' : 'password'"
+                  class="input-C cse-password-input"
+                  placeholder="Re-enter your password"
+                  formControlName="confirmPassword"
+                  autocomplete="new-password"
+                />
+                <button
+                  type="button"
+                  class="cse-password-toggle"
+                  (click)="togglePasswordVisibility('confirm')"
+                  [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'"
+                >
+                  <i class="fa-solid" [class.fa-eye]="!showConfirmPassword" [class.fa-eye-slash]="showConfirmPassword"></i>
+                </button>
+              </div>
+              <p *ngIf="hasError(step3Form, 'confirmPassword', 'required')" class="cse-error">Please confirm your password.</p>
+              <p *ngIf="passwordsMismatch" class="cse-error">Passwords don't match.</p>
+            </div>
+          </div>
+        </section>
+
+        <footer class="cse-footer">
+          <button
+            *ngIf="currentStep > 1"
+            type="button"
+            nz-button
+            nzSize="large"
+            class="cse-btn cse-btn--ghost"
+            (click)="previousStep()"
+            [disabled]="isSubmitting"
+          >
+            <i class="fa-solid fa-arrow-left mr-2"></i>
+            Back
+          </button>
+
+          <span class="cse-spacer"></span>
+
+          <button
+            *ngIf="currentStep < 3"
+            type="button"
+            nz-button
+            nzType="primary"
+            nzSize="large"
+            class="cse-btn cse-btn--primary"
+            (click)="nextStep()"
+          >
+            Continue
+            <i class="fa-solid fa-arrow-right ml-2"></i>
+          </button>
+
+          <button
+            *ngIf="currentStep === 3"
+            type="button"
+            nz-button
+            nzType="primary"
+            nzSize="large"
+            class="cse-btn cse-btn--primary"
+            (click)="submit()"
+            [disabled]="isSubmitting || emailCheckStatus === 'taken' || emailCheckStatus === 'checking'"
+            [nzLoading]="isSubmitting"
+          >
+            <i class="fa-solid fa-circle-check mr-2"></i>
+            Create Clinic
+          </button>
+        </footer>
+      </div>
+
+    </ng-template>
+
+  </div>
+</div>

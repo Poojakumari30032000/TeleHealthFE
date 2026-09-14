@@ -1,0 +1,102 @@
+<div class="flex items-center justify-between flex-grow flex-wrap gap-4">
+  <button class="filters-btns m-0" (click)="this.showFilters = !this.showFilters;" >
+    <i class="fa-solid fa-sliders mr-1"></i>
+    Filters
+    <span *ngIf="visibleFiltersCount > 0" class="ml-1">
+      ({{ visibleFiltersCount }})
+    </span>
+    <i class="fa-solid fa-chevron-down ml-1 text-xs transition-transform duration-200"
+      [class.rotate-180]="showFilters"
+    ></i>
+  </button>
+  @for (filter of appliedFilters; track trackByFilterName($index, filter)) {
+    <span *ngIf="!shouldHideAppliedFilter(filter.name)" class="px-2 py-1 text-sm bg-primary-100 text-primary-800 rounded-lg flex items-center gap-1" [class.hidden]="this.showFilters">
+      {{ filter.name }}: {{ filter.value }}
+      <button class="ml-1 hover:text-primary-600" (click)="removeFilter(filter.name)">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </span>
+  }
+  <button *ngIf="visibleFiltersCount > 0" class="px-3 border-l border-gray-300 dark:border-gray-600 text-red-600 hover:text-red-700 text-sm mr-auto" (click)="clearFilters()">
+    Clear All
+  </button>
+  <button class="main-btn mb-0 ml-auto" *appHasAnyPermission="['supportTicket_add']" (click)="AddEditTicket()">
+      <i class="fa-solid fa-plus"></i>
+      <span class="ml-2 hidden md:inline-block">
+        Add Support
+      </span>
+    </button>
+</div>
+
+<div *ngIf="showFilters" class="mt-2 p-4 rounded-lg bg-primary-50 border border-primary-100 dark:bg-gray-800 dark:border-gray-700 grid grid-cols-3 items-center gap-4">
+    <div>
+        <label class="label-C-F">Title:</label>
+        <input nz-input placeholder="Search by title" title="Search by title" id="search" class="input-C" [(ngModel)]="searchQuery" (input)="searchTermChanged()" />
+    </div>
+    <div>
+        <label class="label-C-F">Ticket Status:</label>
+        <nz-select class="w-full mt-1" nzPlaceHolder="Select Ticket Status" nzShowSearch nzAllowClear [nzShowArrow]="true" [(ngModel)]="selectedTicketStatus" (ngModelChange)="applyFilter()">
+            <nz-option *ngFor="let option of ticketStatusOptions" [nzValue]="option" [nzLabel]="option"></nz-option>
+        </nz-select>
+    </div>
+</div>
+
+<div class="py-2 rounded-lg">
+    <app-dynamic-table
+      apiEndpoint="Tickets/getAllTickets"
+      [width]="'100vw'"
+      [columns]="[
+        { title: 'Title', key: 'subject', width: '250px' },
+        { title: 'Description', key: 'Description', width: '250px', type: 'link', extraLabel: 'View Details', callback: this.ticketDescription },
+        {
+            title: 'Status',
+            key: 'status',
+            width: '150px',
+            type: 'badge',
+            badgeMapping: {
+                Completed: {
+                    class:'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+                    label: 'Completed',
+                },
+                Feedback: {
+                    class:'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+                    label: 'Feedback',
+                },
+                OnHold: {
+                    class:'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300',
+                    label: 'On Hold',
+                },
+                Urgent: {
+                    class: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+                    label: 'Urgent',
+                },
+                Pending: {
+                    class: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+                    label: 'Pending',
+                }
+            }
+        },
+        { title: 'Comments', key: 'commentCount', width: '150px' },
+        { title: 'Created By', key: 'createdBy', width: '250px' },
+        { title: 'Created Date', key: 'createdDate', width: '150px', type: 'date' },
+        { title: 'Modified By', key: 'modifiedBy', width: '250px' },
+        { title: 'Modified Date', key: 'modifiedDate', width: '150px', type: 'date' }
+      ]"
+      [filters]="appliedFilters"
+      [showActions]="true"
+      [actions]="[
+        { label: 'View', icon: 'fa fa-eye', callback: AddEditTicket, permissionKeys: ['supportTicket_edit'] },
+        { label: 'Delete', icon: 'fa-solid fa-trash', type: 'danger', callback: onDelete, permissionKeys: ['supportTicket_delete']  }
+      ]"
+    ></app-dynamic-table>
+</div>
+
+<app-comman-form-modal #commanModel [apiUrl]="this.modalApiUrl" (formClosed)="onRefresh()"></app-comman-form-modal>
+
+<nz-modal [(nzVisible)]="isVisible" nzTitle="View Description" (nzOnCancel)="closeModal()" (nzOnOk)="closeModal()" [nzMaskClosable]="false">
+  <ng-container *nzModalContent>
+      <div class="prose dark:prose-invert max-w-full"
+          [innerHTML]="description">
+      </div>
+  </ng-container>
+</nz-modal>

@@ -1,0 +1,77 @@
+<div class="bg-gray-50 min-h-screen flex flex-col items-center py-8 px-4">
+    <div class="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-900 dark:text-gray-100">Categories Offered</h1>
+
+        <div *ngIf="step === 'categories'" class="space-y-6">
+
+            <h2 class="text-xl font-semibold text-center text-gray-800 dark:text-gray-200">We offer the following consultations</h2>
+
+            <div class="space-y-4">
+                <nz-card
+                *ngFor="let cat of categories"
+                (click)="selectCategory(cat)"
+                nzHoverable
+                [nzBodyStyle]="{ padding: '2px' }"
+                class="bg-sky-200/50 dark:bg-gray-800 border border-primary-100 dark:border-gray-700 rounded-xl
+                transition-all duration-200 cursor-pointer hover:border-primary-300 hover:shadow-md"
+                >
+                <div class="rounded-lg p-4 flex items-center gap-4">
+                    <div class="shrink-0">
+                        <img
+                        [src]="cat.imageURL"
+                        [alt]="cat.categoryName"
+                        class="w-32 h-32 rounded-lg object-cover"
+                        />
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">
+                            {{ cat.categoryName }}
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            {{ cat.categoryDescription }}
+                        </p>
+                    </div>
+                </div>
+            </nz-card>
+        </div>
+    </div>
+
+    <div *ngIf="step === 'detail'" class="space-y-6">
+      <button nz-button nzType="default" class="rounded-md shadow-sm" (click)="goBack('categories')">← Back</button>
+
+      <h2 class="text-xl font-semibold text-center text-gray-800 dark:text-gray-200">
+        {{ selectedCategory.categoryName | titlecase }} Plans
+      </h2>
+
+      <div class="grid grid-cols-[1fr_auto] items-center px-2 text-sm font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">
+        <div>Package</div>
+        <div class="text-right pr-2">Price</div>
+      </div>
+
+      <div class="space-y-4">
+        <nz-card
+          *ngFor="let plan of selectedCategory.bundles"
+          nzHoverable
+          [nzBodyStyle]="{ padding: '2px' }"
+          class="bg-sky-200/50 dark:bg-gray-800 border border-primary-100 dark:border-gray-700 rounded-xl
+                 transition-all duration-200 hover:border-primary-300 hover:shadow-md"
+        >
+          <div class="rounded-lg p-4 grid grid-cols-[1fr_auto] gap-4 items-start">
+            <div class="min-w-0">
+              <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">
+                {{ plan.name }}
+              </h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400">{{ plan.description }}</p>
+            </div>
+            <div class="flex flex-col items-end gap-2">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Price</span>
+              <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">${{ plan.price }}</span>
+            </div>
+          </div>
+        </nz-card>
+      </div>
+    </div>
+
+</div>
+</div>

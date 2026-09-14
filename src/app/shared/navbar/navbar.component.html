@@ -1,0 +1,238 @@
+<nz-header class="bg-transparent flex justify-between items-center pb-4  px-0 border-0">
+    <div class="flex items-center space-x-4 justify-between w-full">
+
+        <div class="flex items-center">
+            <button class="text-xl lg:hidden toggle-button mr-4" (click)="toggleSidebar()">
+                <i class="fa-solid fa-bars dark:text-gray-500"></i>
+            </button>
+            <div class="flex flex-col gap-1">
+                <h2 class="text-2xl font-semibold text-primary dark:text-gray-200">
+                    {{ currentTitle }}
+                </h2>
+                <nav *ngIf="breadcrumbs.length > 0" class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                    <ng-container *ngFor="let crumb of breadcrumbs; let last = last">
+                        <a [routerLink]="crumb.path" class="hover:text-gray-900 dark:hover:text-white">
+                            {{ crumb.label }}
+                        </a>
+                        <i *ngIf="!last" class="fa-solid fa-chevron-right text-xs mx-1"></i>
+                    </ng-container>
+                </nav>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <button *ngIf="appointmentData && userRole === 'Provider'" (click)="this.appointmentDrawerVisible = true;" class="relative text-gray-500 inline-flex items-center justify-center dark:text-gray-400 hover:bg-gray-300 w-8 h-8 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-full text-sm p-2.5 bg-gray-200 dark:bg-gray-700">
+                <i class="fa-solid fa-calendar-days text-blue-600 dark:text-blue-400 text-xl"></i>
+                <span class="absolute top-0 right-0 inline-flex items-center justify-center w-3 h-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                </span>
+            </button>
+            <button nz-dropdown nzTrigger="click" [nzDropdownMenu]="notificationMenu"  class="relative text-gray-500 inline-flex items-center justify-center dark:text-gray-400 hover:bg-gray-300 w-8 h-8 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-full text-sm p-2.5 bg-gray-200 dark:bg-gray-700">
+                <i class="fa-solid fa-bell text-gray-800 dark:text-white text-xl"></i>
+                <span *ngIf="notifications.length > 0" class="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-600 rounded-full">
+                  {{ notifications.length }}
+                </span>
+            </button>
+            <div nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu" class="flex items-center gap-2 cursor-pointer">
+                <img class="w-8 h-8 rounded-full" src="assets/img/userPlaceholderImg.jpg" alt="">
+                <div class="text-sm text-gray-900 dark:text-white hidden lg:block">
+                  <div class="font-semibold">{{profileName}}</div>
+                  <div class="truncate text-xs">{{userRole}}</div>
+                </div>
+                <i class="fa-solid fa-chevron-down dark:text-gray-500"></i>
+            </div>
+        </div>
+    </div>
+</nz-header>
+
+<nz-dropdown-menu #notificationMenu="nzDropdownMenu">
+  <div class="w-full max-w-sm bg-gray-200 divide-y divide-gray-300 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" aria-labelledby="dropdownNotificationButton">
+    <div class="block px-4 py-2 font-medium text-center text-gray-700 rounded-t-lg bg-gray-200 dark:bg-gray-700 dark:text-white">
+      Notifications
+    </div>
+    <div class="divide-y divide-gray-100 dark:divide-gray-600 max-h-64 overflow-y-auto">
+      @for (notification of notifications; track notification) {
+        <a class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600" [ngClass]="{'bg-gray-100 dark:bg-gray-600': notification.isRead}">
+          <div class="flex-shrink-0">
+            <div class="flex items-center justify-center rounded-full w-11 h-11 border border-white dark:border-gray-800" [ngClass]="{
+              'bg-blue-600': notification.notificationType.includes('Appointment'),
+              'bg-green-600': notification.notificationType.includes('Patient'),
+              'bg-purple-600': notification.notificationType.includes('Prescription'),
+              'bg-yellow-600': notification.notificationType.includes('Payment'),
+              'bg-teal-600': notification.notificationType.includes('Message')
+            }">
+              <i class="fas text-white text-lg" [ngClass]="{
+                'fa-calendar': notification.notificationType.includes('Appointment'),
+                'fa-user': notification.notificationType.includes('Patient'),
+                'fa-prescription-bottle': notification.notificationType.includes('Prescription'),
+                'fa-money-bill': notification.notificationType.includes('Payment'),
+                'fa-envelope': notification.notificationType.includes('Message')
+              }"></i>
+            </div>
+          </div>
+          <div class="w-full ps-3">
+            <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">{{ notification.title }}</div>
+            <div class="text-gray-600 text-xs mb-1 dark:text-gray-400">{{ notification.description }}</div>
+            <div class="text-xs text-blue-600 dark:text-blue-500">{{ notification.createdDate }}</div>
+          </div>
+          <button (click)="markAsRead(notification.notificationId)" class="ml-2 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">Mark as Read</button>
+        </a>
+      }@empty {
+        <div class="p-6 text-center text-gray-500 dark:text-gray-400">
+          <i class="fas fa-bell-slash text-2xl mb-2 text-gray-400 dark:text-gray-500"></i>
+          <p>No notifications available at the moment.</p>
+          <p class="text-xs mt-1">Check back later for updates!</p>
+        </div>
+      }
+    </div>
+    <a *ngIf="notifications.length > 0" (click)="markAsRead(0, 'All')" class="block py-2 text-sm font-medium text-center text-gray-900 rounded-b-lg bg-gray-200 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white cursor-pointer">
+      <div class="inline-flex items-center gap-2">
+        <i class="fa-solid fa-check-double"></i>
+        Mark all as Read
+      </div>
+    </a>
+  </div>
+</nz-dropdown-menu>
+
+<nz-dropdown-menu #menu="nzDropdownMenu">
+    <div class="bg-gray-200 divide-y lg:divide-y-0 divide-gray-300 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
+        <div class="px-4 py-3 text-sm text-gray-900 dark:text-white block lg:hidden">
+          <div class="font-semibold">{{profileName}}</div>
+          <div class="truncate text-xs">{{userRole}}</div>
+        </div>
+        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="avatarButton">
+          <li>
+            <a class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" (click)="this.chnagePasswordModal()">
+              <i class="fa-solid fa-key mr-1"></i>
+              Change Password
+            </a>
+          </li>
+          <li>
+            <a (click)="toggleDarkMode()" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+              <i class="mr-1 fa-solid" [ngClass]="isDarkMode ? 'fa-sun text-yellow-400' : 'fa-moon text-gray-800'"></i>
+              {{ isDarkMode ? 'Light' : 'Dark' }} Mode
+            </a>
+          </li>
+          <li>
+            <a (click)="confirmLogout()" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+              <i class="fa-solid fa-right-from-bracket mr-1"></i>
+              Sign out
+            </a>
+          </li>
+        </ul>
+    </div>
+</nz-dropdown-menu>
+
+ <nz-drawer
+  [nzClosable]="true"
+  [nzVisible]="appointmentDrawerVisible"
+  nzPlacement="right"
+  nzTitle="Upcoming Appointment"
+  (nzOnClose)="appointmentDrawerVisible = false"
+  [nzWidth]="400"
+>
+  <div *nzDrawerContent>
+    <div *ngIf="appointmentData" class="p-4">
+      <div class="flex items-start mb-4">
+        <div class="flex items-center justify-center rounded-full w-12 h-12 bg-blue-600 mr-3">
+          <i class="fas fa-calendar text-white text-xl"></i>
+        </div>
+        <div>
+          <h3 class="font-semibold text-lg dark:text-gray-200">{{ appointmentData.patientName }}</h3>
+          <p class="text-gray-600 dark:text-gray-400">Appointment with you</p>
+        </div>
+      </div>
+
+      <div class="mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <div class="flex items-center mb-2">
+          <i class="far fa-clock mr-2 text-gray-600 dark:text-gray-300"></i>
+          <span class="dark:text-gray-200">
+            {{ appointmentData.startTime }} - {{ appointmentData.endTime }}
+            ({{ appointmentData.duration }} mins)
+          </span>
+        </div>
+        <div class="flex items-center">
+          <i class="far fa-calendar mr-2 text-gray-600 dark:text-gray-300"></i>
+          <span class="dark:text-gray-200">{{ appointmentData.startDate | date: 'mediumDate' }}</span>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 mt-6">
+        <button nz-button nzType="default" class="rounded-md" (click)="appointmentDrawerVisible = false;">
+          Dismiss
+        </button>
+        <button
+          nz-button
+          nzType="primary"
+          class="rounded-md"
+          [routerLink]="'/video-call/' + appointmentData.patientAppointmentSlotId"
+        >
+          Join Call
+        </button>
+      </div>
+    </div>
+  </div>
+</nz-drawer>
+
+<app-availability-add-edit-model #availability></app-availability-add-edit-model>
+
+<nz-modal
+  *ngIf="isVisible"
+  [(nzVisible)]="isVisible"
+  nzTitle="Change Password"
+  (nzOnOk)="handleOk()"
+  (nzOnCancel)="handleCancel()"
+  [nzOkLoading]="isConfirmLoading"
+  [nzOkDisabled]="ChangePasswordForm.invalid || isConfirmLoading"
+  [nzMaskClosable]="false"
+>
+  <ng-container *nzModalContent>
+    <form [formGroup]="ChangePasswordForm" (ngSubmit)="handleOk()">
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-500">Current Password</label>
+        <div class="relative">
+          <input #currentPassword nz-input type="password"
+            formControlName="currentPassword" placeholder="Enter Password" class="input-C" />
+          <i class="fa-solid fa-{{ currentPassword.type === 'password' ? 'eye' : 'eye-slash' }} cursor-pointer absolute inset-y-0 right-0 pr-3 flex items-center"
+            (click)="currentPassword.type = currentPassword.type === 'password' ? 'text' : 'password'"></i>
+        </div>
+        <div *ngIf="f['currentPassword']?.touched && f['currentPassword']?.errors" class="text-red-500 text-xs">
+          <div *ngIf="f['currentPassword']?.errors?.['required']">Current Password is required</div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-500">New Password</label>
+        <div class="relative">
+          <input #newPassword nz-input type="password"
+            formControlName="newPassword" placeholder="Enter Password" class="input-C" />
+          <i class="fa-solid fa-{{ newPassword.type === 'password' ? 'eye' : 'eye-slash' }} cursor-pointer absolute inset-y-0 right-0 pr-3 flex items-center"
+            (click)="newPassword.type = newPassword.type === 'password' ? 'text' : 'password'"></i>
+        </div>
+        <div *ngIf="f['newPassword']?.touched && f['newPassword']?.errors" class="text-red-500 text-xs">
+          <div *ngIf="f['newPassword']?.errors?.['required']">New Password is required</div>
+          <div *ngIf="f['newPassword']?.errors?.['minlength']">Minimum 8 characters required</div>
+          <div *ngIf="f['newPassword']?.errors?.['pattern']">
+            Must contain uppercase, lowercase, number, and special character
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-500">Confirm Password</label>
+        <div class="relative">
+          <input #confirmPassword nz-input type="password"
+            formControlName="confirmNewPassword" placeholder="Enter Password" class="input-C" />
+          <i class="fa-solid fa-{{ confirmPassword.type === 'password' ? 'eye' : 'eye-slash' }} cursor-pointer absolute inset-y-0 right-0 pr-3 flex items-center"
+            (click)="confirmPassword.type = confirmPassword.type === 'password' ? 'text' : 'password'"></i>
+        </div>
+        <div *ngIf="f['confirmNewPassword']?.touched && f['confirmNewPassword']?.errors" class="text-red-500 text-xs">
+          <div *ngIf="f['confirmNewPassword']?.errors?.['required']">Confirm Password is required</div>
+          <div *ngIf="f['confirmNewPassword']?.errors?.['mismatch']">Passwords do not match</div>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+</nz-modal>

@@ -1,0 +1,37 @@
+{
+    "title": "Update Order Status Form",
+    "primaryId": "id",
+    "rows": [
+        {
+            "class": "grid grid-cols-1 gap-2 mb-2",
+            "fields": [
+                {
+                    "type": "select",
+                    "label": "Order Status",
+                    "name": "orderStatus",
+                    "placeholder": "Select Order Status",
+                    "class": "col-span-1",
+                    "options": [
+                        { "label": "Pending", "value": 1 },
+                        { "label": "Sent To Pharmacy", "value": 2 },
+                        { "label": "Shipped", "value": 3 },
+                        { "label": "Completed", "value": 4 }
+                    ],
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "text",
+                    "label": "Tracking Number",
+                    "name": "trackingNumber",
+                    "placeholder": "Enter Tracking Number",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        }
+    ]
+}

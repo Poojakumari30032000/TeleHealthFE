@@ -1,0 +1,28 @@
+.availability-warning-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-bottom: 0.9rem;
+  border: 1px solid #f6d8a8;
+  background: #fff8ea;
+  color: #8a5b06;
+  border-radius: 10px;
+  padding: 0.62rem 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.availability-warning-banner i {
+  margin-top: 0.12rem;
+  color: #d48806;
+}
+
+:host-context(.dark) .availability-warning-banner {
+  border-color: rgba(245, 158, 11, 0.42);
+  background: rgba(120, 53, 15, 0.28);
+  color: #fcd98d;
+}
+
+:host-context(.dark) .availability-warning-banner i {
+  color: #fbbf24;
+}

@@ -1,0 +1,702 @@
+<div class="flow-shell min-h-screen py-6 px-4 font-[Lato]">
+  <div class="w-full max-w-5xl mx-auto flow-container">
+
+    <div *ngIf="step === 'categories'" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="section-title">
+          <i class="fa-solid fa-layer-group"></i>
+          Choose a category
+        </h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="space-y-3 mt-2">
+        <nz-card
+          *ngFor="let cat of categories"
+          nzHoverable
+          (click)="selectCategory(cat)"
+          [nzBodyStyle]="{ padding: '0' }"
+          class="get-started-card shadow-sm hover:bg-gray-100 cursor-pointer transition-colors"
+        >
+          <div class="p-3 flex items-center gap-4">
+            <div class="shrink-0">
+              <img
+                [src]="cat.imageURL"
+                [alt]="cat.categoryName"
+                class="w-28 h-20 object-cover"
+              />
+            </div>
+
+            <div class="min-w-0 flex-1">
+              <h3 class="text-base font-semibold text-gray-900">
+                {{ cat.categoryName }}
+              </h3>
+              <p class="mt-1 text-sm text-gray-900 leading-snug">
+                {{ cat.categoryDescription }}
+              </p>
+            </div>
+          </div>
+        </nz-card>
+      </div>
+    </div>
+
+    <div *ngIf="step === 'detail'" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="section-title">
+          <i class="fa-solid fa-boxes-packing"></i>
+          Choose a package
+        </h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="grid grid-cols-12 section-table-head py-2 mt-2">
+        <div class="col-span-9">Package</div>
+
+        <div class="col-span-3 text-right pr-2">Price</div>
+      </div>
+
+      <div class="mt-1 space-y-3">
+        <div
+          *ngFor="let plan of selectedCategory.bundles"
+          class="get-started-card cursor-pointer hover:bg-gray-200 transition-colors"
+          (click)="goToSignup(plan)"
+        >
+          <div class="grid grid-cols-12 gap-4 px-4 py-3 items-center">
+
+            <div class="col-span-9">
+              <div class="text-sm font-semibold text-gray-900">
+                {{ plan.name }}
+              </div>
+              <p class="mt-1 text-sm text-gray-900 leading-snug">
+                {{ plan.description }}
+              </p>
+            </div>
+
+            <div class="col-span-3 flex flex-col items-end justify-center gap-1">
+
+              <div class="flex items-center justify-end gap-3">
+    <span class="text-sm font-semibold text-gray-900">
+      ${{ plan.price }}
+      <span class="font-normal text-gray-700" *ngIf="plan?.duration != null">
+        / {{ plan.duration }} month{{ plan.duration === 1 ? '' : 's' }}
+      </span>
+    </span>
+
+                <button
+                  nz-button
+                  nzType="default"
+                  class="action-btn action-btn--primary"
+                  (click)="$event.stopPropagation(); goToSignup(plan)"
+                >
+                  Sign Up
+                </button>
+              </div>
+
+              <p class="text-xs text-gray-600 text-right pr-2">
+                <ng-container *ngIf="plan?.isRecurring === true; else oneTimeMsg">
+                  Next payment will be deducted after
+                  <strong>{{ plan?.duration ?? '--' }}</strong>
+                  month{{ (plan?.duration ?? 0) === 1 ? '' : 's' }}.
+                </ng-container>
+
+                <ng-template #oneTimeMsg>
+                  One-time payment.
+                </ng-template>
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <button
+        nz-button
+        nzType="link"
+        class="action-btn action-btn--secondary"
+        (click)="goBack('categories')"
+      >
+        ← Back
+      </button>
+    </div>
+
+    <div *ngIf="step === 'signup'" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="section-title">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          Sign Up
+        </h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <form
+        nz-form
+        (ngSubmit)="submitSignup()"
+        [formGroup]="signUpForm"
+        class="p-4 space-y-4 mt-2"
+      >
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6"  nzRequired>First Name</nz-form-label>
+          <nz-form-control [nzSpan]="18" [nzErrorTip]="'First name is required'">
+            <input
+              nz-input
+              type="text"
+              formControlName="firstName"
+              minlength="1"
+              maxlength="50"
+              name="firstName"
+              (blur)="onBlurTrim($event, true)"
+            />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6" nzRequired>Last Name</nz-form-label>
+          <nz-form-control [nzSpan]="18" [nzErrorTip]="'Last name is required'">
+            <input
+              nz-input
+              type="text"
+              formControlName="lastName"
+              minlength="1"
+              maxlength="50"
+              name="lastName"
+              (blur)="onBlurTrim($event, true)"
+            />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6" nzRequired>Email</nz-form-label>
+
+          <nz-form-control
+            [nzSpan]="18"
+            [nzValidateStatus]="signUpForm.get('email')!"
+            [nzErrorTip]="emailErrorTpl"
+          >
+            <input
+              nz-input
+              type="email"
+              formControlName="email"
+              name="email"
+              (blur)="onBlurTrim($event, true); onBlurEmailCheck()"
+              [disabled]="emailDuplicateCheck"
+            />
+          </nz-form-control>
+        </nz-form-item>
+
+        <ng-template #emailErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            Email is required
+          </ng-container>
+
+          <ng-container *ngIf="control.hasError('email') && !control.hasError('required')">
+            The input is not valid E-mail!
+          </ng-container>
+
+          <ng-container *ngIf="emailDuplicateCheck && !control.hasError('required')">
+            <span style="color: red">This e-mail already exists</span>
+          </ng-container>
+        </ng-template>
+
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6" nzRequired>Password</nz-form-label>
+          <nz-form-control [nzSpan]="18">
+            <input
+              nz-input
+              type="password"
+              formControlName="password"
+              name="password"
+              (input)="checkPasswords()"
+              (focus)="checkPasswords()"
+              (blur)="checkPasswords()"
+            />
+            <div
+              *ngIf="signUpForm.get('password')?.touched && signUpForm.get('password')?.errors"
+              class="text-red-500 text-xs mt-1"
+            >
+              <div *ngIf="signUpForm.get('password')?.errors?.['required']">
+                New Password is required
+              </div>
+              <div *ngIf="signUpForm.get('password')?.errors?.['minlength']">
+                Minimum 8 characters required
+              </div>
+              <div *ngIf="signUpForm.get('password')?.errors?.['pattern']">
+                Must contain uppercase, lowercase, number, and special character
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6" nzRequired>Confirm Password</nz-form-label>
+          <nz-form-control [nzSpan]="18">
+            <input
+              nz-input
+              type="password"
+              formControlName="confirm"
+              name="confirm"
+              (input)="checkPasswords()"
+              (focus)="checkPasswords()"
+              (blur)="checkPasswords()"
+            />
+            <div
+              *ngIf="signUpForm.get('confirm')?.touched && signUpForm.get('confirm')?.errors"
+              class="text-red-500 text-xs mt-1"
+            >
+              <div *ngIf="signUpForm.get('confirm')?.errors?.['required']">
+                Confirm Password is required
+              </div>
+              <div *ngIf="signUpForm.get('confirm')?.errors?.['mismatch']">
+                Passwords do not match
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6" nzRequired>Phone (+1)</nz-form-label>
+          <nz-form-control [nzSpan]="18">
+            <input
+              nz-input
+              type="text"
+              formControlName="phone"
+              name="phone"
+              (input)="maskPhone()"
+              maxlength="14"
+              (blur)="onBlurTrim($event, true)"
+              placeholder="(123) 456-7890"
+            />
+          </nz-form-control>
+        </nz-form-item>
+
+        <div class="payment-footer">
+          <button
+            nz-button
+            nzType="link"
+            class="action-btn action-btn--secondary"
+            (click)="goBack('detail')"
+          >
+            ← Back
+          </button>
+
+          <button
+            nz-button
+            nzType="primary"
+            class="action-btn action-btn--primary"
+            type="submit"
+            [nzLoading]="isFormSubmitting"
+            [disabled]="signUpForm.invalid || isFormSubmitting"
+          >
+            Continue →
+          </button>
+        </div>
+      </form>
+
+    </div>
+
+    <div *ngIf="step === 'payment'" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="section-title">
+          <i class="fas fa-money-check-alt"></i>
+          Payment
+        </h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="payment-panel mt-2">
+        <nz-row [nzGutter]="[0,18]">
+
+          <nz-col [nzSpan]="24">
+            <div class="plan-summary-card">
+              <span class="plan-summary-name">{{ selectedPlan?.name }}</span>
+              <span class="plan-summary-price">${{ selectedPlan?.price }}</span>
+            </div>
+          </nz-col>
+
+          <nz-col [nzSpan]="24">
+            <div class="coupon-card">
+              <p class="text-sm font-semibold text-slate-900 mb-2">Promo code</p>
+              <div class="coupon-input-wrap">
+                <input
+                  nz-input
+                  class="uppercase coupon-input"
+                  placeholder="Enter coupon code"
+                  [(ngModel)]="couponCode"
+                  name="couponCode"
+                  (input)="couponCode = (couponCode || '').toUpperCase()"
+                  [disabled]="isCouponValidating || isFormSubmitting || couponApplied"
+                  maxlength="50"
+                  [ngClass]="{
+                    'coupon-input--valid': couponValid,
+                    'coupon-input--error': couponErrorMessage
+                  }"
+                />
+                <button
+                  nz-button
+                  nzType="default"
+                  class="action-btn action-btn--secondary coupon-button"
+                  (click)="validateCoupon()"
+                  [disabled]="isValidateDisabled()"
+                  [nzLoading]="isCouponValidating"
+                >
+                  Validate
+                </button>
+              </div>
+              <p *ngIf="couponErrorMessage" class="text-xs text-red-600 mt-1">{{ couponErrorMessage }}</p>
+              <p *ngIf="couponSuccessMessage" class="text-xs text-green-600 mt-1">{{ couponSuccessMessage }}</p>
+            </div>
+          </nz-col>
+
+          <nz-col [nzSpan]="24" *ngIf="paymentProvider === 'stripe' && !paymentProviderLoading">
+            <p *ngIf="!stripeClientSecret && !stripeLoading" class="text-xs text-slate-600">
+              Apply a promo code above and validate it, or continue without a promo code to load secure payment.
+            </p>
+            <button
+              *ngIf="!couponApplied && !stripeClientSecret && !stripeLoading"
+              nz-button
+              nzType="default"
+              type="button"
+              class="action-btn action-btn--secondary mt-2"
+              [disabled]="!!(couponCode && couponCode.trim().length > 0)"
+              (click)="continueStripeCheckoutWithoutCoupon()"
+            >
+              Continue without promo code
+            </button>
+          </nz-col>
+
+          <nz-col [nzSpan]="24" *ngIf="paymentProvider === 'none' && !paymentProviderLoading">
+            <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {{ paymentProviderMessage || 'Payment is currently unavailable. Please try again later.' }}
+            </div>
+          </nz-col>
+
+          <nz-col [nzSpan]="24" *ngIf="paymentProviderLoading">
+            <div class="flex justify-center py-6">
+              <nz-spin nzSimple nzTip="Loading payment..."></nz-spin>
+            </div>
+          </nz-col>
+
+          <nz-col [nzSpan]="24" *ngIf="paymentProvider === 'square'">
+            <div class="payment-card-shell">
+              <p class="text-sm font-semibold text-slate-900 mb-2">Card details</p>
+              <div *ngIf="isSquareInitializing" class="flex justify-center py-3">
+                <nz-spin nzSimple></nz-spin>
+              </div>
+              <div id="card-container"></div>
+              <p *ngIf="squareErrorMessage" class="mt-2 text-xs text-red-600">{{ squareErrorMessage }}</p>
+            </div>
+          </nz-col>
+
+          <nz-col [nzSpan]="24" *ngIf="paymentProvider === 'stripe'">
+            <div class="payment-card-shell">
+              <p class="text-sm font-semibold text-slate-900 mb-2">Card details</p>
+              <div *ngIf="stripeLoading" class="flex justify-center py-3">
+                <nz-spin nzSimple></nz-spin>
+              </div>
+              <div
+                id="get-started-stripe-payment-element"
+                class="min-h-[80px]"
+                *ngIf="!stripeLoading && stripeClientSecret"
+              ></div>
+              <p *ngIf="stripeErrorMessage" class="mt-2 text-xs text-red-600">{{ stripeErrorMessage }}</p>
+            </div>
+          </nz-col>
+
+          @if (stripeChargeMode == 'destination'){
+
+          <nz-col [nzSpan]="24">
+
+            <p class="igc-footer-note">Powered By Impact</p>
+
+          </nz-col>
+
+          }
+
+          <nz-col [nzSpan]="24">
+            <div class="brand-grid">
+              <span class="brand-pill"><i class="fa-brands fa-cc-visa"></i></span>
+              <span class="brand-pill"><i class="fa-brands fa-cc-mastercard"></i></span>
+              <span class="brand-pill"><i class="fa-brands fa-cc-amex"></i></span>
+              <span class="brand-pill"><i class="fa-brands fa-cc-jcb"></i></span>
+              <span class="brand-pill"><i class="fa-brands fa-cc-discover"></i></span>
+              <span class="brand-pill"><i class="fa-brands fa-apple-pay"></i></span>
+              <span class="brand-pill"><i class="fa-brands fa-google-pay"></i></span>
+            </div>
+          </nz-col>
+
+          <nz-col [nzSpan]="24" *ngIf="paymentProvider === 'square'">
+            <label class="consent-box">
+              <input
+                type="checkbox"
+                [(ngModel)]="authorizeRecurringCardCharge"
+                name="authorizeRecurringCardCharge"
+                [disabled]="isFormSubmitting"
+              />
+              <span>I authorize secure storage of this card to process automatic recurring payments at each billing-cycle renewal.</span>
+            </label>
+          </nz-col>
+
+        </nz-row>
+
+        <div class="payment-footer">
+          <button
+            nz-button
+            nzType="link"
+            class="action-btn action-btn--secondary"
+            (click)="goBackToSlots('providers')"
+          >
+            ← Back
+          </button>
+          <button
+            nz-button
+            nzType="primary"
+            class="action-btn action-btn--primary"
+            [nzLoading]="isFormSubmitting"
+            [disabled]="isPayNowDisabled()"
+            (click)="saveCard()"
+          >
+            Pay Now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="step === 'provider card'" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="section-title">
+          <i class="fa-solid fa-user-doctor"></i>
+          Choose a provider
+        </h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="space-y-3 mt-2">
+        <nz-card
+          *ngFor="let provider of providers"
+          class="get-started-card shadow-sm"
+          [nzBodyStyle]="{ padding: '0' }"
+        >
+          <div
+            class="px-4 py-3 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4"
+          >
+
+            <div class="flex items-center gap-4 flex-1 min-w-0">
+
+              <div class="shrink-0">
+                <img
+                  *ngIf="provider.profileUrl; else noAvatar"
+                  [src]="provider.profileUrl"
+                  [alt]="provider.name"
+                  class="w-20 h-20 rounded-full object-cover border border-gray-200"
+                />
+                <ng-template #noAvatar>
+                  <div
+                    class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center"
+                  >
+                    <i class="fa-solid fa-user-doctor text-2xl text-gray-500"></i>
+                  </div>
+                </ng-template>
+              </div>
+
+              <div class="min-w-0 space-y-1">
+                <h3 class="text-lg font-semibold text-gray-900 truncate">
+                  {{ provider.name }}
+                </h3>
+
+                <p class="text-sm text-gray-700 leading-snug" *ngIf="provider.bio; else defaultBio">
+                  {{ provider.bio }}
+                </p>
+                <ng-template #defaultBio>
+                  <p class="text-sm text-gray-700 leading-snug">
+                    Experienced provider at our clinic.
+                  </p>
+                </ng-template>
+
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end">
+              <button
+                nz-button
+                nzType="primary"
+                class="action-btn action-btn--primary"
+                (click)="selectProvider(provider)"
+              >
+                Select Provider
+              </button>
+            </div>
+          </div>
+        </nz-card>
+      </div>
+
+    </div>
+
+    <div *ngIf="step === 'providers'" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="section-title">
+          <i class="fas fa-calendar-check"></i>
+          Appointment Date
+        </h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="mt-2 space-y-4">
+
+        <div class="get-started-card p-4">
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-900 dark:text-gray-300">
+              Select Date:
+            </label>
+            <nz-date-picker
+              [(ngModel)]="selectedDate"
+              nzPlaceHolder="Choose a date"
+              [nzDisabledDate]="disablePastDates"
+              (ngModelChange)="onDateChange($event)"
+              class="w-full"
+            ></nz-date-picker>
+            <p *ngIf="formattedDate" class="text-sm text-gray-600 dark:text-gray-400">
+              Selected Date:
+              <strong class="text-gray-900 dark:text-gray-200">
+                {{ formattedDate }}
+              </strong>
+            </p>
+          </div>
+        </div>
+
+        <div
+          *ngIf="loadingSlots"
+          class="get-started-card flex items-center justify-center h-24"
+        >
+          <nz-spin nzSimple></nz-spin>
+        </div>
+
+        <div
+          *ngIf="!loadingSlots && slots?.length === 0"
+          class="get-started-card p-4 text-sm text-gray-600 dark:text-gray-400"
+        >
+          No available slots for the selected date.
+        </div>
+
+        <div *ngIf="!loadingSlots && slots.length > 0" class="space-y-3">
+          <nz-card
+            *ngFor="let slot of slots"
+            class="get-started-card transition-all duration-200 hover:border-blue-400 hover:shadow-md"
+          >
+            <div
+              class="rounded-lg flex items-start justify-between gap-4"
+            >
+              <div class="space-y-1 text-sm">
+                <div class="text-gray-900 dark:text-gray-100 font-semibold">
+                  {{ formatTime(slot.startTime) }} – {{ formatTime(slot.endTime) }}
+                </div>
+                <div class="text-gray-700 dark:text-gray-400">
+                  Date: {{ slot.slotDate | date: 'fullDate' }}
+                </div>
+                <div class="text-gray-700 dark:text-gray-400">
+                  Day: {{ slot.slotDate | date: 'EEEE' }}
+                </div>
+                <div class="text-gray-700 dark:text-gray-400">
+                  Duration: {{ slot.duration }} min
+                </div>
+                <div class="text-gray-700 dark:text-gray-400">
+                  Provider: {{ slot.providerName }}
+                </div>
+              </div>
+              <div>
+                <button
+                  nz-button
+                  nzType="default"
+                  class="action-btn action-btn--primary"
+                  [nzLoading]="isFormSubmitting"
+                  [disabled]="isFormSubmitting"
+                  (click)="selectSlot(slot)"
+                >
+                  Select
+                </button>
+              </div>
+            </div>
+          </nz-card>
+        </div>
+      </div>
+            <button
+              nz-button
+              nzType="link"
+              class="action-btn action-btn--secondary"
+              (click)="goBack('provider card')"
+            >
+              ← Back
+            </button>
+    </div>
+
+    <div *ngIf="step === 'confirmation'" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="section-title">
+          <ng-container [ngSwitch]="stripeReturnState">
+            <ng-container *ngSwitchCase="'failed'">Payment Failed</ng-container>
+            <ng-container *ngSwitchCase="'processing'">Payment Processing</ng-container>
+            <ng-container *ngSwitchCase="'succeeded'">Payment Successful</ng-container>
+            <ng-container *ngSwitchDefault>Appointment Confirmed 🎉</ng-container>
+          </ng-container>
+        </h2>
+      </div>
+      <div class="section-divider"></div>
+
+      <div
+        *ngIf="stripeReturnState !== 'idle'"
+        class="rounded-lg border p-3 text-sm"
+        [ngClass]="{
+          'border-green-200 bg-green-50 text-green-700': stripeReturnState === 'succeeded',
+          'border-yellow-200 bg-yellow-50 text-yellow-700': stripeReturnState === 'processing',
+          'border-red-200 bg-red-50 text-red-700': stripeReturnState === 'failed'
+        }"
+      >
+        {{ stripeReturnMessage }}
+      </div>
+
+      <nz-card
+        class="get-started-card mt-2"
+      >
+        <div class="rounded-lg p-4 space-y-2 text-sm">
+          <div class="flex flex-col sm:flex-row sm:justify-between">
+            <span class="text-gray-900 dark:text-gray-300">
+              <strong>Plan:</strong> {{ selectedPlan?.name }}
+            </span>
+            <span class="text-gray-900 dark:text-gray-300">
+              <strong>Price:</strong> ${{ selectedPlan?.price }}
+            </span>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:justify-between">
+            <span class="text-gray-900 dark:text-gray-300">
+              <strong>Date:</strong> {{ selectedDate | date: 'fullDate' }}
+            </span>
+            <span class="text-gray-900 dark:text-gray-300">
+              <strong>Time:</strong>
+              {{ formatTime(selectedSlot?.startTime) }} -
+              {{ formatTime(selectedSlot?.endTime) }}
+            </span>
+          </div>
+          <div *ngIf="selectedSlot?.providerName" class="text-gray-900 dark:text-gray-300">
+            <strong>Provider:</strong> {{ selectedSlot?.providerName }}
+          </div>
+        </div>
+      </nz-card>
+
+      <div class="text-center" *ngIf="stripeReturnState !== 'failed'">
+        <a
+          nz-button
+          nzType="primary"
+          class="rounded-md shadow-sm"
+          href="https://www.telehealthus.com/login"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <i class="fa fa-external-link mr-2"></i>
+          Open Patient Portal
+        </a>
+
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          Open the Patient Portal and log in to complete the sign-up process.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

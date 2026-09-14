@@ -1,0 +1,539 @@
+<nz-tabset
+  nzType="editable-card"
+  class="cal-tabset"
+  [nzHideAdd]="true"
+  [nzSelectedIndex]="selectedTabIndex"
+  (nzSelectedIndexChange)="onTabIndexChange($event)"
+  (nzClose)="onTabClose($event)"
+>
+  <nz-tab nzTitle="Calendar" [nzClosable]="false">
+<div class="cal-shell">
+
+  <div class="cal-toolbar">
+
+    <div class="cal-toolbar__nav">
+      <button
+        class="cal-btn cal-btn--today"
+        [class.cal-btn--disabled]="isTodayDisabled"
+        [disabled]="isTodayDisabled"
+        (click)="goToToday()"
+      >
+        Today
+      </button>
+      <div class="cal-nav-arrows">
+        <button class="cal-arrow-btn" (click)="goToPrevious()" title="Previous">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button class="cal-arrow-btn" (click)="goToNext()" title="Next">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <h2 class="cal-title">{{ currentTitle }}</h2>
+
+    <div class="cal-toolbar__actions">
+
+      <div class="cal-view-tabs">
+        <button
+          class="cal-view-tab"
+          [class.cal-view-tab--active]="selectedView === 'dayGridMonth'"
+          (click)="changeView('dayGridMonth')"
+        >Month</button>
+        <button
+          class="cal-view-tab"
+          [class.cal-view-tab--active]="selectedView === 'timeGridWeek'"
+          (click)="changeView('timeGridWeek')"
+        >Week</button>
+        <button
+          class="cal-view-tab"
+          [class.cal-view-tab--active]="selectedView === 'timeGridDay'"
+          (click)="changeView('timeGridDay')"
+        >Day</button>
+      </div>
+
+      <div class="cal-layout-toggle">
+        <button
+          class="cal-layout-btn"
+          [class.cal-layout-btn--active]="layoutMode === 'grid'"
+          (click)="switchLayout('grid')"
+          title="Grid view"
+        >
+          <i class="fa-solid fa-border-all"></i>
+        </button>
+        <button
+          class="cal-layout-btn"
+          [class.cal-layout-btn--active]="layoutMode === 'list'"
+          (click)="switchLayout('list')"
+          title="List view"
+        >
+          <i class="fa-solid fa-list"></i>
+        </button>
+      </div>
+
+      <button
+        *ngIf="userRole === 'Provider' || userRole === 'Global Admin'"
+        class="cal-btn cal-btn--primary"
+        (click)="openCreateAppointment()"
+      >
+        <i class="fa-solid fa-plus mr-1"></i>Create Appointment
+      </button>
+
+      <button class="cal-btn cal-btn--filters" (click)="showFilters = !showFilters">
+        <i class="fa-solid fa-sliders mr-1"></i>Filters
+        <span *ngIf="visibleFiltersCount > 0" class="cal-filter-count">{{ visibleFiltersCount }}</span>
+        <i class="fa-solid fa-chevron-down cal-filter-chevron" [class.cal-filter-chevron--open]="showFilters"></i>
+      </button>
+
+    </div>
+  </div>
+
+  <div class="cal-filter-pills" *ngIf="visibleFiltersCount > 0 && !showFilters">
+    @for (filter of appliedFilters; track trackByFilterName($index, filter)) {
+      <span class="cal-filter-pill" *ngIf="!shouldHideAppliedFilter(filter.name)">
+        <span class="cal-filter-pill-label">{{ filter.name }}:</span>
+        {{ getFilterDisplayValue(filter) }}
+        <button class="cal-filter-pill-remove" (click)="removeFilter(filter.name)" title="Remove filter">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </span>
+    }
+    <button class="cal-filter-clear" (click)="clearFilters()">
+      <i class="fa-solid fa-xmark mr-1"></i>Clear all
+    </button>
+  </div>
+
+  <div class="cal-filter-panel" *ngIf="showFilters">
+    <div class="cal-filter-grid">
+
+      <div class="cal-filter-field" *ngIf="userRole === 'Provider' || userRole === 'Global Admin'">
+        <label class="cal-filter-label">Clinic</label>
+        <nz-select
+          class="w-full"
+          nzPlaceHolder="Select Clinic"
+          nzShowSearch
+          nzAllowClear
+          [nzShowArrow]="true"
+          [(ngModel)]="facilityId"
+          [nzLoading]="facilitiesLoading"
+          [nzDisabled]="facilitiesLoading"
+          (ngModelChange)="applyFilters('Clinic')"
+        >
+          <nz-option *ngFor="let option of facilities" [nzValue]="option.facilityId" [nzLabel]="option.titlelong"></nz-option>
+        </nz-select>
+      </div>
+
+      <div class="cal-filter-field">
+        <label class="cal-filter-label">Status</label>
+        <nz-select
+          class="w-full"
+          nzPlaceHolder="Select Status"
+          nzShowSearch
+          nzAllowClear
+          [nzShowArrow]="true"
+          [(ngModel)]="visitStatus"
+          (ngModelChange)="applyFilters()"
+        >
+          <nz-option nzLabel="Scheduled" nzValue="Scheduled"></nz-option>
+          <nz-option nzLabel="Completed" nzValue="Completed"></nz-option>
+          <nz-option nzLabel="Missed" nzValue="Missed"></nz-option>
+        </nz-select>
+      </div>
+
+      <div class="cal-filter-field" *ngIf="userRole !== 'Patient'">
+        <label class="cal-filter-label">Patient</label>
+        <nz-select
+          class="w-full"
+          nzPlaceHolder="Select Patient"
+          nzShowSearch
+          nzAllowClear
+          [nzShowArrow]="true"
+          [(ngModel)]="patientId"
+          [nzLoading]="loadingPatient"
+          [nzDisabled]="loadingPatient"
+          (ngModelChange)="applyFilters()"
+        >
+          <nz-option *ngFor="let item of patientData; trackBy: trackByPatientId" [nzValue]="item.patientId" [nzLabel]="item.patientName"></nz-option>
+        </nz-select>
+      </div>
+
+      <div class="cal-filter-field" *ngIf="userRole !== 'Patient' && userRole !== 'Provider' && userRole !== 'Clinic Admin'">
+        <label class="cal-filter-label">Provider</label>
+        <nz-select
+          class="w-full"
+          nzPlaceHolder="Select Provider"
+          nzShowSearch
+          nzAllowClear
+          [nzShowArrow]="true"
+          [(ngModel)]="providerId"
+          [nzLoading]="loadingProvider"
+          [nzDisabled]="loadingProvider"
+          (ngModelChange)="applyFilters()"
+        >
+          <nz-option *ngFor="let item of providerData; trackBy: trackById" [nzValue]="item.providerId" [nzLabel]="item.name"></nz-option>
+        </nz-select>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="cal-body">
+
+    <div class="cal-loading-overlay" *ngIf="isLoading">
+      <i class="fa-solid fa-arrows-spin fa-spin"></i>
+    </div>
+
+    <full-calendar #calendar [options]="calendarOptions">
+      <ng-template #eventContent let-arg>
+
+        <div
+          class="cal-event-month"
+          *ngIf="selectedView === 'dayGridMonth' && layoutMode !== 'list'"
+          nz-popover
+          [nzPopoverContent]="contentTemplate"
+          nzPopoverTrigger="click"
+          nzPopoverPlacement="right"
+          [nzPopoverOverlayClassName]="'cal-popover'"
+          [nzPopoverVisible]="isPopoverOpen(arg.event.id)"
+          (nzPopoverVisibleChange)="onPopoverVisibilityChange(arg.event.id, $event)"
+          [style.background]="getEventBg(arg)"
+        >
+          <div class="cal-event-month-row1">
+            <span class="cal-event-month-time">{{ arg.event.start | date:'h:mm a' }}</span>
+            <span class="cal-event-month-name">{{ arg.event.extendedProps.patientName }}</span>
+          </div>
+          <div class="cal-event-month-row2" *ngIf="userRole !== 'Clinic Admin'">
+            <i class="fa-solid fa-user-doctor"></i>
+            <span>{{ arg.event.extendedProps.providerName }}</span>
+          </div>
+          <div class="cal-event-month-row2" *ngIf="userRole === 'Global Admin' && arg.event.extendedProps.clinicName">
+            <i class="fa-solid fa-hospital-user"></i>
+            <span>{{ arg.event.extendedProps.clinicName }}</span>
+          </div>
+        </div>
+
+        <div
+          class="cal-event-card"
+          *ngIf="selectedView !== 'dayGridMonth' && layoutMode !== 'list'"
+          [style.background]="getEventBg(arg)"
+          nz-popover
+          [nzPopoverContent]="contentTemplate"
+          nzPopoverTrigger="click"
+          nzPopoverPlacement="right"
+          [nzPopoverOverlayClassName]="'cal-popover'"
+          [nzPopoverVisible]="isPopoverOpen(arg.event.id)"
+          (nzPopoverVisibleChange)="onPopoverVisibilityChange(arg.event.id, $event)"
+        >
+
+          <div class="cal-event-card-header">
+            <span class="cal-event-time-badge">{{ arg.event.start | date:'h:mm a' }}</span>
+            <span class="cal-event-name">{{ arg.event.extendedProps.patientName }}</span>
+          </div>
+
+          <div class="cal-event-meta" *ngIf="userRole !== 'Clinic Admin'">
+            <i class="fa-solid fa-user-doctor"></i>
+            <span>{{ arg.event.extendedProps.providerName }}</span>
+          </div>
+          <div class="cal-event-meta cal-event-meta--clinic"
+               *ngIf="userRole === 'Global Admin' && arg.event.extendedProps.clinicName">
+            <i class="fa-solid fa-hospital-user"></i>
+            <span>{{ arg.event.extendedProps.clinicName }}</span>
+          </div>
+        </div>
+
+        <div class="cal-list-row" *ngIf="layoutMode === 'list'">
+          <div class="cal-list-row__info">
+            <div class="cal-list-status-dot" [style.background]="getEventBg(arg)"></div>
+            <div>
+              <div class="cal-list-patient">{{ arg.event.extendedProps.patientName }}</div>
+              <div class="cal-list-meta" *ngIf="userRole !== 'Clinic Admin'">
+                <i class="fa-solid fa-user-doctor"></i>{{ arg.event.extendedProps.providerName }}
+              </div>
+              <div class="cal-list-meta" *ngIf="userRole === 'Global Admin' && arg.event.extendedProps.clinicName">
+                <i class="fa-solid fa-hospital-user"></i>{{ arg.event.extendedProps.clinicName }}
+              </div>
+              <div class="cal-list-meta">
+                <i class="fa-regular fa-circle"></i>{{ arg.event.extendedProps.status }}
+              </div>
+            </div>
+          </div>
+          <div class="cal-list-row__actions">
+            <button
+              *appHasAnyPermission="['appointment_view']"
+              class="cal-action-btn"
+              title="View Details"
+              (click)="navigateToApptView(arg.event.id)"
+            >
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            @if (userRole === 'Provider' || userRole === 'Global Admin') {
+              <button
+                *appHasAnyPermission="['appointment_edit']"
+                class="cal-action-btn"
+                title="Update Status"
+                (click)="updateApptStatus(arg.event.id)"
+              >
+                <i class="fa-solid fa-arrows-rotate"></i>
+              </button>
+            }
+          </div>
+        </div>
+
+      </ng-template>
+    </full-calendar>
+  </div>
+
+</div>
+  </nz-tab>
+
+  <nz-tab
+    *ngFor="let tab of detailTabs; trackBy: trackByTabKey"
+    [nzTitle]="tab.title"
+    [nzClosable]="true"
+  >
+    <app-appointment-detail-view
+      [appointmentIdInput]="tab.appointmentId"
+      [embeddedInTabs]="true"
+    ></app-appointment-detail-view>
+  </nz-tab>
+</nz-tabset>
+
+<ng-template #contentTemplate>
+  <ng-container *ngIf="!clickedEventDetails; else detailShow">
+    <div class="cal-popover-loading">
+      <i class="fa-solid fa-arrows-spin fa-spin"></i>
+    </div>
+  </ng-container>
+  <ng-template #detailShow>
+    <div class="cal-popover-card">
+
+      <div class="cal-popover-header">
+        <div class="cal-popover-status-dot" [style.background]="clickedEventDetails?.color || '#f59e0b'"></div>
+        <span class="cal-popover-patient">{{ clickedEventDetails?.patientName }}</span>
+      </div>
+
+      <div class="cal-popover-rows">
+        <div class="cal-popover-row" *ngIf="userRole !== 'Clinic Admin'">
+          <i class="fa-solid fa-user-doctor"></i>
+          <span>{{ clickedEventDetails?.providerName }}</span>
+        </div>
+        <div class="cal-popover-row" *ngIf="userRole === 'Global Admin' && clickedEventDetails?.clinicName">
+          <i class="fa-solid fa-hospital-user"></i>
+          <span>{{ clickedEventDetails?.clinicName }}</span>
+        </div>
+        <div class="cal-popover-row">
+          <i class="fa-regular fa-calendar-days"></i>
+          <span>{{ clickedEventDetails?.end | date:'MMM d, y' }}</span>
+        </div>
+        <div class="cal-popover-row">
+          <i class="fa-regular fa-clock"></i>
+          <span>{{ clickedEventDetails?.start | date:'h:mm a' }} – {{ clickedEventDetails?.end | date:'h:mm a' }}</span>
+        </div>
+        <div class="cal-popover-row">
+          <i class="fa-solid fa-circle-half-stroke"></i>
+          <span>{{ clickedEventDetails?.status }}</span>
+        </div>
+      </div>
+
+      <div class="cal-popover-footer">
+        <button
+          *appHasAnyPermission="['appointment_view']"
+          class="cal-popover-action cal-popover-action--primary"
+          title="View Details"
+          (click)="navigateToApptView(clickedEventDetails.id)"
+        >
+          <i class="fa-solid fa-eye"></i>
+          <span>View</span>
+        </button>
+        @if (userRole === 'Provider' || userRole === 'Global Admin') {
+          <button
+            *appHasAnyPermission="['appointment_edit']"
+            class="cal-popover-action"
+            title="Update Status"
+            (click)="updateApptStatus(clickedEventDetails.id)"
+          >
+            <i class="fa-solid fa-arrows-rotate"></i>
+            <span>Update Status</span>
+          </button>
+        }
+      </div>
+
+    </div>
+  </ng-template>
+</ng-template>
+
+<nz-drawer
+  [nzVisible]="isDrawerVisible"
+  nzTitle="Appointments"
+  (nzOnClose)="closeDrawer()"
+  [nzWidth]="360"
+>
+  <ng-container *nzDrawerContent>
+    <ng-container *ngIf="moreEvents?.length; else noEventsTemplate">
+      <div *ngFor="let event of moreEvents" class="cal-drawer-item">
+        <div class="cal-drawer-accent" [style.background]="event.color"></div>
+        <div class="cal-drawer-content">
+          <div class="cal-drawer-patient">{{ event.patientName }}</div>
+          <div class="cal-drawer-meta" *ngIf="userRole !== 'Clinic Admin'">
+            <i class="fa-solid fa-user-doctor"></i>{{ event.providerName }}
+          </div>
+          <div class="cal-drawer-meta">
+            <i class="fa-regular fa-calendar-days"></i>{{ event.end | date:'MMM d, y' }}
+          </div>
+          <div class="cal-drawer-meta">
+            <i class="fa-regular fa-clock"></i>{{ event.start | date:'h:mm a' }} – {{ event.end | date:'h:mm a' }}
+          </div>
+          <div class="cal-drawer-actions">
+            <button
+              *appHasAnyPermission="['appointment_view']"
+              class="cal-action-btn"
+              title="View Details"
+              (click)="navigateToApptView(event.id)"
+            >
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            @if (userRole === 'Provider' || userRole === 'Global Admin') {
+              <button
+                *appHasAnyPermission="['appointment_edit']"
+                class="cal-action-btn"
+                title="Update Status"
+                (click)="updateApptStatus(event.id)"
+              >
+                <i class="fa-solid fa-arrows-rotate"></i>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <ng-template #noEventsTemplate>
+      <div class="cal-drawer-empty">
+        <i class="fa-regular fa-calendar-xmark"></i>
+        <span>No appointments to show.</span>
+      </div>
+    </ng-template>
+  </ng-container>
+</nz-drawer>
+
+<nz-modal
+  [(nzVisible)]="isCreateApptVisible"
+  nzTitle="Create Appointment"
+  (nzOnCancel)="handleCancelCreateAppointment()"
+  [nzFooter]="createApptFooter"
+>
+  <div *nzModalContent class="grid gap-4">
+
+    <div *ngIf="userRole === 'Global Admin'">
+      <label class="label-C-F">Provider</label>
+      <nz-select
+        class="w-full"
+        nzPlaceHolder="Select Provider"
+        nzShowSearch
+        nzAllowClear
+        [nzLoading]="loadingProvider"
+        [nzDisabled]="loadingProvider"
+        [(ngModel)]="selectedCreateProviderId"
+        (ngModelChange)="onCreateProviderChange($event)"
+      >
+        <nz-option *ngFor="let item of providerData; trackBy: trackById" [nzValue]="item.providerId" [nzLabel]="item.name"></nz-option>
+      </nz-select>
+      <p *ngIf="!selectedCreateProviderId" class="text-xs text-gray-500 mt-1">
+        Select a provider to load patients and slots.
+      </p>
+    </div>
+
+    <div>
+      <label class="label-C-F">Patients</label>
+      <nz-select
+        class="w-full"
+        nzPlaceHolder="Select Patient"
+        nzShowSearch
+        [nzLoading]="loadingProviderPatients"
+        [nzDisabled]="!selectedCreateProviderId || loadingProviderPatients"
+        [(ngModel)]="selectedPatientId"
+        (ngModelChange)="onPatientChange($event)"
+      >
+        <nz-option *ngFor="let p of providerPatients" [nzValue]="p.patientId" [nzLabel]="p.patientName"></nz-option>
+      </nz-select>
+    </div>
+
+    <div>
+      <label class="label-C-F">Treatment</label>
+      <nz-select
+        class="w-full"
+        nzPlaceHolder="Select Treatment"
+        nzShowSearch
+        [nzDisabled]="!selectedPatientId || loadingTreatments || !treatments.length"
+        [nzLoading]="loadingTreatments"
+        [(ngModel)]="selectedTreatmentId"
+        (ngModelChange)="onTreatmentChange($event)"
+      >
+        <nz-option *ngFor="let t of treatments" [nzValue]="t.treatmentId" [nzLabel]="getTreatmentLabel(t)"></nz-option>
+      </nz-select>
+    </div>
+
+    <div>
+      <label class="label-C-F">Date</label>
+      <nz-date-picker
+        class="w-full"
+        [(ngModel)]="selectedDate"
+        nzPlaceHolder="Choose a date"
+        [nzDisabled]="!selectedTreatmentId"
+        [nzDisabledDate]="disablePastDates"
+        (ngModelChange)="onDateChange($event)"
+      ></nz-date-picker>
+      <p *ngIf="formattedDate" class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+        Selected: <strong class="text-gray-800 dark:text-gray-200">{{ formattedDate }}</strong>
+      </p>
+    </div>
+
+    <div>
+      <label class="label-C-F">Available Slots</label>
+      <nz-select
+        class="w-full"
+        nzPlaceHolder="Select Slot"
+        nzShowSearch
+        [nzLoading]="loadingSlots"
+        [nzDisabled]="!formattedDate || loadingSlots || (!slots.length && !slotsError)"
+        [(ngModel)]="selectedSlotId"
+      >
+        <nz-option *ngFor="let s of slots" [nzValue]="s.providerScheduledSlotId" [nzLabel]="getSlotLabel(s)"></nz-option>
+      </nz-select>
+      <p *ngIf="!loadingSlots && formattedDate && !slots.length && !slotsError" class="text-xs text-gray-500 mt-1">
+        No slots available for selected date.
+      </p>
+      <p *ngIf="slotsError" class="text-xs text-red-600 mt-1">{{ slotsError }}</p>
+    </div>
+  </div>
+
+  <ng-template #createApptFooter>
+    <button nz-button nzType="default" (click)="handleCancelCreateAppointment()" [disabled]="isSubmittingAppt">Cancel</button>
+    <button
+      nz-button
+      nzType="primary"
+      [nzLoading]="isSubmittingAppt"
+      [disabled]="!canSubmitRecall()"
+      (click)="submitRecallAppointment()"
+    >Save</button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="showUpdateAppointmentModal"
+  nzTitle="Update Appointment Status"
+  nzOkText="Save"
+  [nzOkLoading]="isUpdatingAppointmentStatus"
+  (nzOnCancel)="handleCancelUpdateAppointment()"
+  (nzOnOk)="handleUpdateAppointment()"
+>
+  <div *nzModalContent class="grid gap-4">
+    <nz-select class="w-full" nzPlaceHolder="Select Status" [(ngModel)]="selectedStatus">
+      <nz-option nzLabel="Scheduled" nzValue="Scheduled"></nz-option>
+      <nz-option nzLabel="Completed" nzValue="Completed"></nz-option>
+      <nz-option nzLabel="Missed" nzValue="Missed"></nz-option>
+    </nz-select>
+  </div>
+</nz-modal>
+
+<app-availability-add-edit-model #availability></app-availability-add-edit-model>
+<app-comman-form-modal #commanModel [apiUrl]="this.modalApiUrl" (formClosed)="calendarComponent.getApi().refetchEvents()"></app-comman-form-modal>

@@ -1,0 +1,386 @@
+<nz-tabset
+  nzType="editable-card"
+  class="ticket-tabs mt-1"
+  [nzHideAdd]="true"
+  [nzSelectedIndex]="selectedTabIndex"
+  (nzSelectedIndexChange)="onTabIndexChange($event)"
+  (nzClose)="onTabClose($event)"
+>
+  <nz-tab nzTitle="Tickets" [nzClosable]="false">
+    <div class="ticket-workspace-shell">
+      <section class="ticket-filter-shell">
+        <div class="ticket-filter-toolbar">
+          <div class="ticket-filter-toolbar-left">
+            <button
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="ticket-filter-toggle"
+              (click)="showFilters = !showFilters"
+              [attr.aria-expanded]="showFilters"
+              type="button"
+            >
+              <i class="fa-solid fa-sliders"></i>
+              <span>Filters</span>
+              <span *ngIf="appliedFilters.length > 0" class="ticket-filter-count-pill">
+                {{ appliedFilters.length }}
+              </span>
+              <i class="fa-solid fa-chevron-down ticket-filter-chevron" [class.rotate-180]="showFilters"></i>
+            </button>
+
+            <span *ngIf="!showFilters && appliedFilters.length > 0" class="ticket-filter-summary">
+              {{ appliedFilters.length }} active filters
+            </span>
+          </div>
+
+          <div class="ticket-filter-toolbar-right">
+            <button
+              *ngIf="appliedFilters.length > 0"
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="ticket-filter-clear"
+              (click)="clearFilters()"
+              type="button"
+            >
+              Reset
+            </button>
+
+            <div class="ticket-view-toggle">
+              <button class="ticket-view-btn" [class.active]="viewMode === 'list'" (click)="switchView('list')" title="List view" type="button">
+                <i class="fa-solid fa-list"></i>
+              </button>
+              <button class="ticket-view-btn" [class.active]="viewMode === 'board'" (click)="switchView('board')" title="Board view" type="button">
+                <i class="fa-solid fa-table-columns"></i>
+              </button>
+            </div>
+
+            @if (userRole === 'Global Admin') {
+              <button nz-button nzType="default" nzShape="round" class="ticket-add-btn" (click)="openNewTicketModal()" type="button">
+                <i class="fa-solid fa-plus"></i>
+                <span class="ml-2 hidden md:inline-block">New Ticket</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div *ngIf="appliedFilters.length > 0 && !showFilters" class="ticket-filter-chip-row">
+          @for (filter of appliedFilters; track filter.name) {
+            <button class="ticket-filter-chip" type="button" (click)="removeFilter(filter.name)">
+              <span>{{ filter.name }}: {{ filter.value }}</span>
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          }
+        </div>
+
+        <div *ngIf="showFilters" class="ticket-filter-grid">
+          <div>
+            <label class="label-C-F ticket-filter-label">Title:</label>
+            <input
+              nz-input
+              id="search"
+              class="input-C ticket-filter-input"
+              placeholder="Search by title"
+              [(ngModel)]="searchQuery"
+              (input)="searchTermChanged()"
+            />
+          </div>
+
+          <div *ngIf="viewMode !== 'board'">
+            <label class="label-C-F ticket-filter-label">Status:</label>
+            <nz-select
+              class="w-full ticket-filter-select"
+              nzPlaceHolder="All Statuses"
+              nzShowSearch
+              nzAllowClear
+              [nzShowArrow]="true"
+              [(ngModel)]="selectedStatus"
+              (ngModelChange)="applyFilter()"
+            >
+              <nz-option *ngFor="let s of statusOptions" [nzValue]="s.value" [nzLabel]="s.label"></nz-option>
+            </nz-select>
+          </div>
+
+          <div>
+            <label class="label-C-F ticket-filter-label">Priority:</label>
+            <nz-select
+              class="w-full ticket-filter-select"
+              nzPlaceHolder="All Priorities"
+              nzShowSearch
+              nzAllowClear
+              [nzShowArrow]="true"
+              [(ngModel)]="selectedPriority"
+              (ngModelChange)="applyFilter()"
+            >
+              <nz-option *ngFor="let p of priorityOptions" [nzValue]="p.value" [nzLabel]="p.label"></nz-option>
+            </nz-select>
+          </div>
+        </div>
+      </section>
+
+      <section *ngIf="viewMode === 'list'" class="ticket-table-shell">
+        <nz-table
+          [nzData]="tickets"
+          [nzFrontPagination]="false"
+          [nzLoading]="loading"
+          [nzTotal]="totalEntityCount"
+          [nzPageIndex]="pageIndex"
+          [nzPageSize]="pageSize"
+          [nzShowSizeChanger]="true"
+          [nzPageSizeOptions]="[10, 20, 50, 100]"
+          [nzScroll]="{ x: '1500px' }"
+          (nzQueryParams)="onQueryParamsChange($event)"
+          class="w-full ticket-table"
+        >
+          <thead>
+          <tr>
+            <th nzWidth="120px">Actions</th>
+            <th nzWidth="120px">Ticket #</th>
+            <th nzWidth="360px">Title</th>
+            <th nzWidth="140px">Priority</th>
+            <th nzWidth="160px">Status</th>
+            <th nzWidth="180px">Created By</th>
+            <th nzWidth="180px">Created</th>
+            <th nzWidth="120px">Comments</th>
+          </tr>
+          </thead>
+
+          <tbody>
+          <tr
+            *ngFor="let row of tickets"
+            class="ticket-row-clickable"
+            role="button"
+            tabindex="0"
+            (click)="viewTicket(row)"
+            (keydown.enter)="viewTicket(row)"
+            (keydown.space)="viewTicket(row); $event.preventDefault()"
+          >
+            <td>
+              <button
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                class="action-icon-btn"
+                title="View"
+                (click)="$event.stopPropagation(); viewTicket(row)"
+              >
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </td>
+
+            <td class="font-mono text-xs">#{{ row.ticketId }}</td>
+            <td>
+              <span class="line-clamp-1" [title]="row.title || '--'">
+                {{ row.title || '--' }}
+              </span>
+            </td>
+            <td>
+              <span class="ui-status-badge" [ngClass]="priorityBadgeClass(row.priority)">
+                {{ priorityLabel(row.priority) }}
+              </span>
+            </td>
+            <td>
+              <span class="ui-status-badge" [ngClass]="statusBadgeClass(row.status)">
+                {{ statusLabel(row.status) }}
+              </span>
+            </td>
+            <td>{{ row.createdBy || '--' }}</td>
+            <td class="text-gray-500 text-xs">
+              {{ row.createdDate ? (row.createdDate | date:'MMM d, y, h:mm a') : '--' }}
+            </td>
+            <td>
+              <span class="ui-status-badge ui-status-badge--neutral">
+                {{ row.commentCount }}
+              </span>
+            </td>
+          </tr>
+
+          <tr *ngIf="!loading && tickets.length === 0">
+            <td colspan="8" class="text-center py-6 text-gray-500">
+              No records found.
+            </td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </section>
+
+      <section *ngIf="viewMode === 'board'" class="ticket-board-shell">
+        <div class="ticket-board" cdkDropListGroup>
+          <div
+            class="ticket-board-column"
+            *ngFor="let col of boardColumns; trackBy: trackByColStatus"
+          >
+
+            <div class="ticket-board-col-header" [ngClass]="col.colorClass">
+              <span class="ticket-board-col-title">{{ col.label }}</span>
+              <span class="ticket-board-col-badge">{{ col.tickets.length }}</span>
+            </div>
+
+            <div
+              class="ticket-board-col-body"
+              cdkDropList
+              [cdkDropListData]="col.tickets"
+              (cdkDropListDropped)="onBoardDrop($event, col)"
+              [id]="'col-' + col.statusId"
+            >
+
+              <ng-container *ngIf="col.loading">
+                <div class="ticket-board-skeleton" *ngFor="let s of [1,2,3]"></div>
+              </ng-container>
+
+              <div
+                *ngFor="let ticket of col.tickets; trackBy: trackByTicketId"
+                class="ticket-board-card"
+                cdkDrag
+                [cdkDragData]="ticket"
+                (click)="viewTicket(ticket)"
+              >
+
+                <div class="ticket-board-card-drag-handle" cdkDragHandle>
+                  <i class="fa-solid fa-grip-vertical"></i>
+                </div>
+
+                <div class="ticket-board-card-priority-bar" [ngClass]="priorityBadgeClass(ticket.priority)"></div>
+
+                <div class="ticket-board-card-body">
+                  <div class="ticket-board-card-meta">
+                    <span class="ticket-board-card-id">#{{ ticket.ticketId }}</span>
+                    <span class="ui-status-badge ticket-board-card-priority-badge" [ngClass]="priorityBadgeClass(ticket.priority)">
+                      {{ priorityLabel(ticket.priority) }}
+                    </span>
+                  </div>
+
+                  <p class="ticket-board-card-title">{{ ticket.title }}</p>
+
+                  <p *ngIf="ticket.description" class="ticket-board-card-desc">{{ ticket.description }}</p>
+
+                  <div class="ticket-board-card-footer">
+                    <span class="ticket-board-card-date">
+                      <i class="fa-regular fa-clock"></i>
+                      {{ ticket.createdDate | date:'MMM d, y' }}
+                    </span>
+                    <span class="ticket-board-card-comments" *ngIf="ticket.commentCount > 0">
+                      <i class="fa-regular fa-comment"></i>
+                      {{ ticket.commentCount }}
+                    </span>
+                  </div>
+                </div>
+
+                <div *cdkDragPlaceholder class="ticket-board-card-placeholder"></div>
+              </div>
+
+              <div *ngIf="!col.loading && col.tickets.length === 0" class="ticket-board-col-empty">
+                No tickets
+              </div>
+
+              <button
+                *ngIf="col.hasMore && !col.loading"
+                class="ticket-board-load-more"
+                type="button"
+                (click)="$event.stopPropagation(); loadMoreColumn(col)"
+              >
+                <ng-container *ngIf="!col.loadingMore">
+                  <i class="fa-solid fa-chevron-down"></i> Load more
+                </ng-container>
+                <ng-container *ngIf="col.loadingMore">
+                  <i class="fa-solid fa-spinner fa-spin"></i> Loading…
+                </ng-container>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </nz-tab>
+
+  <nz-tab *ngFor="let tab of detailTabs; trackBy: trackByTabKey" [nzTitle]="tab.title" [nzClosable]="true">
+    <app-global-admin-tickets-detailed-view
+      [ticketIdInput]="tab.ticketId"
+      [embeddedInTabs]="true"
+      (backToList)="activateTicketsListTab()"
+    ></app-global-admin-tickets-detailed-view>
+  </nz-tab>
+</nz-tabset>
+
+<nz-modal
+  [(nzVisible)]="isModalVisible"
+  nzTitle="Create New Ticket"
+  [nzMaskClosable]="false"
+  (nzOnCancel)="closeModal()"
+  [nzFooter]="ticketModalFooter"
+  [nzWidth]="'96vw'"
+  [nzStyle]="{ 'max-width.px': 650 }"
+  [nzBodyStyle]="{
+    'max-height': 'calc(100vh - 180px)',
+    'overflow': 'auto',
+    'padding': '16px'
+  }"
+>
+  <div *nzModalContent>
+    <form [formGroup]="ticketForm" class="grid grid-cols-1 gap-3">
+      <div>
+        <label class="label-C">Title <span class="text-red-600">*</span></label>
+        <input nz-input class="input-C mt-1" formControlName="subject" placeholder="Short summary" />
+        <div
+          class="text-red-600 text-xs mt-1"
+          *ngIf="ticketForm.get('subject')?.touched && ticketForm.get('subject')?.invalid"
+        >
+          Title is required.
+        </div>
+      </div>
+
+      <div>
+        <label class="label-C">Description <span class="text-red-600">*</span></label>
+        <textarea
+          nz-input
+          rows="4"
+          class="input-C mt-1"
+          formControlName="description"
+          placeholder="Describe the issue"
+        ></textarea>
+        <div
+          class="text-red-600 text-xs mt-1"
+          *ngIf="ticketForm.get('description')?.touched && ticketForm.get('description')?.invalid"
+        >
+          Description is required.
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="label-C">Priority <span class="text-red-600">*</span></label>
+          <nz-select class="w-full mt-1" formControlName="priority" nzPlaceHolder="Select priority">
+            <nz-option *ngFor="let p of priorityOptions" [nzLabel]="p.label" [nzValue]="p.value"></nz-option>
+          </nz-select>
+          <div class="text-red-600 text-xs mt-1" *ngIf="ticketForm.get('priority')?.touched && ticketForm.get('priority')?.invalid">
+            Priority is required.
+          </div>
+        </div>
+
+        <div>
+          <label class="label-C">Status <span class="text-red-600">*</span></label>
+          <nz-select class="w-full mt-1" formControlName="status" nzPlaceHolder="Select status">
+            <nz-option *ngFor="let s of statusOptions" [nzLabel]="s.label" [nzValue]="s.value"></nz-option>
+          </nz-select>
+          <div class="text-red-600 text-xs mt-1" *ngIf="ticketForm.get('status')?.touched && ticketForm.get('status')?.invalid">
+            Status is required.
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <ng-template #ticketModalFooter>
+    <button nz-button type="button" (click)="closeModal()" [disabled]="saving">Cancel</button>
+    <button
+      nz-button
+      nzType="primary"
+      type="button"
+      [disabled]="ticketForm.invalid || saving"
+      [nzLoading]="saving"
+      (click)="saveTicket()"
+    >
+      Create
+    </button>
+  </ng-template>
+</nz-modal>

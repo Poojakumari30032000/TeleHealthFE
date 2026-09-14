@@ -1,0 +1,206 @@
+<div class="pr-dashboard-shell">
+  <section class="pr-kpi-grid">
+    <article
+      class="pr-kpi-card pr-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open patients"
+      (click)="openPatients()"
+      (keydown.enter)="openPatients()"
+      (keydown.space)="openPatients(); $event.preventDefault()"
+    >
+      <div class="pr-kpi-head">
+        <h3>Active Patients</h3>
+        <span class="pr-kpi-icon"><i class="fas fa-users"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="pr-kpi-value">{{ activePatients }}</div>
+      </ng-container>
+
+    </article>
+
+    <article
+      class="pr-kpi-card pr-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open treatments"
+      (click)="openTreatments()"
+      (keydown.enter)="openTreatments()"
+      (keydown.space)="openTreatments(); $event.preventDefault()"
+    >
+      <div class="pr-kpi-head">
+        <h3>Active Treatments</h3>
+        <span class="pr-kpi-icon"><i class="fas fa-prescription-bottle-alt"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="pr-kpi-value">{{ activeTreatments }}</div>
+      </ng-container>
+
+    </article>
+
+    <article
+      class="pr-kpi-card pr-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open prescriptions"
+      (click)="openPrescriptions()"
+      (keydown.enter)="openPrescriptions()"
+      (keydown.space)="openPrescriptions(); $event.preventDefault()"
+    >
+      <div class="pr-kpi-head">
+        <h3>Pending Prescription Upload</h3>
+        <span class="pr-kpi-icon"><i class="fas fa-file-prescription"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="pr-kpi-value">{{ pendingPrescriptionUpload }}</div>
+      </ng-container>
+
+    </article>
+
+    <article
+      class="pr-kpi-card pr-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open appointments"
+      (click)="openAppointments()"
+      (keydown.enter)="openAppointments()"
+      (keydown.space)="openAppointments(); $event.preventDefault()"
+    >
+      <div class="pr-kpi-head">
+        <h3>Scheduled Appointments</h3>
+        <span class="pr-kpi-icon"><i class="fas fa-calendar-check"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="pr-kpi-value">{{ pendingAppointments }}</div>
+      </ng-container>
+
+    </article>
+  </section>
+
+  <section class="pr-panel-grid">
+    <article class="pr-panel pr-panel-wide">
+      <div class="pr-panel-head">
+        <h4><i class="fa-solid fa-calendar-day text-primary mr-2"></i>Daily Appointments</h4>
+        <button nz-button nzType="default" nzShape="round" (click)="openAppointments()">Open Appointments</button>
+      </div>
+      <div class="pr-panel-body">
+        <div *ngIf="!dailyAppointmentsLoading; else chartLoading" class="pr-records-list">
+          <ng-container *ngIf="dailyAppointments.length > 0; else noAppointments">
+            <article
+              *ngFor="let appt of dailyAppointments"
+              class="pr-record-row"
+              role="button"
+              tabindex="0"
+              title="Open appointment"
+              (click)="openAppointmentRow(appt)"
+              (keydown.enter)="openAppointmentRow(appt)"
+              (keydown.space)="openAppointmentRow(appt); $event.preventDefault()"
+            >
+              <div class="pr-record-main">
+                <div class="pr-record-title">{{ appt.patientName || '--' }}</div>
+                <div class="pr-record-subtitle">{{ appt.doctorName || '--' }}</div>
+              </div>
+              <div class="pr-record-facts">
+                <div class="pr-record-fact">
+                  <label>Date</label>
+                  <span>{{ appt.date || '--' }}</span>
+                </div>
+                <div class="pr-record-fact">
+                  <label>Time</label>
+                  <span>{{ appt.time || '--' }}</span>
+                </div>
+                <div class="pr-record-fact">
+                  <label>Status</label>
+                  <span class="ui-status-badge ui-status-badge--pending">{{ appt.status || '--' }}</span>
+                </div>
+              </div>
+              <button nz-button nzType="default" nzShape="circle" class="action-icon-btn">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </article>
+          </ng-container>
+          <ng-template #noAppointments>
+            <div class="pr-empty-state">
+              <i class="fa-regular fa-folder-open"></i>
+              <span>No appointments for today.</span>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </article>
+
+    <article class="pr-panel">
+      <div class="pr-panel-head">
+        <h4><i class="fa-solid fa-users text-primary mr-2"></i>Total Patients</h4>
+        <div class="pr-panel-actions">
+          <nz-range-picker
+            class="pr-range"
+            [(ngModel)]="totalPatientsDateRange"
+            (ngModelChange)="onTotalPatientsDateChange()"
+            [nzDisabledDate]="disabledDate"
+            nzFormat="yyyy-MM-dd"
+          >
+          </nz-range-picker>
+          <button nz-button nzType="default" nzShape="round" (click)="openPatients()">Open Patients</button>
+        </div>
+      </div>
+      <div class="pr-panel-body pr-total-panel-body">
+        <button nz-button nzType="default" nzShape="round" class="pr-total-count-btn" (click)="openPatients()">
+          {{ totalPatientsCount || 0 }}
+        </button>
+      </div>
+    </article>
+
+    <article class="pr-panel">
+      <div class="pr-panel-head">
+        <h4><i class="fa-solid fa-chart-pie text-primary mr-2"></i>Treatment Types</h4>
+        <button nz-button nzType="default" nzShape="round" (click)="openTreatments()">Open Treatments</button>
+      </div>
+      <div class="pr-panel-body">
+        <div *ngIf="!treatmentLoading; else chartLoading" echarts [options]="treatmentDistributionChart" class="pr-chart-md"></div>
+        <div *ngIf="!treatmentLoading && treatmentDistributionIsEmpty" class="pr-empty-state">
+          <i class="fa-regular fa-folder-open"></i>
+          <span>No treatment data available for this provider.</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="pr-panel">
+      <div class="pr-panel-head">
+        <h4><i class="fa-solid fa-chart-column text-primary mr-2"></i>Patients</h4>
+        <div class="pr-panel-actions">
+          <nz-range-picker
+            class="pr-range"
+            [(ngModel)]="patientVisitsDateRange"
+            (ngModelChange)="onPatientVisitsDateChange()"
+            [nzDisabledDate]="disabledDate"
+            nzFormat="yyyy-MM-dd"
+          >
+          </nz-range-picker>
+          <button nz-button nzType="default" nzShape="round" (click)="openPatients()">Open Patients</button>
+        </div>
+      </div>
+      <div class="pr-panel-body">
+        <div *ngIf="!patientVisitsLoading; else chartLoading" echarts [options]="patientVisitChart" class="pr-chart-md"></div>
+        <div *ngIf="!patientVisitsLoading && patientVisitsIsEmpty" class="pr-empty-state">
+          <i class="fa-regular fa-folder-open"></i>
+          <span>No patient data available for the selected range.</span>
+        </div>
+      </div>
+    </article>
+  </section>
+</div>
+
+<ng-template #kpiLoading>
+  <div class="pr-kpi-loading">
+    <div class="pr-loading-line lg"></div>
+    <div class="pr-loading-line sm"></div>
+  </div>
+</ng-template>
+
+<ng-template #chartLoading>
+  <div class="pr-chart-loading">
+    <i class="fa-solid fa-arrows-spin animate-spin"></i>
+    <span>Loading...</span>
+  </div>
+</ng-template>

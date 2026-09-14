@@ -1,0 +1,204 @@
+<div class="availability-workspace-shell">
+  <section class="availability-filter-shell">
+    <div class="availability-filter-toolbar">
+      <div class="availability-filter-toolbar-left">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="availability-filter-toggle"
+          (click)="showFilters = !showFilters"
+          [attr.aria-expanded]="showFilters"
+          type="button"
+        >
+          <i class="fa-solid fa-sliders"></i>
+          <span>Filters</span>
+          <span *ngIf="visibleFiltersCount > 0" class="availability-filter-count-pill">
+            {{ visibleFiltersCount }}
+          </span>
+          <i
+            class="fa-solid fa-chevron-down availability-filter-chevron"
+            [class.rotate-180]="showFilters"
+          ></i>
+        </button>
+
+        <span
+          *ngIf="!showFilters && visibleFiltersCount > 0"
+          class="availability-filter-summary"
+        >
+          {{ visibleFiltersCount }} active filters
+        </span>
+      </div>
+
+      <div class="availability-toolbar-actions">
+        <button
+          *ngIf="visibleFiltersCount > 0"
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="availability-filter-clear"
+          (click)="clearFilters()"
+          type="button"
+        >
+          Reset
+        </button>
+
+        <button
+          *ngIf="userRole === 'Provider' || userRole === 'Global Admin'"
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="availability-add-btn"
+          (click)="AddEditAvailability()"
+          type="button"
+        >
+          <i class="fa-solid fa-plus"></i>
+          <span>Add Availability</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="visibleFiltersCount > 0 && !showFilters" class="availability-filter-chip-row">
+      @for (filter of appliedFilters; track trackByFilterName($index, filter)) {
+        <button
+          *ngIf="!shouldHideAppliedFilter(filter.name)"
+          class="availability-filter-chip"
+          type="button"
+          (click)="removeFilter(filter.name)"
+        >
+          <span>{{ getFilterDisplayName(filter.name) }}: {{ getFilterDisplayValue(filter) }}</span>
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      }
+    </div>
+
+    <div *ngIf="showFilters" class="availability-filter-grid">
+      <div>
+        <label class="label-C-F availability-filter-label">Title:</label>
+        <input
+          nz-input
+          placeholder="Search by title"
+          title="Search by title"
+          id="search"
+          class="input-C availability-filter-input"
+          [(ngModel)]="searchQuery"
+          (input)="searchTermChanged()"
+        />
+      </div>
+
+      <div>
+        <label class="label-C-F availability-filter-label">Date:</label>
+        <nz-range-picker
+          nzFormat="MM/dd/yyyy"
+          class="datepicker-C w-full availability-filter-date"
+          [(ngModel)]="selectedDateRange"
+          (ngModelChange)="applyFilter(true)"
+        ></nz-range-picker>
+      </div>
+
+      <div *ngIf="userRole !== 'Provider'">
+        <label class="label-C-F availability-filter-label">Provider:</label>
+        <nz-select
+          class="w-full availability-filter-select"
+          nzPlaceHolder="Select Provider"
+          nzShowSearch
+          nzAllowClear
+          [nzShowArrow]="true"
+          [nzLoading]="loadingProvider"
+          [nzDisabled]="loadingProvider"
+          [(ngModel)]="selectedProvider"
+          (ngModelChange)="applyFilter(true)"
+        >
+          <nz-option *ngFor="let option of providerList; trackBy: trackByProvider" [nzValue]="option.providerId" [nzLabel]="option.name"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+  </section>
+
+  <section class="availability-table-shell">
+    <nz-table
+      [nzData]="availabilities"
+      [nzLoading]="loading"
+      [nzFrontPagination]="false"
+      [nzTotal]="total"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50, 100]"
+      (nzQueryParams)="onQueryParamsChange($event)"
+      [nzScroll]="{ x: '1450px' }"
+      class="w-full availability-table"
+    >
+      <thead>
+        <tr>
+          <th nzWidth="160px">Actions</th>
+          <th nzWidth="280px">Title</th>
+          <th nzWidth="220px">Provider</th>
+          <th nzWidth="180px">Start Date</th>
+          <th nzWidth="130px">Repeat</th>
+          <th nzWidth="140px">Slots</th>
+          <th nzWidth="130px">Duration</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let row of availabilities; trackBy: trackByAvailabilityId"
+          class="availability-row-clickable"
+          role="button"
+          tabindex="0"
+          (click)="navigateToSlots(row)"
+          (keydown.enter)="navigateToSlots(row)"
+          (keydown.space)="navigateToSlots(row); $event.preventDefault()"
+        >
+          <td>
+            <div class="flex items-center gap-2">
+              <button
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                class="action-icon-btn"
+                (click)="$event.stopPropagation(); navigateToSlots(row)"
+                title="View Slots"
+              >
+                <i class="fa fa-eye"></i>
+              </button>
+
+              <button
+                *ngIf="userRole === 'Provider' || userRole === 'Global Admin'"
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                class="action-icon-btn"
+                (click)="$event.stopPropagation(); onDelete(row)"
+                title="Delete"
+              >
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          </td>
+          <td>{{ row.title || '--' }}</td>
+          <td>{{ row.providerName || '--' }}</td>
+          <td>{{ row.startDate ? (row.startDate | date : 'MM/dd/yyyy') : '--' }}</td>
+          <td>
+            <span class="ui-status-badge" [ngClass]="getRecurrenceBadgeClass(row.isRecurrence)">
+              {{ getRecurrenceLabel(row.isRecurrence) }}
+            </span>
+          </td>
+          <td>
+            <button
+              class="availability-slot-link"
+              type="button"
+              (click)="$event.stopPropagation(); navigateToSlots(row)"
+            >
+              {{ row.slotCount ?? '--' }} Slot(s)
+            </button>
+          </td>
+          <td>{{ row.duration ?? '--' }} Min(s)</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </section>
+</div>
+
+<app-availability-add-edit-model (formClosed)="refreshTable()"></app-availability-add-edit-model>

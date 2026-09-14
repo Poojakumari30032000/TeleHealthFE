@@ -1,0 +1,223 @@
+<nz-sider
+  id="style-2"
+  nzCollapsible
+  [nzCollapsed]="sidebarCollapsed"
+  [class.sidebar-dark-theme]="isDarkTheme"
+  class="sidebar brand-secondary-gradient overflow-auto h-full fixed left-0 w-[270px] min-w-[270px] max-w-[270px] z-[1000] top-0 shadow-lg lg:shadow-none rounded-tr-xl rounded-br-xl"
+  [nzTrigger]="null"
+>
+
+  <div class="logo p-4 m-4 rounded-xl flex items-center justify-center">
+    <div class="w-full h-20 bg-logo bg-contain bg-no-repeat bg-center"></div>
+  </div>
+  <div class="flex flex-col h-[calc(100%-9rem)]">
+    <div class="flex-1 overflow-y-auto">
+      <ul
+        nz-menu
+        nzTheme="light"
+        nzMode="inline"
+        class="bg-transparent px-4 border-0 text-white"
+      >
+        <ng-container *ngIf="menuItems.length > 0">
+          <ng-container *ngFor="let menu of menuItems">
+            <ng-container *ngIf="!menu.children; else hasChildren">
+              <li
+                nz-menu-item
+                [nzDisabled]="menu.disabled"
+                [routerLink]="!menu.disabled ? menu.route : null"
+                routerLinkActive="ant-menu-item-selected"
+                [routerLinkActiveOptions]="{ exact: true }"
+                [nzSelected]="isActive(menu.route)"
+                [class.ant-menu-item-selected]="isActive(menu.route)"
+                [class.sidebar-msg-has-badge]="showMessageBadge(menu)"
+              >
+                <i class="{{ menu.icon }} mr-2" *ngIf="menu.icon"></i>
+                <span>{{ menu.title }}</span>
+                <span
+                  *ngIf="showMessageBadge(menu)"
+                  class="sidebar-msg-badge"
+                >
+                  {{ getMessageBadgeCount() }}
+                </span>
+              </li>
+            </ng-container>
+
+            <ng-template #hasChildren>
+              <li
+                nz-submenu
+                [nzOpen]="menu.open"
+                [nzDisabled]="menu.disabled"
+                (nzOpenChange)="onSubmenuOpenChange(menu, $event)"
+              >
+                <span title class="w-full">
+                  <i class="{{ menu.icon }} mr-2" *ngIf="menu.icon"></i>
+                  <span>{{ menu.title }}</span>
+                </span>
+                <ul>
+                  <ng-container *ngFor="let childMenu of menu.children">
+                    <ng-container *ngIf="!childMenu.children; else hasGrandChildren">
+                      <li
+                        nz-menu-item
+                        [nzDisabled]="childMenu.disabled"
+                        [routerLink]="childMenu.route"
+                        routerLinkActive="ant-menu-item-selected"
+                        [routerLinkActiveOptions]="{ exact: true }"
+                        [nzSelected]="isActive(childMenu.route)"
+                        [class.ant-menu-item-selected]="isActive(childMenu.route)"
+                        [class.sidebar-msg-has-badge]="showMessageBadge(childMenu)"
+                      >
+                        <i class="{{ childMenu.icon || 'fa-solid fa-arrow-right' }} mr-2"></i>
+                        <span>{{ childMenu.title }}</span>
+                        <span
+                          *ngIf="showMessageBadge(childMenu)"
+                          class="sidebar-msg-badge"
+                        >
+                          {{ getMessageBadgeCount() }}
+                        </span>
+                      </li>
+                    </ng-container>
+
+                    <ng-template #hasGrandChildren>
+                      <li
+                        nz-submenu
+                        [nzOpen]="childMenu.open"
+                        [nzDisabled]="childMenu.disabled"
+                        (nzOpenChange)="onSubmenuOpenChange(childMenu, $event, menu)"
+                      >
+                        <span title class="w-full">
+                          <i class="{{ childMenu.icon }} mr-2"></i>
+                          <span>{{ childMenu.title }}</span>
+                        </span>
+                        <ul>
+                          <ng-container *ngFor="let item of childMenu.children">
+                            <li
+                              nz-menu-item
+                              [nzDisabled]="item.disabled"
+                              [routerLink]="item.route"
+                              routerLinkActive="ant-menu-item-selected"
+                              [routerLinkActiveOptions]="{ exact: true }"
+                              [nzSelected]="isActive(item.route)"
+                            >
+                              <i class="{{ item.icon || 'fa-solid fa-arrow-right' }} mr-2"></i>
+                              <span>{{ item.title }}</span>
+                            </li>
+                          </ng-container>
+                        </ul>
+                      </li>
+                    </ng-template>
+                  </ng-container>
+                </ul>
+              </li>
+            </ng-template>
+          </ng-container>
+        </ng-container>
+      </ul>
+    </div>
+    <div class="p-4">
+      <button
+        nz-button
+        nzType="default"
+        nzShape="round"
+        class="w-full"
+        (click)="confirmLogout($event)"
+      >
+        <i class="fa-solid fa-sign-out-alt mr-2"></i>
+        <span>Log Out</span>
+      </button>
+    </div>
+  </div>
+</nz-sider>
+
+<app-comman-form-modal
+  #commanModel
+  [apiUrl]="modalApiUrl"
+  [customModalParams]="customModalParams"
+  (formClosed)="refreshData()"
+></app-comman-form-modal>
+
+<nz-modal
+  [(nzVisible)]="welcomeVisible"
+  [nzCentered]="true"
+  [nzClosable]="false"
+  [nzFooter]="null"
+  [nzMaskClosable]="false"
+  [nzWidth]="560"
+  nzClassName="wm-modal"
+>
+  <ng-container *nzModalContent>
+
+    <div class="wm-header">
+      <div class="wm-emoji">👏</div>
+      <h2 class="wm-title">Welcome to Your Patient Portal!</h2>
+      <p class="wm-subtitle">Your secure place to manage your health journey</p>
+    </div>
+
+    <div class="wm-body">
+      <div class="wm-grid">
+        <div class="wm-card">
+          <div class="wm-icon"><i class="fa-solid fa-notes-medical"></i></div>
+          <div class="wm-text"><strong>Treatment Plan</strong><span>Access and track your care</span></div>
+        </div>
+        <div class="wm-card">
+          <div class="wm-icon"><i class="fa-solid fa-comments"></i></div>
+          <div class="wm-text"><strong>Secure Messaging</strong><span>Message your care team</span></div>
+        </div>
+        <div class="wm-card">
+          <div class="wm-icon"><i class="fa-solid fa-calendar-check"></i></div>
+          <div class="wm-text"><strong>Appointments</strong><span>View and schedule visits</span></div>
+        </div>
+        <div class="wm-card">
+          <div class="wm-icon"><i class="fa-solid fa-pills"></i></div>
+          <div class="wm-text"><strong>Prescriptions</strong><span>Track refills and status</span></div>
+        </div>
+        <div class="wm-card">
+          <div class="wm-icon"><i class="fa-solid fa-bell"></i></div>
+          <div class="wm-text"><strong>Updates</strong><span>Receive important alerts</span></div>
+        </div>
+        <div class="wm-card">
+          <div class="wm-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+          <div class="wm-text"><strong>Billing</strong><span>View payment history</span></div>
+        </div>
+      </div>
+
+      <p class="wm-closing">Your health journey is personal — and we're here every step of the way.</p>
+
+      <div class="wm-actions">
+        <button nz-button nzType="primary" nzShape="round" nzSize="large" (click)="onWelcomeDismissed()">
+          Get Started &nbsp;<i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="questionnaireVisible"
+  [nzCentered]="true"
+  [nzClosable]="false"
+  [nzFooter]="null"
+  [nzKeyboard]="true"
+  [nzMaskClosable]="false"
+  (nzOnCancel)="closeQuestForm()"
+  nzTitle=""
+  nzClassName="questionnaire-modal-no-header"
+  [nzWidth]="'96vw'"
+  [nzStyle]="{ 'max-width.px': 1100 }"
+
+  [nzBodyStyle]="{
+    'max-height': 'calc(100vh - 180px)',
+    'overflow': 'auto',
+    'padding': '16px'
+  }"
+>
+  <ng-container *nzModalContent>
+    <app-patient-questionnaire-view
+    (questionnaireSubmitted)="closeQuestForm()"
+    ></app-patient-questionnaire-view>
+  </ng-container>
+</nz-modal>
+
+<app-baa-signing-modal
+  *ngIf="baaModalVisible"
+  (signed)="onBaaSigned()"
+></app-baa-signing-modal>

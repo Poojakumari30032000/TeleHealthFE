@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+
+.dynamic-action-buttons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.action-icon-btn {
+  cursor: pointer !important;
+}

@@ -1,0 +1,265 @@
+<div class="pp-shell">
+  <section class="pp-hero">
+    <div class="pp-hero-identity">
+      <div class="pp-avatar">{{ profileInitials }}</div>
+      <div>
+
+        <h2 class="pp-title">{{ providerForm.get('firstName')?.value }} {{ providerForm.get('lastName')?.value }}</h2>
+
+        <p class="pp-subtitle">Review and update your professional and contact details.</p>
+        <div class="pp-meta-chips">
+          <span>{{ providerForm.get('email')?.value || 'No email set' }}</span>
+          <span>{{ providerForm.get('providerType')?.value || 'Provider type not selected' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pp-hero-kpis">
+      <div class="pp-kpi-card">
+        <div class="pp-kpi-label">Categories</div>
+        <div class="pp-kpi-value">{{ selectedCategoriesCount }}</div>
+      </div>
+      <div class="pp-kpi-card">
+        <div class="pp-kpi-label">Licensed States</div>
+        <div class="pp-kpi-value">{{ selectedLicensedStatesCount }}</div>
+      </div>
+
+    </div>
+  </section>
+
+  <nz-spin [nzSpinning]="loadingProfile" class="block">
+    <form [formGroup]="providerForm" class="pp-form">
+      <section class="pp-card">
+        <div class="pp-card-head">
+          <h3><i class="fa-solid fa-id-card mr-2 text-primary"></i>Identity</h3>
+        </div>
+        <div class="pp-grid pp-grid-2">
+          <div class="pp-field pp-col-span-2">
+            <label>NPI <span class="pp-required">*</span></label>
+            <input nz-input class="pp-control" placeholder="Enter NPI" formControlName="npi" (blur)="onBlurTrim($event, true)" />
+            <div class="pp-error" *ngIf="hasProviderError('npi','required')">NPI is required.</div>
+          </div>
+
+          <div class="pp-field">
+            <label>First Name <span class="pp-required">*</span></label>
+            <input nz-input class="pp-control" placeholder="Enter First Name" formControlName="firstName" (blur)="onBlurTrim($event, true)" />
+            <div class="pp-error" *ngIf="hasProviderError('firstName','required')">Required.</div>
+          </div>
+
+          <div class="pp-field">
+            <label>Middle Name</label>
+            <input nz-input class="pp-control" placeholder="Enter Middle Name" formControlName="middleName" (blur)="onBlurTrim($event, true)" />
+          </div>
+
+          <div class="pp-field">
+            <label>Last Name <span class="pp-required">*</span></label>
+            <input nz-input class="pp-control" placeholder="Enter Last Name" formControlName="lastName" (blur)="onBlurTrim($event, true)" />
+            <div class="pp-error" *ngIf="hasProviderError('lastName','required')">Required.</div>
+          </div>
+
+          <div class="pp-field">
+            <label>Title</label>
+            <input nz-input class="pp-control" placeholder="Enter Title" formControlName="title" (blur)="onBlurTrim($event, true)" />
+          </div>
+
+          <div class="pp-field">
+            <label>Gender <span class="pp-required">*</span></label>
+            <nz-select class="w-full pp-control" nzPlaceHolder="Select Gender" formControlName="gender">
+              <nz-option nzLabel="Male" nzValue="Male"></nz-option>
+              <nz-option nzLabel="Female" nzValue="Female"></nz-option>
+            </nz-select>
+            <div class="pp-error" *ngIf="hasProviderError('gender','required')">Required.</div>
+          </div>
+
+          <div class="pp-field">
+            <label>Date Of Birth <span class="pp-required">*</span></label>
+            <nz-date-picker class="w-full pp-control" formControlName="dob" nzPlaceHolder="mm/dd/yyyy"></nz-date-picker>
+            <div class="pp-error" *ngIf="hasProviderError('dob','required')">Required.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pp-card">
+        <div class="pp-card-head">
+          <h3><i class="fa-solid fa-address-book mr-2 text-primary"></i>Contact And Location</h3>
+        </div>
+        <div class="pp-grid pp-grid-3">
+          <div class="pp-field pp-col-span-2">
+            <label>Email <span class="pp-required">*</span></label>
+            <input nz-input class="pp-control" placeholder="Enter Email" formControlName="email" (blur)="onProviderEmailCheck()" />
+            <div class="pp-error" *ngIf="hasProviderError('email','required')">Required.</div>
+            <div class="pp-error" *ngIf="hasProviderError('email','email')">Invalid email.</div>
+            <div class="pp-error" *ngIf="providerForm.get('email')?.errors?.['duplicate']">Email already exists.</div>
+          </div>
+
+          <div class="pp-field">
+            <label>Phone <span class="pp-required">*</span></label>
+            <input nz-input class="pp-control" placeholder="(###) ###-####" formControlName="phone" (input)="onProviderPhoneInput($event)" />
+            <div class="pp-error" *ngIf="hasProviderError('phone','required')">Required.</div>
+          </div>
+
+          <div class="pp-field pp-col-span-2">
+            <label>Address <span class="pp-required">*</span></label>
+            <input nz-input class="pp-control" placeholder="Enter Address" formControlName="address" (blur)="onBlurTrim($event, true)" />
+            <div class="pp-error" *ngIf="hasProviderError('address','required')">Required.</div>
+          </div>
+
+          <div class="pp-field">
+            <label>Provider Type <span class="pp-required">*</span></label>
+            <nz-select class="w-full pp-control" nzPlaceHolder="Select Provider Type" formControlName="providerType">
+              <nz-option nzLabel="Proxy" nzValue="Proxy"></nz-option>
+              <nz-option nzLabel="Prescribing" nzValue="Prescribing"></nz-option>
+              <nz-option nzLabel="EPCS Coorfinator" nzValue="EPCS Coorfinator"></nz-option>
+              <nz-option nzLabel="Permanent" nzValue="Permanent"></nz-option>
+            </nz-select>
+            <div class="pp-error" *ngIf="hasProviderError('providerType','required')">Required.</div>
+          </div>
+
+          <div class="pp-field">
+            <label>State <span class="pp-required">*</span></label>
+            <nz-select class="w-full pp-control" nzPlaceHolder="Select State" nzShowSearch formControlName="stateId" [nzLoading]="allStatesLoading">
+              <nz-option *ngFor="let s of allStates" [nzValue]="s.id" [nzLabel]="s.name"></nz-option>
+            </nz-select>
+            <div class="pp-error" *ngIf="hasProviderError('stateId','required')">Required.</div>
+          </div>
+
+          <div class="pp-field">
+            <label>City <span class="pp-required">*</span></label>
+            <nz-select
+              class="w-full pp-control"
+              nzPlaceHolder="Select City"
+              nzShowSearch
+              formControlName="cityId"
+              [nzLoading]="citiesByStateLoading"
+              [nzDisabled]="!providerForm.get('stateId')?.value"
+            >
+              <nz-option *ngFor="let c of citiesByState" [nzValue]="c.id" [nzLabel]="c.name"></nz-option>
+            </nz-select>
+            <div class="pp-error" *ngIf="hasProviderError('cityId','required')">Required.</div>
+          </div>
+
+          <div class="pp-field">
+            <label>Zip Code <span class="pp-required">*</span></label>
+            <input
+              nz-input
+              class="pp-control"
+              formControlName="zipCode"
+              placeholder="Enter zip code"
+              maxlength="5"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              (input)="onZipInput($event)"
+            />
+            <div class="pp-error" *ngIf="hasProviderError('zipCode','required')">Required.</div>
+            <div class="pp-error" *ngIf="hasProviderError('zipCode','pattern')">Only numbers allowed.</div>
+            <div class="pp-error" *ngIf="hasProviderError('zipCode','maxlength')">Max 5 digits.</div>
+            <div class="pp-error" *ngIf="hasProviderError('zipCode','minlength')">Must be 5 digits.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pp-card">
+        <div class="pp-card-head">
+          <h3><i class="fa-solid fa-stethoscope mr-2 text-primary"></i>Credentials</h3>
+        </div>
+        <div class="pp-grid pp-grid-2">
+          <div class="pp-field">
+            <label>Tax ID</label>
+            <input nz-input class="pp-control" placeholder="Enter Tax ID" formControlName="taxId" (blur)="onBlurTrim($event, true)" />
+          </div>
+
+          <div class="pp-field">
+            <label>Medicaid #</label>
+            <input nz-input class="pp-control" placeholder="Enter Medicaid" formControlName="medicaid" (blur)="onBlurTrim($event, true)" />
+          </div>
+
+          <div class="pp-field">
+            <label>CAQH ID</label>
+            <input nz-input class="pp-control" placeholder="Enter CAQH ID" formControlName="caqhId" (blur)="onBlurTrim($event, true)" />
+          </div>
+
+          <div class="pp-field">
+            <label>License <span class="pp-required">*</span></label>
+            <input nz-input class="pp-control" placeholder="Enter License" formControlName="license" (blur)="onBlurTrim($event, true)" />
+            <div class="pp-error" *ngIf="hasProviderError('license','required')">Required.</div>
+          </div>
+
+          <div class="pp-field">
+            <label>SSN</label>
+            <input nz-input class="pp-control" placeholder="Enter SSN" formControlName="ssn" (blur)="onBlurTrim($event, true)" />
+          </div>
+
+          <div class="pp-field">
+            <label>DEA #</label>
+            <input nz-input class="pp-control" placeholder="Enter DEA" formControlName="dea" (blur)="onBlurTrim($event, true)" />
+          </div>
+        </div>
+      </section>
+
+      <section class="pp-card">
+        <div class="pp-card-head">
+          <h3><i class="fa-solid fa-layer-group mr-2 text-primary"></i>Clinical Scope</h3>
+        </div>
+        <div class="pp-grid pp-grid-2">
+          <div class="pp-field">
+            <label>Categories Treated <span class="pp-required">*</span></label>
+            <nz-select
+              class="w-full pp-control"
+              nzMode="multiple"
+              nzPlaceHolder="Select Categories Treated"
+              formControlName="categoryId"
+              [nzLoading]="categoriesLoading"
+            >
+              <nz-option *ngFor="let cat of categories" [nzValue]="cat.categoryId" [nzLabel]="cat.categoryName"></nz-option>
+            </nz-select>
+            <div class="pp-error" *ngIf="hasProviderError('categoryId','required')">Required.</div>
+          </div>
+
+          <div class="pp-field">
+            <label>Licensed State <span class="pp-required">*</span></label>
+            <nz-select
+              class="w-full pp-control"
+              nzMode="multiple"
+              nzPlaceHolder="Select Licensed States"
+              nzShowSearch
+              [nzMaxTagCount]="3"
+              formControlName="licenseStateIds"
+              [nzLoading]="allStatesLoading"
+            >
+              <nz-option *ngFor="let s of allStates" [nzValue]="s.id" [nzLabel]="s.name + ' - ' + s.shortName"></nz-option>
+            </nz-select>
+            <div class="pp-error" *ngIf="hasProviderError('licenseStateIds','required')">Required.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pp-card">
+        <div class="pp-card-head">
+          <h3><i class="fa-solid fa-notes-medical mr-2 text-primary"></i>Biography</h3>
+        </div>
+        <div class="pp-grid">
+          <div class="pp-field">
+            <label>Bio <span class="pp-required">*</span></label>
+            <textarea nz-input class="pp-control pp-textarea" rows="4" placeholder="Enter Bio" formControlName="bio" (blur)="onBlurTrim($event, true)"></textarea>
+            <div class="pp-error" *ngIf="hasProviderError('bio','required')">Required.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pp-footer-bar">
+        <p class="pp-footer-note">Changes are saved to your provider profile and used across scheduling and treatment workflows.</p>
+        <button
+          nz-button
+          nzType="primary"
+          class="pp-save-btn"
+          [nzLoading]="saving || providerEmailDupCheck"
+          [disabled]="providerForm.invalid || saving || providerEmailDupCheck || loadingProfile"
+          (click)="saveProfile()"
+        >
+          <i class="fa-solid fa-floppy-disk mr-1"></i>
+          Save Changes
+        </button>
+      </section>
+    </form>
+  </nz-spin>
+</div>

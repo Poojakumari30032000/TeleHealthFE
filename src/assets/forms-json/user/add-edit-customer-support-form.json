@@ -1,0 +1,134 @@
+{
+    "title": "Customer Support Form",
+    "primaryId": "userId",
+    "rows": [
+        {
+            "class": "grid grid-cols-2 gap-2 mb-2",
+            "fields": [
+                {
+                    "type": "text",
+                    "label": "First Name",
+                    "name": "firstName",
+                    "placeholder": "Enter First Name",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "text",
+                    "label": "Middle Name",
+                    "name": "middleName",
+                    "placeholder": "Enter Middle Name",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": false
+                    }
+                },
+                {
+                    "type": "text",
+                    "label": "Last Name",
+                    "name": "lastName",
+                    "placeholder": "Enter Last Name",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "email",
+                    "label": "Email",
+                    "name": "email",
+                    "placeholder": "Enter Email",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "text",
+                    "label": "Phone",
+                    "name": "phone",
+                    "placeholder": "(###) ###-####",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "select",
+                    "label": "Billing Address",
+                    "name": "addressType",
+                    "placeholder": "Select Address Type",
+                    "class": "col-span-1",
+                    "options": [
+                        {
+                            "label": "Same as Clinic",
+                            "value": "Same as Clinic"
+                        },
+                        {
+                            "label": "Other Address",
+                            "value": "Other Address"
+                        }
+                    ],
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        },
+        {
+            "visibilityCondition": { "name": "addressType", "value": "Other Address" },
+            "class": "grid grid-cols-1 gap-2 mb-2",
+            "fields": [
+                {
+                  "type": "text",
+                  "label": "Other Address",
+                  "name": "address",
+                  "placeholder": "Enter Address",
+                  "class": "col-span-1",
+                  "validations": { "required": true }
+                }
+            ]
+        },
+        {
+            "visibilityCondition": { "name": "addressType", "value": "Other Address" },
+            "class": "grid grid-cols-2 gap-2 mb-2",
+            "fields": [
+                {
+                  "type": "select",
+                  "label": "Other City",
+                  "name": "cityId",
+                  "placeholder": "Select City",
+                  "class": "col-span-1",
+                  "labelKey": ["name"],
+                  "valueKey": "id",
+                  "fetchUrl": "Dropdowns/getAllUSCities",
+                  "validations": { "required": true }
+                },
+                {
+                  "type": "select",
+                  "label": "Other State",
+                  "name": "stateId",
+                  "placeholder": "Select State",
+                  "class": "col-span-1",
+                  "dependsOn": ["cityId"],
+                  "labelKey": ["name"],
+                  "valueKey": "id",
+                  "fetchUrl": "Dropdowns/getUSStatesByCityId?Id={cityId}",
+                  "validations": { "required": true }
+                },
+                {
+                  "type": "tel",
+                  "label": "Other Zip Code",
+                  "name": "zipCode",
+                  "placeholder": "Enter zip code",
+                  "class": "col-span-1",
+                  "validations": {
+                    "required": true
+                  }
+                }
+            ]
+        }
+    ]
+}

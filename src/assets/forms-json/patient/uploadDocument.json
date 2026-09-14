@@ -1,0 +1,38 @@
+{
+  "title": "Upload Document",
+  "primaryId": "patientId",
+  "rows": [
+    {
+      "class": "grid grid-cols-1 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Document Name",
+          "name": "documentName",
+          "placeholder": "Enter Document Name",
+          "class": "col-span-1",
+          "validations": { "required": true }
+        },
+        {
+          "type": "text",
+          "label": "Description",
+          "name": "description",
+          "placeholder": "Enter Short Description",
+          "class": "col-span-1",
+          "validations": { "required": true }
+        },
+        {
+          "type": "file-drag",
+          "label": "Document",
+          "name": "documentUrl",
+          "placeholder": "",
+          "class": "col-span-1",
+          "fileAllowed": "single",
+          "validations": {
+            "required": true
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,858 @@
+@if(!hasError){
+
+  <ng-container *ngIf="!isLoading && prescriptionData; else loadingMain">
+
+    <nz-tabset nzType="editable-card" [nzHideAdd]="true" [(nzSelectedIndex)]="activeTabIndex" class="rx-main-tabs mt-1">
+
+      <nz-tab nzTitle="Prescription" [nzClosable]="false">
+    <div class="rx-workspace-shell">
+      <section class="rx-summary-hero">
+        <div class="rx-summary-identity">
+          <div class="rx-avatar">
+            {{ (prescriptionData.firstName || 'P')[0] }}{{ (prescriptionData.lastName || 'R')[0] }}
+          </div>
+          <div>
+            <div class="rx-summary-name">
+              {{
+                prescriptionData.firstName && prescriptionData.lastName
+                  ? prescriptionData.firstName + ' ' + prescriptionData.lastName
+                  : (prescriptionData.firstName || prescriptionData.lastName || '--')
+              }}
+            </div>
+            <div class="rx-summary-meta">
+              <span>Prescription #{{ prescriptionData.prescriptionId || '--' }}</span>
+              <span>MRN #{{ prescriptionData.mrn || '--' }}</span>
+              <span>{{ prescriptionData.email || '--' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rx-kpi-grid">
+          <div class="rx-kpi-card">
+            <div class="rx-kpi-label">Treatment #</div>
+            <div class="rx-kpi-value">{{ prescriptionData.treatmentId || '--' }}</div>
+          </div>
+          <div class="rx-kpi-card">
+            <div class="rx-kpi-label">Order #</div>
+            <div class="rx-kpi-value">{{ prescriptionData.orderId || '--' }}</div>
+          </div>
+          <div class="rx-kpi-card">
+            <div class="rx-kpi-label">Drugs</div>
+            <div class="rx-kpi-value">{{ listOfDrugs.length }}</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="rx-action-row">
+        @if(userRole == 'Global Admin' || userRole == 'Provider'){
+          <button
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="rx-cta-btn mb-0"
+            (click)="printControlledSubstancePrescription()"
+            [disabled]="!hasControlledSubstanceDrugs">
+            <i class="fas fa-print"></i>
+            <span class="ml-2 hidden md:inline-block ">Print Prescription</span>
+          </button>
+        }
+
+      </section>
+
+      <div class="rx-layout-grid">
+        <div class="rx-main-column">
+          <section class="rx-top-grid">
+            <section class="rx-info-grid">
+              <article class="rx-info-panel">
+                <div class="rx-info-head">
+                  <h4 class="rx-panel-title">
+                    <i class="fa-solid fa-address-card mr-2 text-primary"></i>Patient Snapshot
+                  </h4>
+                </div>
+                <div class="rx-pair-grid">
+                  <div><label>MRN #</label><span>{{ prescriptionData.mrn || '--' }}</span></div>
+                  <div>
+                    <label>Patient Name</label>
+                    <span>
+                      {{
+                        prescriptionData.firstName && prescriptionData.lastName
+                          ? prescriptionData.firstName + ' ' + prescriptionData.lastName
+                          : (prescriptionData.firstName || prescriptionData.lastName || '--')
+                      }}
+                    </span>
+                  </div>
+                  <div><label>City</label><span>{{ prescriptionData.city || '--' }}</span></div>
+                  <div><label>State</label><span>{{ prescriptionData.state || '--' }}</span></div>
+                  <div><label>Email</label><span>{{ prescriptionData.email || '--' }}</span></div>
+                  <div><label>Phone</label><span>{{ prescriptionData.phoneNumber || '--' }}</span></div>
+                  <div class="rx-col-span-2"><label>Address</label><span>{{ prescriptionData.address || '--' }}</span></div>
+                  <div><label>Date Of Birth</label><span>{{ (prescriptionData.dob | date:'MM/dd/yyyy') || '--' }}</span></div>
+                  <div><label>Created By</label><span>{{ prescriptionData.createdBy || '--' }}</span></div>
+                  <div><label>Last Edited</label><span>{{ (prescriptionData.lastEditedDate | date:'MM/dd/yyyy') || '--' }}</span></div>
+                </div>
+              </article>
+
+              <article class="rx-info-panel">
+                <div class="rx-info-head">
+                  <h4 class="rx-panel-title">
+                    <i class="fa-solid fa-file-prescription mr-2 text-primary"></i>Prescription Detail
+                  </h4>
+
+                </div>
+
+                <div class="rx-pair-grid">
+                  <div><label>Prescription #</label><span>{{ prescriptionData.prescriptionId || '--' }}</span></div>
+                  <div>
+                    <label>Treatment #</label>
+                    <span class="rx-link" (click)="navigate('treatment/detail/' + prescriptionData.treatmentId.toString())">
+                      {{ prescriptionData.treatmentId || '--' }}
+                    </span>
+                  </div>
+                  <div>
+                    <label>Order #</label>
+                    <span class="rx-link" (click)="navigate('order/detail/' + prescriptionData.orderId.toString())">
+                      {{ prescriptionData.orderId || '--' }}
+                    </span>
+                  </div>
+                  <div><label>Expiration Date</label><span>{{ (prescriptionData.expirationDate | date:'MM/dd/yyyy') || '--' }}</span></div>
+                  <div class="rx-col-span-2 rx-written-date-block">
+                    <div class="rx-written-date-head">
+                      <label class="rx-label-inline">Written Date</label>
+                      <span
+                        nz-tooltip
+                        nzTooltipTitle="Add the actual date that is mentioned on the uploaded prescription."
+                        nzTooltipColor="#108ee9"
+                        class="rx-label-info cursor-pointer"
+                        aria-label="Written date information"
+                      >
+                        <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+                      </span>
+                    </div>
+                    <nz-date-picker
+                      [(ngModel)]="updatedWrittenDate"
+                      nzPlaceHolder="mm/dd/yyyy"
+                      nzFormat="MM/dd/yyyy"
+                      class="rx-written-date-picker w-full"
+                      [nzDisabled]="!showAsPerRole || !showAsPerOrderStatus"
+                    >
+                    </nz-date-picker>
+                  </div>
+                </div>
+
+              </article>
+
+              @if (userRole == "Global Admin"){
+              <article class="rx-info-panel rx-info-panel-full">
+                <div class="rx-info-head">
+                  <h4 class="rx-panel-title">
+                    <i class="fa-solid fa-user-doctor mr-2 text-primary"></i>Provider Details
+                  </h4>
+                  <span class="rx-status-pill rx-status-neutral">
+                    {{ prescriptionData.provider?.providerType || 'Provider' }}
+                  </span>
+                </div>
+
+                <div class="rx-pair-grid">
+                  <div><label>Provider Name</label><span>{{ prescriptionData.provider?.providerName || '--' }}</span></div>
+                  <div><label>Email</label><span>{{ prescriptionData.provider?.email || '--' }}</span></div>
+                  <div><label>Phone</label><span>{{ prescriptionData.provider?.phone || '--' }}</span></div>
+                  <div><label>NPI</label><span>{{ prescriptionData.provider?.npi || '--' }}</span></div>
+                  @if (userRole == 'Global Admin'){
+                  <div><label>DEA</label><span>{{ prescriptionData.provider?.dea || '--' }}</span></div>
+                  }
+                  <div><label>City / State</label><span>{{ (prescriptionData.provider?.city || '--') + ' / ' + (prescriptionData.provider?.state || '--') }}</span></div>
+                </div>
+              </article>
+              }
+            </section>
+
+            @if(userRole == 'Global Admin' || userRole == 'Provider'){
+              <section class="rx-controlled-panel-wrap">
+                <article class="rx-upload-panel">
+                  <h4 class="rx-upload-title">
+                    <i class="fa-solid fa-prescription-bottle-medical mr-2 text-primary"></i>Controlled Rx
+                    <span
+                      nz-tooltip
+                      nzTooltipTitle="This section is for the clinic staff to upload the prescription for controlled substance without the supplies."
+                      nzTooltipColor="#108ee9"
+                      class="ml-1 cursor-pointer">
+                      <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+                    </span>
+                  </h4>
+
+                  <nz-upload class="mt-1"
+                             [nzAction]="uploadUrl"
+                             [nzHeaders]="{ authorization: 'Bearer' + '' }"
+                             nzListType="picture"
+                             [nzShowButton]="true"
+                             [nzShowUploadList]="false"
+                             [nzBeforeUpload]="beforeUploadControlled"
+                             [nzTransformFile]="transformControlledToPng"
+                             (nzChange)="handleChangeControlled($event, 'regular')"
+                             [nzDisabled]="isDisabled || !showAsPerOrderStatus"
+                             [ngClass]="{'disabled': isDisabled}">
+                    <button nz-button nzType="default" nzShape="round" class="rx-cta-btn mb-0">
+                      <i class="fas fa-file-export"></i>
+                      <span class="ml-2 hidden md:inline-block">Upload</span>
+                    </button>
+                  </nz-upload>
+
+                  <a *ngIf="prescriptionData.controlledSubImage as imgUrl"
+                     [href]="imgUrl"
+                     target="_blank"
+                     rel="noopener noreferrer">
+                    <img class="rx-preview-image" [src]="imgUrl" alt="Controlled prescription image" />
+                  </a>
+                  <div *ngIf="!prescriptionData.controlledSubImage" class="rx-empty-preview">
+                    Prescription image not available
+                  </div>
+                </article>
+              </section>
+            }
+          </section>
+
+          <section class="rx-workflow-shell">
+            <div class="rx-workflow-title">
+              <i class="fa-solid fa-diagram-project mr-2 text-primary"></i>Clinical Workspace
+            </div>
+
+            <nz-tabset nzType="line" nzSize="small" class="rx-workflow-tabs">
+              <nz-tab [nzTitle]="'Drugs (' + listOfDrugs.length + ')'">
+                <div class="rx-workflow-pane">
+                  @if (listOfDrugs.length === 0) {
+                    <div class="rx-empty-state">
+                      <i class="fa-solid fa-pills"></i>
+                      <span>No drugs added yet.</span>
+                    </div>
+                  } @else {
+                    <div class="rx-records-list">
+                      @for (data of listOfDrugs; track $index) {
+                        <article class="rx-drug-row">
+                          <div class="rx-drug-top">
+                            <div class="rx-record-main">
+                              <div class="rx-record-title">{{ data.medicineName || '--' }}</div>
+                              <div class="rx-record-subtitle">
+                                {{ (data.strenght || data.strength || '--') + ' • ' + (data.dosageForm || '--') + ' • ' + (data.packageSize || '--') }}
+                              </div>
+                            </div>
+
+                            <div class="rx-record-end">
+                              <span class="rx-status-pill"
+                                    [ngClass]="
+                                      (data.controlSubstance ?? data.control_Substance) === true
+                                        ? 'rx-status-warning'
+                                        : ((data.controlSubstance ?? data.control_Substance) === false
+                                          ? 'rx-status-neutral'
+                                          : 'rx-status-neutral')
+                                    ">
+                                {{
+                                  (data.controlSubstance ?? data.control_Substance) === true
+                                    ? 'Controlled'
+                                    : ((data.controlSubstance ?? data.control_Substance) === false ? 'Non-Controlled' : 'Unknown')
+                                }}
+                              </span>
+
+                              @if (userRole == 'Global Admin') {
+                              <span class="rx-status-pill"
+                                    [ngClass]="data.isSystemDefined ? 'rx-status-warning' : 'rx-status-neutral'">
+                                {{ getDrugCatalogName(data) }}
+                              </span>
+                              }
+
+                              @if (userRole == 'Global Admin' || userRole == 'Provider'){
+                                <div class="rx-row-actions">
+                                  <button
+                                    nz-button
+                                    nzType="default"
+                                    nzShape="circle"
+                                    [disabled]="isFormSubmitting || !showAsPerOrderStatus || modalCatalogLoading || catalogOptionsLoading"
+                                    (click)="openEditDrugModal($index)"
+                                    title="Edit drug">
+                                    <i class="fas fa-pen"></i>
+                                  </button>
+                                  <button
+                                    nz-button
+                                    nzType="default"
+                                    nzShape="circle"
+                                    [disabled]="isFormSubmitting || !showAsPerOrderStatus"
+                                    (click)="removeDrugFromPrescription($index)"
+                                    title="Remove drug">
+                                    <i class="fas fa-trash"></i>
+                                  </button>
+                                </div>
+                              }
+                            </div>
+                          </div>
+
+                          <div class="rx-record-facts">
+                            <div class="rx-fact"><label>Courier</label><span>{{ data.courierMethod || '--' }}</span></div>
+                            <div class="rx-fact"><label>Qty</label><span>{{ data.drugQuantity ?? data.quantity ?? '--' }}</span></div>
+                            <div class="rx-fact"><label>D/S</label><span>{{ data.daysSupplies ?? '--' }}</span></div>
+                          </div>
+
+                          <div class="rx-notes-grid">
+                            <div class="rx-note-item">
+                              <label>Direction</label>
+                              <span
+                                class="rx-note-text"
+                                nz-tooltip
+                                [nzTooltipTitle]="data.direction || '--'"
+                                nzTooltipColor="#108ee9"
+                                nzTooltipTrigger="click"
+                                [attr.title]="data.direction || '--'">
+                                {{ getShortText(data.direction, 90) }}
+                              </span>
+                            </div>
+                            <div class="rx-note-item">
+                              <label>Notes</label>
+                              <span
+                                class="rx-note-text"
+                                nz-tooltip
+                                [nzTooltipTitle]="data.instruction || '--'"
+                                nzTooltipColor="#108ee9"
+                                nzTooltipTrigger="click"
+                                [attr.title]="data.instruction || '--'">
+                                {{ getShortText(data.instruction, 90) }}
+                              </span>
+                            </div>
+                          </div>
+
+                          @if (data?.supplies?.length) {
+                            <div class="rx-supplies-wrap">
+                              <div class="rx-supplies-label">Supplies</div>
+                              <div class="rx-supplies-list">
+                                @for (supply of data.supplies; track $index) {
+                                  <div class="rx-supply-item">
+                                    <div class="rx-supply-chip">
+                                      {{ supply?.name || '--' }} · Qty {{ supply?.supplyQuantity || '--' }}
+                                    </div>
+                                    @if (supply?.direction) {
+                                      <div class="rx-supply-direction">
+                                        <span class="rx-supply-direction-label">Direction:</span>
+                                        <span
+                                          nz-tooltip
+                                          [nzTooltipTitle]="supply.direction"
+                                          nzTooltipColor="#108ee9"
+                                          nzTooltipTrigger="click"
+                                        >{{ getShortText(supply.direction, 80) }}</span>
+                                      </div>
+                                    }
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                          }
+                        </article>
+                      }
+                    </div>
+                  }
+
+                  @if(userRole == 'Global Admin' || userRole == 'Provider'){
+                    <div class="rx-drug-toolbar">
+                      <div class="rx-catalog-picker">
+                        <div
+                          *ngIf="prescriptionMode === 'system-locked'"
+                          style="font-size:0.7rem;color:#b45309;display:flex;align-items:center;gap:5px;"
+                        >
+                          <i class="fa-solid fa-lock"></i>
+                          <span>Locked to <strong>{{ getSelectedCatalogName() }}</strong> — this prescription can only use the system catalog.</span>
+                        </div>
+                        <div
+                          *ngIf="prescriptionMode === 'custom-open'"
+                          style="font-size:0.7rem;color:#059669;display:flex;align-items:center;gap:5px;"
+                        >
+                          <i class="fa-solid fa-circle-check"></i>
+                          <span>
+                            Custom catalog prescription
+                            <ng-container *ngIf="usedCustomCatalogCount > 1">· {{ usedCustomCatalogCount }} catalogs in use</ng-container>
+                          </span>
+                        </div>
+                        <div
+                          *ngIf="prescriptionMode === 'uncommitted'"
+                          style="font-size:0.7rem;color:#64748b;display:flex;align-items:center;gap:5px;"
+                        >
+                          <i class="fa-solid fa-circle-info"></i>
+                          <span>Select a catalog inside the Add Drug modal.</span>
+                        </div>
+                      </div>
+
+                      <div class="rx-footer-actions">
+                        <button
+                          nz-button
+                          (click)="openAddDrugModal()"
+                          [disabled]="isFormSubmitting || !showAsPerOrderStatus || modalCatalogLoading"
+                          nzShape="round"
+                          nzType="default"
+                          class="rx-cta-btn">
+                          + Add Drug
+                        </button>
+
+                        <button
+                          *appHasAnyPermission="['prescription_refill_button']"
+                          nz-button
+                          (click)="saveAndSyncOrder()"
+                          [disabled]="isFormSubmitting || !showAsPerOrderStatus"
+                          [nzLoading]="isFormSubmitting"
+                          nzShape="round"
+                          nzType="default"
+                          class="rx-cta-btn">
+                          <i class="fas fa-rotate mr-1"></i>
+                          Save &amp; Sync Order
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </nz-tab>
+            </nz-tabset>
+          </section>
+        </div>
+      </div>
+    </div>
+
+      </nz-tab>
+
+      <nz-tab nzTitle="Order &amp; Fulfillment" [nzClosable]="false">
+        @if ((orderIdForTab || prescriptionData.orderId) > 0) {
+          <app-order-detail-view
+            [orderIdInput]="orderIdForTab || prescriptionData.orderId"
+            [embeddedInTabs]="true"
+            [openInTreatmentTabs]="onOrderEmbeddedNavigate"
+            (orderActioned)="onOrderActioned()">
+          </app-order-detail-view>
+        } @else {
+          <div class="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-gray-500">
+            <i class="fa-solid fa-box-open text-4xl mb-3"></i>
+            <p class="text-base font-medium">No order found for this prescription.</p>
+            <p class="text-sm mt-1">An order will appear here once it has been created.</p>
+          </div>
+        }
+      </nz-tab>
+
+    </nz-tabset>
+
+  </ng-container>
+
+} @else{
+  <div class="flex flex-col items-center justify-center text-center text-red-500 dark:text-red-400" style="height: calc(100dvh - 10rem);">
+    <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+    <p class="text-lg font-medium">An error occurred while loading the prescription data.</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Please try again later or contact support.</p>
+    <div class="flex flex-col sm:flex-row gap-4">
+      <button nz-button nzType="default" nzShape="round" class="w-full sm:w-auto" (click)="getPrescriptionDetails()">
+        <i class="fa-solid fa-rotate-right mr-2"></i>
+        Reload
+      </button>
+      <button nz-button nzType="default" nzShape="round" class="w-full sm:w-auto" (click)="moveBack()">
+        <i class="fa-solid fa-arrow-left mr-2"></i>
+        Go Back
+      </button>
+    </div>
+  </div>
+}
+
+<ng-template #loadingMain>
+  <div class="flex items-center justify-center min-h-[88vh] border-t dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl">
+    <div class="text-center">
+      <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Prescription Data...</p>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #loading>
+  <div class="flex items-center justify-center h-40 border-t dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl">
+    <div class="text-center">
+      <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Data...</p>
+    </div>
+  </div>
+</ng-template>
+
+<nz-modal
+  [(nzVisible)]="addDrugsModalVisible"
+  [nzTitle]="drugModalTitle"
+  [nzOkText]="editingDrugIndex === null ? 'Add Drug' : 'Save Changes'"
+  [nzWidth]="'96vw'"
+  [nzStyle]="{ 'max-width.px': 1100 }"
+  (nzOnCancel)="handleDrugCancel()"
+  (nzOnOk)="handleDrugOk()"
+>
+  <ng-container *nzModalContent>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+        Catalog <span class="text-red-500">*</span>
+      </label>
+      <nz-select
+        class="w-full"
+        nzShowSearch
+        nzPlaceHolder="Select a catalog to load drugs"
+        [ngModel]="modalCatalogId"
+        (ngModelChange)="onModalCatalogChange($event)"
+        [nzDisabled]="prescriptionMode === 'system-locked' || editingDrugIndex !== null || modalCatalogLoading || catalogOptionsLoading"
+        [nzLoading]="modalCatalogLoading || catalogOptionsLoading"
+      >
+        <nz-option
+          *ngFor="let catalog of catalogOptions"
+          [nzValue]="catalog.catalogId"
+          [nzLabel]="catalog.catalogName"
+          [nzCustomContent]="true"
+          [nzDisabled]="prescriptionMode === 'custom-open' && catalog.isSystemDefined"
+        >
+          <div class="flex items-center justify-between gap-2">
+            <span>{{ catalog.catalogName }}</span>
+            <span
+              *ngIf="catalog.isSystemDefined"
+              style="font-size:0.65rem;padding:1px 7px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-weight:700;flex-shrink:0;"
+            >System</span>
+          </div>
+        </nz-option>
+      </nz-select>
+
+      <p *ngIf="prescriptionMode === 'system-locked'" class="mt-1 text-xs text-amber-700">
+        This prescription is locked to {{ getSelectedCatalogName() || 'the system catalog' }}.
+      </p>
+      <p *ngIf="prescriptionMode === 'custom-open' && editingDrugIndex === null" class="mt-1 text-xs text-emerald-700">
+        You can add from any non-system catalog.
+      </p>
+      <p *ngIf="editingDrugIndex !== null" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        Catalog cannot be changed when editing an existing drug.
+      </p>
+      <p *ngIf="editingDrugIndex === null && prescriptionMode === 'uncommitted'" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        Choose a catalog first to enable search.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div class="relative">
+        <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+          Drug <span class="text-red-500">*</span>
+        </label>
+
+        <nz-select
+          [(ngModel)]="model"
+          [ngModelOptions]="{ standalone: true }"
+          nzShowSearch
+          nzServerSearch
+          nzAllowClear
+          nzPlaceHolder="Select Drug"
+          class="w-full"
+          [nzDisabled]="!modalCatalogId || modalCatalogLoading"
+          [nzLoading]="modalDrugsLoading"
+          [nzNotFoundContent]="drugNotFoundContent"
+          [nzDropdownClassName]="'rx-drug-search-dropdown'"
+          [nzOptionHeightPx]="56"
+          [compareWith]="compareProductOptions"
+          (nzOnSearch)="onDrugSearch($event)"
+        >
+          <nz-option
+            *ngFor="let d of getDrugOptions()"
+            [nzValue]="d"
+            [nzLabel]="getDrugLabel(d)"
+            [nzCustomContent]="true"
+          >
+
+            <div class="rx-drug-option">
+              <div class="rx-drug-option-copy">
+                <div class="rx-drug-option-name">
+                  {{ d?.productName || '--' }}
+                </div>
+                <div class="rx-drug-option-meta">
+                  {{ getMetaLine(d) }}
+                </div>
+              </div>
+              <div class="rx-drug-option-price">
+                W: ${{ formatMoney(d?.wholesalePrice) }}
+              </div>
+            </div>
+          </nz-option>
+        </nz-select>
+
+        <div *ngIf="modalCatalogId && !model" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <ng-container *ngIf="modalDrugSearchTerm.trim().length === 0">
+            Type {{ modalSearchMinLength }} or more characters to search for a drug.
+          </ng-container>
+          <ng-container *ngIf="modalDrugSearchTerm.trim().length > 0 && modalDrugSearchTerm.trim().length < modalSearchMinLength">
+            Keep typing to reach {{ modalSearchMinLength }} characters.
+          </ng-container>
+        </div>
+
+        <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          Wholesale:
+          <span class="font-medium">${{ formatMoney(selectedDrugWholesale) }}</span>
+          <span class="mx-2">|</span>
+          Total:
+          <span class="font-semibold">${{ formatMoney(selectedDrugTotal) }}</span>
+        </div>
+      </div>
+
+      <div class="relative">
+        <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+          Quantity <span class="text-red-500">*</span>
+        </label>
+
+        <input
+          nz-input
+          placeholder="Enter Quantity"
+          type="number"
+          min="0"
+          [(ngModel)]="drugQuantity"
+          [ngModelOptions]="{ standalone: true }"
+          class="input-C"
+        />
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <div class="flex items-center justify-between">
+        <div class="text-sm font-semibold text-gray-700 dark:text-gray-200">
+          Supplies (optional)
+          <span
+            nz-tooltip
+            nzTooltipTitle="Add syringe, needles, pads or other supplies."
+            nzTooltipColor="#108ee9"
+            class="ml-2 cursor-pointer"
+          >
+            <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+          </span>
+        </div>
+
+        <button
+          nz-button
+          (click)="addSupplies()"
+          nzType="default"
+          nzShape="round"
+          class="rounded-lg mb-0"
+          [disabled]="!modalCatalogId || modalCatalogLoading"
+        >
+          + Add Supply
+        </button>
+      </div>
+
+      @if (suppliesFormList.length > 0) {
+        <div class="mt-3 space-y-3">
+          @for (supplyList of suppliesFormList; track $index) {
+            <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-700">
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+
+                <div class="md:col-span-7">
+                  <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+                    Supply {{ $index + 1 }}
+                  </label>
+
+                  <nz-select
+                    [(ngModel)]="suppliesFormList[$index].supply"
+                    [ngModelOptions]="{ standalone: true }"
+                    nzShowSearch
+                    nzServerSearch
+                    nzAllowClear
+                    nzPlaceHolder="Select Supply"
+                    class="w-full"
+                    [nzDisabled]="!modalCatalogId || modalCatalogLoading"
+                    [nzLoading]="modalSuppliesLoading && activeSupplySearchIndex === $index"
+                    [nzNotFoundContent]="getSupplyNotFoundContent($index)"
+                    [nzOptionHeightPx]="56"
+                    [compareWith]="compareProductOptions"
+                    (nzOnSearch)="onSupplySearch($event, $index)"
+                    (nzOpenChange)="onSupplyOpenChange($event, $index)"
+                  >
+                    <nz-option
+                      *ngFor="let s of getSupplyOptions($index)"
+                      [nzValue]="s"
+                      [nzLabel]="getSyringeLables(s)"
+                      [nzCustomContent]="true"
+                    >
+                      <div class="flex items-center justify-between gap-3">
+                        <div class="truncate">
+                          <div class="font-medium text-gray-800 dark:text-gray-200 truncate">
+                            {{ s?.productName || '--' }}
+                          </div>
+                          <div class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            {{ getMetaLine(s) }}
+                          </div>
+                        </div>
+                        <div class="text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                          W: ${{ formatMoney(s?.wholesalePrice) }}
+                        </div>
+                      </div>
+                    </nz-option>
+                  </nz-select>
+
+                  <div
+                    class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                    *ngIf="modalCatalogId && !(suppliesFormList[$index].supply)"
+                  >
+                    <ng-container *ngIf="(modalSupplySearchTerms[$index] || '').trim().length === 0">
+                      Type {{ modalSearchMinLength }} or more characters to search for a supply.
+                    </ng-container>
+                    <ng-container *ngIf="(modalSupplySearchTerms[$index] || '').trim().length > 0 && (modalSupplySearchTerms[$index] || '').trim().length < modalSearchMinLength">
+                      Keep typing to reach {{ modalSearchMinLength }} characters.
+                    </ng-container>
+                  </div>
+
+                  <div
+                    class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                    *ngIf="suppliesFormList[$index].supply"
+                  >
+                    Wholesale:
+                    <span class="font-medium">${{ formatMoney(getSuppliesWholesale($index)) }}</span>
+                  </div>
+                </div>
+
+                <div class="md:col-span-4">
+                  <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+                    Quantity
+                  </label>
+
+                  <input
+                    nz-input
+                    placeholder="0"
+                    type="number"
+                    min="0"
+                    [(ngModel)]="suppliesFormList[$index].supplyQuantity"
+                    [ngModelOptions]="{ standalone: true }"
+                    class="input-C"
+                    [disabled]="!suppliesFormList[$index].supply"
+                  />
+
+                  <div
+                    class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                    *ngIf="suppliesFormList[$index].supply"
+                  >
+                    Total:
+                    <span class="font-semibold">${{ formatMoney(getSuppliesTotal($index)) }}</span>
+                  </div>
+                </div>
+
+                <div class="md:col-span-1 flex md:justify-end">
+                  <button
+                    nz-button
+                    nzType="default"
+                    nzShape="circle"
+                    (click)="removeSupply($index)"
+                    title="Remove"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+                  Direction
+                </label>
+                <input
+                  nz-input
+                  placeholder="Enter direction for this supply..."
+                  [(ngModel)]="suppliesFormList[$index].direction"
+                  [ngModelOptions]="{ standalone: true }"
+                  class="input-C"
+                  [disabled]="!suppliesFormList[$index].supply"
+                />
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+      <div class="relative">
+        <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+          Days Supplies <span class="text-red-500">*</span>
+        </label>
+        <input
+          nz-input
+          placeholder="Enter Days Supplies"
+          type="number"
+          min="0"
+          [(ngModel)]="daysSupplies"
+          [ngModelOptions]="{ standalone: true }"
+          class="input-C"
+        />
+      </div>
+
+      <div class="relative">
+        <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+          Courier Method <span class="text-red-500">*</span>
+        </label>
+        <nz-select
+          [(ngModel)]="courierMethod"
+          [ngModelOptions]="{ standalone: true }"
+          nzShowSearch
+          nzAllowClear
+          nzPlaceHolder="Select Courier Method"
+          class="w-full"
+        >
+          <nz-option
+            *ngFor="let d of courierMethodDropdownData"
+            [nzLabel]="d.name"
+            [nzValue]="d.name"
+          ></nz-option>
+        </nz-select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+      <div class="relative">
+        <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+          Directions <span class="text-red-500">*</span>
+        </label>
+        <input
+          nz-input
+          placeholder="Enter Directions"
+          type="text"
+          [(ngModel)]="drugDirections"
+          [ngModelOptions]="{ standalone: true }"
+          class="input-C"
+        />
+      </div>
+
+      <div class="relative">
+        <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
+          Notes (optional)
+        </label>
+        <input
+          nz-input
+          placeholder="Notes (optional)"
+          type="text"
+          [(ngModel)]="drugInstructions"
+          [ngModelOptions]="{ standalone: true }"
+          class="input-C"
+        />
+      </div>
+    </div>
+
+    <div class="mt-6 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+      <div class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+        Pricing Summary (Wholesale)
+      </div>
+
+      <div class="space-y-1 text-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-gray-600 dark:text-gray-300">Drug Total</span>
+          <span class="font-medium">$ {{ formatMoney(selectedDrugTotal) }}</span>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-gray-600 dark:text-gray-300">Supplies Total</span>
+          <span class="font-medium">$ {{ formatMoney(modalGrandTotal - selectedDrugTotal) }}</span>
+        </div>
+
+        <div class="border-t border-gray-300/60 dark:border-gray-600 my-2"></div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-gray-800 dark:text-gray-100 font-semibold">Grand Total</span>
+          <span class="text-gray-900 dark:text-white font-bold">$ {{ formatMoney(modalGrandTotal) }}</span>
+        </div>
+      </div>
+
+      <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+        Totals are calculated as Wholesale × Quantity for the drug and each supply.
+      </div>
+    </div>
+
+  </ng-container>
+</nz-modal>

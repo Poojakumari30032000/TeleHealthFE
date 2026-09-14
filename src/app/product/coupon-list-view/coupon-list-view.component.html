@@ -1,0 +1,417 @@
+<div class="coupon-workspace-shell">
+  <section class="coupon-filter-shell">
+    <div class="coupon-filter-toolbar">
+      <div class="coupon-filter-toolbar-left">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="coupon-filter-toggle"
+          (click)="showFilters = !showFilters"
+          [attr.aria-expanded]="showFilters"
+          type="button"
+        >
+          <i class="fa-solid fa-sliders"></i>
+          <span>Filters</span>
+          <span *ngIf="visibleFiltersCount > 0" class="coupon-filter-count-pill">
+            {{ visibleFiltersCount }}
+          </span>
+          <i class="fa-solid fa-chevron-down coupon-filter-chevron" [class.rotate-180]="showFilters"></i>
+        </button>
+
+        <span *ngIf="!showFilters && visibleFiltersCount > 0" class="coupon-filter-summary">
+          {{ visibleFiltersCount }} active filters
+        </span>
+      </div>
+
+      <div class="coupon-filter-toolbar-right">
+        <button
+          *ngIf="visibleFiltersCount > 0"
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="coupon-filter-clear"
+          (click)="clearFilters()"
+          type="button"
+        >
+          Reset
+        </button>
+
+        <button nz-button nzType="default" nzShape="round" class="coupon-add-btn" (click)="openAddModal()" type="button">
+          <i class="fa-solid fa-plus"></i>
+          <span class="ml-2 hidden md:inline-block">Add Coupon</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="visibleFiltersCount > 0 && !showFilters" class="coupon-filter-chip-row">
+      @for (filter of appliedFilters; track filter.name) {
+        <button class="coupon-filter-chip" type="button" (click)="removeFilter(filter.name)">
+          <span>{{ filter.name }}: {{ filter.value }}</span>
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      }
+    </div>
+
+    <div *ngIf="showFilters" class="coupon-filter-grid">
+      <div *ngIf="isGlobalAdmin">
+        <label class="label-C-F coupon-filter-label">Clinic:</label>
+        <nz-select
+          class="w-full coupon-filter-select"
+          nzShowSearch
+          nzAllowClear
+          nzPlaceHolder="Select Clinic"
+          [nzLoading]="facilityDropdownLoading"
+          [(ngModel)]="selectedFacilityId"
+          (ngModelChange)="onFacilitySelected($event)"
+        >
+          <nz-option
+            *ngFor="let f of facilities"
+            [nzValue]="f.facilityId"
+            [nzLabel]="f.titlelong || f.titleshort"
+          ></nz-option>
+        </nz-select>
+      </div>
+
+      <div>
+        <label class="label-C-F coupon-filter-label">Search:</label>
+        <div class="mt-1 coupon-search-wrap">
+          <input
+            nz-input
+            type="text"
+            class="input-C coupon-search-input"
+            placeholder="Search by code..."
+            [ngModel]="searchTerm"
+            (ngModelChange)="onSearchTermChanged($event); searchTerm = $event"
+            maxlength="100"
+          />
+          <i
+            *ngIf="searchTerm"
+            class="fa-solid fa-circle-xmark coupon-search-clear"
+            (click)="clearSearch()"
+            title="Clear search"
+          ></i>
+        </div>
+      </div>
+
+      <div>
+        <label class="label-C-F coupon-filter-label">Status:</label>
+        <nz-select
+          class="w-full coupon-filter-select"
+          nzPlaceHolder="All Statuses"
+          [(ngModel)]="filterStatus"
+          (ngModelChange)="onStatusFilterChanged($event)"
+        >
+          <nz-option [nzValue]="null" nzLabel="All"></nz-option>
+          <nz-option [nzValue]="'true'" nzLabel="Active"></nz-option>
+          <nz-option [nzValue]="'false'" nzLabel="Inactive"></nz-option>
+          <nz-option [nzValue]="'expired'" nzLabel="Expired"></nz-option>
+        </nz-select>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="coupon-table-shell">
+    <nz-table
+      [nzData]="tableData"
+      [nzLoading]="loading"
+      [nzFrontPagination]="false"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzTotal]="total"
+      (nzPageIndexChange)="onPageIndexChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="pageSizeOptions"
+      [nzScroll]="{ x: '1740px' }"
+      class="w-full coupon-table"
+    >
+      <thead>
+        <tr>
+          <th nzWidth="140px">Actions</th>
+          <th nzWidth="170px">Coupon Code</th>
+          <th nzWidth="140px">Discount</th>
+          <th nzWidth="160px">Discount Type</th>
+          <th nzWidth="170px">Discount Applies</th>
+          <th nzWidth="450px">Packages Included</th>
+          <th nzWidth="140px">Created Date</th>
+          <th nzWidth="140px">Expiry Date</th>
+
+          <th nzWidth="120px">Status</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let row of tableData"
+          class="coupon-row-clickable"
+          role="button"
+          tabindex="0"
+          (click)="openEditModal(row)"
+          (keydown.enter)="openEditModal(row)"
+          (keydown.space)="openEditModal(row); $event.preventDefault()"
+        >
+          <td>
+            <div class="flex items-center gap-2">
+              <button
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                class="action-icon-btn"
+                [disabled]="row.isExpired"
+                (click)="$event.stopPropagation(); openEditModal(row)"
+                [title]="row.isExpired ? 'Cannot edit an expired coupon' : 'Edit'"
+              >
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                class="action-icon-btn"
+                [disabled]="row.isExpired"
+                (click)="$event.stopPropagation(); toggleStatus(row)"
+                title="Update Status"
+              >
+                <i class="fa-solid" [ngClass]="row.isActive === 'true' ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
+              </button>
+            </div>
+          </td>
+
+          <td class="font-mono">{{ row.couponCode || '--' }}</td>
+
+          <td>
+            <ng-container [ngSwitch]="row.discountType">
+              <span *ngSwitchCase="1">
+                {{ (row.discount != null ? row.discount : row.discountPercentage) }}%
+              </span>
+              <span *ngSwitchCase="0">
+                {{ (row.discount || 0) | currency:'USD':'symbol':'1.2-2' }}
+              </span>
+              <span *ngSwitchDefault>
+                {{ row.discountPercentage }}%
+              </span>
+            </ng-container>
+          </td>
+
+          <td>
+            <ng-container [ngSwitch]="row.discountType">
+              <span *ngSwitchCase="1">Percentage</span>
+              <span *ngSwitchCase="0">Amount</span>
+              <span *ngSwitchDefault>--</span>
+            </ng-container>
+          </td>
+
+          <td>
+            <span>{{ row.appliesToRecurring === false ? 'First Purchase Only' : 'Recurring + First Purchase' }}</span>
+          </td>
+
+          <td>
+            <ng-container *ngIf="(row.bundleIds?.length || row.bundles?.length); else noPkgs">
+              <div class="flex flex-wrap gap-1.5 items-center">
+                <span
+                  *ngFor="let name of visiblePackages(packageNamesFromIds(row.bundleIds, row.bundles))"
+                  class="coupon-package-chip"
+                >
+                  {{ name }}
+                </span>
+                <ng-container *ngIf="hiddenPackages(packageNamesFromIds(row.bundleIds, row.bundles)) as overflow">
+                  <ng-template #overflowTpl>
+                    <div class="coupon-overflow-tooltip">
+                      <div *ngFor="let n of overflow" class="coupon-overflow-tooltip-item">{{ n }}</div>
+                    </div>
+                  </ng-template>
+                  <span
+                    *ngIf="overflow.length > 0"
+                    class="coupon-package-more-pill"
+                    [nzTooltipTitle]="overflowTpl"
+                    nzTooltipPlacement="top"
+                    nz-tooltip
+                  >
+                    +{{ overflow.length }} more
+                  </span>
+                </ng-container>
+              </div>
+            </ng-container>
+            <ng-template #noPkgs>
+              <span class="text-gray-500">--</span>
+            </ng-template>
+          </td>
+
+          <td class="text-gray-600 dark:text-gray-400 text-sm">
+            {{ row.createdDate ? (row.createdDate | date: 'MMM d, y') : '--' }}
+          </td>
+
+          <td class="text-gray-600 dark:text-gray-400 text-sm">
+            {{ row.expiryDate ? (row.expiryDate | date: 'MMM d, y') : '--' }}
+          </td>
+
+          <td>
+            @if (row.isActive === 'expired' || row.isExpired) {
+              <span class="ui-status-badge" [ngClass]="expiryStatusBadgeClass(true)">Expired</span>
+            } @else if (row.isActive === 'true') {
+              <span class="ui-status-badge" [ngClass]="statusBadgeClass(true)">Active</span>
+            } @else {
+              <span class="ui-status-badge" [ngClass]="statusBadgeClass(false)">Inactive</span>
+            }
+          </td>
+        </tr>
+
+        <tr *ngIf="!loading && tableData.length === 0">
+          <td colspan="9" class="text-center py-6 text-gray-500">
+            <ng-container *ngIf="isGlobalAdmin && selectedFacilityId === null; else noCouponsMessage">
+              Select a Clinic to view coupons.
+            </ng-container>
+            <ng-template #noCouponsMessage>
+              No records found.
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </section>
+</div>
+
+<nz-modal
+  [(nzVisible)]="isModalVisible"
+  [nzTitle]="isEditMode ? 'Edit Coupon' : 'Add Coupon'"
+  [nzMaskClosable]="false"
+  (nzOnCancel)="closeModal()"
+  [nzFooter]="modalFooter"
+  [nzWidth]="'96vw'"
+  [nzStyle]="{ 'max-width.px': 700 }"
+  [nzBodyStyle]="{
+    'max-height': 'calc(100vh - 180px)',
+    'overflow': 'auto',
+    'padding': '16px'
+  }"
+>
+  <div *nzModalContent>
+    <form [formGroup]="form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="col-span-1">
+        <label class="label-C">Coupon Code <span class="text-red-600">*</span></label>
+        <div class="mt-1">
+          <input
+            nz-input
+            class="input-C font-mono"
+            placeholder="Enter coupon code"
+            formControlName="couponCode"
+          />
+        </div>
+        <div class="text-red-600 text-xs mt-1" *ngIf="form.get('couponCode')?.touched && form.get('couponCode')?.invalid">
+          <span *ngIf="form.get('couponCode')?.errors?.['required']">Required.</span>
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <label class="label-C">Discount Type <span class="text-red-600">*</span></label>
+        <nz-select class="w-full mt-1" formControlName="discountType" nzPlaceHolder="Select type">
+          <nz-option [nzValue]="1" nzLabel="Percentage"></nz-option>
+          <nz-option [nzValue]="0" nzLabel="Amount"></nz-option>
+        </nz-select>
+      </div>
+
+      <div class="col-span-1">
+        <ng-container *ngIf="form.get('discountType')?.value === 1; else amountField">
+          <label class="label-C">Discount Percentage <span class="text-red-600">*</span></label>
+          <div class="flex items-center gap-2">
+            <input
+              nz-input
+              type="number"
+              class="input-C"
+              placeholder="e.g., 15"
+              formControlName="discount"
+              min="0"
+              max="100"
+              step="0.01"
+            />
+            <span class="text-gray-600">%</span>
+          </div>
+        </ng-container>
+        <ng-template #amountField>
+          <label class="label-C">Discount Amount <span class="text-red-600">*</span></label>
+          <div class="flex items-center gap-2">
+          <input
+            nz-input
+            type="number"
+            class="input-C"
+            placeholder="e.g., 25.00"
+            formControlName="discount"
+            min="0"
+            max="9999"
+            step="0.01"
+          />
+            <span class="text-gray-600">$</span>
+          </div>
+        </ng-template>
+
+        <div class="text-red-600 text-xs mt-1" *ngIf="form.get('discount')?.touched && form.get('discount')?.invalid">
+          <span *ngIf="form.get('discount')?.errors?.['required']">Required.</span>
+          <span *ngIf="form.get('discount')?.errors?.['min']">Cannot be negative.</span>
+          <span *ngIf="form.get('discount')?.errors?.['max']">Cannot exceed $9999.</span>
+          <span *ngIf="form.get('discountType')?.value === 1 && form.get('discount')?.errors?.['max']">Cannot exceed 100%.</span>
+        </div>
+      </div>
+
+      <div class="col-span-1">
+        <label class="label-C">Expiration Date <span class="text-red-600">*</span></label>
+        <nz-date-picker
+          class="datepicker-C"
+          formControlName="expiryDate"
+          nzPlaceHolder="Select expiration date"
+          nzFormat="MM/dd/yyyy"
+          [nzDisabledDate]="disabledExpiryDate"
+          [nzShowToday]="false"
+        ></nz-date-picker>
+        <div class="text-red-600 text-xs mt-1" *ngIf="form.get('expiryDate')?.touched && form.get('expiryDate')?.invalid">
+          <span *ngIf="form.get('expiryDate')?.errors?.['required']">Required.</span>
+        </div>
+      </div>
+
+      <div class="col-span-1 sm:col-span-2">
+        <label class="label-C">Discount Applies To <span class="text-red-600">*</span></label>
+        <nz-select class="w-full mt-1" formControlName="appliesToRecurring" [nzDisabled]="isEditMode">
+          <nz-option [nzValue]="true" nzLabel="Recurring + First Purchase"></nz-option>
+          <nz-option [nzValue]="false" nzLabel="First Purchase Only"></nz-option>
+        </nz-select>
+      </div>
+
+      <div class="col-span-1 sm:col-span-2">
+        <label class="label-C">Packages <span class="text-red-600">*</span></label>
+        <nz-select
+          class="w-full mt-1"
+          nzMode="multiple"
+          nzPlaceHolder="Select one or more packages"
+          [nzLoading]="bundlesLoading"
+          nzShowSearch
+          formControlName="packages"
+        >
+          <nz-option [nzLabel]="'Select all'" [nzValue]="ALL_SENTINEL"></nz-option>
+          <nz-option
+            *ngFor="let pkg of bundleOptions"
+            [nzValue]="pkg.bundleId"
+            [nzLabel]="pkg.name"
+            [nzDisabled]="isEditMode && lockedBundleIds.includes(pkg.bundleId)"
+          ></nz-option>
+        </nz-select>
+        <div class="text-red-600 text-xs mt-1" *ngIf="form.get('packages')?.touched && form.get('packages')?.invalid">
+          Please choose at least one package.
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <ng-template #modalFooter>
+    <button nz-button (click)="closeModal()">Cancel</button>
+    <button
+      nz-button
+      nzType="primary"
+      [disabled]="form.invalid || isSaving"
+      [nzLoading]="isSaving"
+      (click)="submit()"
+    >
+      {{ isEditMode ? 'Save Changes' : 'Create Coupon' }}
+    </button>
+  </ng-template>
+</nz-modal>

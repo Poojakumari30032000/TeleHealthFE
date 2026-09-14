@@ -1,0 +1,318 @@
+<div class="pqv-banner">
+  <div class="pqv-banner-inner">
+    <button nz-button nzType="text" class="pqv-back-btn" (click)="previousPage()">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <div class="pqv-banner-icon-wrap">
+      <i class="fa-solid fa-clipboard-list" *ngIf="!isConsentPage"></i>
+      <i class="fa-solid fa-file-signature" *ngIf="isConsentPage"></i>
+    </div>
+    <div class="pqv-banner-body">
+      <div class="pqv-banner-title">
+        <ng-container *ngIf="!isConsentPage">Tell us about yourself</ng-container>
+        <ng-container *ngIf="isConsentPage">Review &amp; Sign</ng-container>
+      </div>
+      <div class="pqv-banner-sub">
+        <ng-container *ngIf="!isConsentPage">This helps us personalise your care plan.</ng-container>
+        <ng-container *ngIf="isConsentPage">Consent {{ currentConsentIndex }} of {{ totalConsents }}</ng-container>
+      </div>
+    </div>
+    <div class="pqv-banner-step">{{ progressPercent }}%</div>
+  </div>
+  <nz-progress
+    [nzPercent]="progressPercent"
+    [nzShowInfo]="false"
+    nzStatus="active"
+    class="pqv-progress"
+  ></nz-progress>
+</div>
+
+<div *ngIf="pageFields?.length" class="pb-20">
+  <ng-container *ngFor="let field of pageFields; trackBy: trackByField">
+    <h2 class="block text-sm font-bold mb-2 dark:text-gray-200">{{ field.label }}</h2>
+
+    <div *ngIf="field.description && (isArray(field.description) ? field.description.length : field.description)" class="mb-4">
+      <ng-container *ngIf="isArray(field.description); else desNotArray">
+        <div *ngFor="let desc of field.description" class="text-sm text-gray-500" [innerHTML]="desc"></div>
+      </ng-container>
+      <ng-template #desNotArray>
+        <div class="text-sm text-gray-500 dark:text-gray-400" [innerHTML]="field.description"></div>
+      </ng-template>
+    </div>
+
+    <ng-container [ngSwitch]="field.type">
+
+      <div *ngSwitchCase="'radio'">
+        <nz-radio-group
+          [(ngModel)]="userSelections[field.id]"
+          (ngModelChange)="onSelectionChange(field, $event)"
+          class="onBoarding-radio w-full">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <label
+              nz-radio
+              *ngFor="let option of (field.options || []); trackBy: trackByOption"
+              [nzValue]="option.value"
+              class="w-full border border-gray px-4 pt-3 pb-4 rounded-[1.5rem] hover:border-primary hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:border-primary"
+              [ngClass]="{
+                'border-danger-500 bg-danger-50': isFieldError(field.id),
+                'dark:border-gray-700': !isFieldError(field.id)
+              }">
+              {{ option.label }}
+            </label>
+          </div>
+        </nz-radio-group>
+      </div>
+
+      <div *ngSwitchCase="'checkbox'">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <label
+            nz-checkbox
+            *ngFor="let option of (field.options || []); trackBy: trackByOption"
+            [(ngModel)]="userSelections[field.id][option.value]"
+            (ngModelChange)="onCheckboxChange(field, option.value, $event)"
+            class="w-full onBoarding-checkBox border border-gray px-4 pt-4 pb-4 rounded-[1.5rem] hover:border-primary hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:border-primary"
+            [ngClass]="{
+              'border-danger-500 bg-danger-50': isFieldError(field.id),
+              'dark:border-gray-700': !isFieldError(field.id)
+            }">
+            {{ option.label }}
+          </label>
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'text'">
+        <input
+          nz-input
+          [placeholder]="field.placeholder || 'Enter detail'"
+          [(ngModel)]="userSelections[field.id]"
+          (ngModelChange)="onInputChange(field, $event)"
+          class="input-C"
+          [ngClass]="{
+            'border-danger-500 bg-danger-50': isFieldError(field.id),
+            'dark:border-gray-700': !isFieldError(field.id)
+          }"
+        />
+      </div>
+
+      <div *ngSwitchCase="'textarea'">
+        <textarea
+          nz-input
+          [nzAutosize]="{ minRows: 3 }"
+          [placeholder]="field.placeholder || 'Enter detail'"
+          [(ngModel)]="userSelections[field.id]"
+          (ngModelChange)="onInputChange(field, $event)"
+          class="input-C"
+          [ngClass]="{
+            'border-danger-500 bg-danger-50': isFieldError(field.id),
+            'dark:border-gray-700': !isFieldError(field.id)
+          }"
+        ></textarea>
+      </div>
+
+      <div *ngSwitchCase="'password'">
+        <input
+          nz-input
+          type="password"
+          [placeholder]="field.placeholder || ('Enter ' + field.label)"
+          [(ngModel)]="userSelections[field.id]"
+          (ngModelChange)="onInputChange(field, $event)"
+          class="input-C"
+          [ngClass]="{
+            'border-danger-500 bg-danger-50': isFieldError(field.id),
+            'dark:border-gray-700': !isFieldError(field.id)
+          }"
+        />
+      </div>
+
+      <div *ngSwitchCase="'number'">
+        <input
+          nz-input
+          type="number"
+          [placeholder]="field.placeholder || ('Enter ' + field.label)"
+          [(ngModel)]="userSelections[field.id]"
+          (ngModelChange)="onInputChange(field, $event)"
+          class="input-C"
+          [ngClass]="{
+            'border-danger-500 bg-danger-50': isFieldError(field.id),
+            'dark:border-gray-700': !isFieldError(field.id)
+          }"
+        />
+      </div>
+
+      <div *ngSwitchCase="'date'">
+        <nz-date-picker
+          [nzFormat]="'MM/dd/yyyy'"
+          [(ngModel)]="userSelections[field.id]"
+          (ngModelChange)="onInputChange(field, $event)"
+          class="datepicker-C"
+          [ngClass]="{
+            'border-danger-500 bg-danger-50': isFieldError(field.id),
+            'dark:border-gray-700': !isFieldError(field.id)
+          }"
+          [nzPlaceHolder]="field.placeholder || 'Select a date'">
+        </nz-date-picker>
+      </div>
+
+      <div *ngSwitchCase="'select'">
+        <nz-select
+          nzShowSearch
+          [(ngModel)]="userSelections[field.id]"
+          (ngModelChange)="onInputChange(field, $event)"
+          [nzPlaceHolder]="field.placeholder || 'Please select an option'"
+          [ngClass]="{ 'in-valid': isFieldError(field.id) }"
+          class="onBoarding-Select w-full block">
+          <nz-option
+            *ngFor="let option of (field.options || []); trackBy: trackByOption"
+            [nzValue]="option.value"
+            [nzLabel]="option.label">
+          </nz-option>
+        </nz-select>
+      </div>
+
+      <div *ngSwitchCase="'select-multiple'">
+        <nz-select
+          nzMode="multiple"
+          nzShowSearch
+          [(ngModel)]="userSelections[field.id]"
+          (ngModelChange)="onInputChange(field, $event)"
+          [nzPlaceHolder]="field.placeholder || 'Please select an option'"
+          [ngClass]="{ 'in-valid': isFieldError(field.id) }"
+          class="onBoarding-Select w-full block">
+          <nz-option
+            *ngFor="let option of (field.options || []); trackBy: trackByOption"
+            [nzValue]="option.value"
+            [nzLabel]="option.label">
+          </nz-option>
+        </nz-select>
+      </div>
+
+      <div *ngSwitchCase="'file'">
+        <div *ngIf="userSelections[field.id]?.length" class="mb-3">
+          <ul>
+            <li *ngFor="let file of userSelections[field.id]" class="flex items-center dark:text-gray-300">
+              <img src="assets/img/no_image_placeholder.png" class="object-contain aspect-square max-h-10 mr-2" />
+              {{ file.name }}
+            </li>
+          </ul>
+        </div>
+
+        <nz-upload
+          nzType="drag"
+          [nzMultiple]="true"
+          [nzShowUploadList]="true"
+          (nzChange)="onUploadChange($event, field.id)"
+          class="w-full onBoarding-File">
+          <p class="ant-upload-drag-icon dark:text-gray-200">
+            <i class="fa-solid fa-upload text-lg"></i>
+          </p>
+          <p class="ant-upload-text dark:text-gray-300">
+            Click or drag files to this area to upload
+          </p>
+          <p class="ant-upload-hint dark:text-gray-400">
+            Support for a single or multiple file uploads. You can drag and drop your files here.
+          </p>
+        </nz-upload>
+      </div>
+
+      <div *ngSwitchCase="'consent'">
+
+        <div
+          class="prose prose-sm max-w-none mb-4 p-4 border rounded-xl overflow-y-auto max-h-[40vh] dark:prose-invert dark:border-gray-700"
+          [innerHTML]="field.consentHtml || field.description">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <ng-container *ngFor="let sub of (field.consentFields || []); trackBy: trackByConsentField">
+            <div [ngSwitch]="sub.type" [class.col-span-full]="sub.type === 'signature'">
+
+              <div *ngSwitchCase="'text'">
+                <label class="text-xs block mb-1 dark:text-gray-300">{{ sub.label }}</label>
+                <input
+                  nz-input
+                  [placeholder]="sub.placeholder || sub.label"
+                  [ngModel]="userSelections[field.id]?.[sub.key] || ''"
+                  (ngModelChange)="onConsentChange(field, sub.key, $event)"
+                  class="input-C"
+                  [ngClass]="{
+                    'border-danger-500 bg-danger-50': isFieldError(field.id),
+                    'dark:border-gray-700': !isFieldError(field.id)
+                  }"
+                />
+              </div>
+
+              <div *ngSwitchCase="'date'">
+                <label class="text-xs block mb-1 dark:text-gray-300">{{ sub.label }}</label>
+                <nz-date-picker
+                  [nzFormat]="'MM/dd/yyyy'"
+                  [ngModel]="userSelections[field.id]?.[sub.key] || null"
+                  (ngModelChange)="onConsentChange(field, sub.key, $event)"
+                  class="datepicker-C"
+                  [ngClass]="{
+                    'border-danger-500 bg-danger-50': isFieldError(field.id),
+                    'dark:border-gray-700': !isFieldError(field.id)
+                  }"
+                  [nzPlaceHolder]="sub.placeholder || 'Select a date'">
+                </nz-date-picker>
+              </div>
+
+              <div *ngSwitchCase="'signature'">
+                <label class="text-xs block mb-1 dark:text-gray-300">{{ sub.label }}</label>
+                <app-signature-pad
+                  [existingUrl]="userSelections[field.id]?.[sub.key] || null"
+                  [hasError]="isFieldError(field.id)"
+                  (urlChange)="onConsentChange(field, sub.key, $event)"
+                ></app-signature-pad>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <div class="text-sm block text-danger-500" *ngIf="isFieldError(field.id)" aria-live="polite">
+      This question is required
+    </div>
+
+    <textarea *ngIf="field.showTextarea"
+      nz-input
+      [nzAutosize]="{ minRows: 3 }"
+      class="rounded-[1rem] py-2 px-3 mt-4"
+      [(ngModel)]="userSelections[field.id + '_other_text']"
+      placeholder="Additional information">
+    </textarea>
+
+    <hr class="my-6 border-gray-200 dark:border-gray-700" />
+  </ng-container>
+
+  <div class="footer-bar flex justify-center">
+    @if(!showSubmitButton){
+    <button
+      nz-button
+      nzType="primary"
+      class="rounded-lg min-w-40"
+      [nzLoading]="isFormSubmitting"
+      [disabled]="isFormSubmitting"
+      (click)="continuePage()">
+      Continue
+    </button>
+    }
+    @else{
+    <button
+      nz-button
+      nzType="primary"
+      class="rounded-lg min-w-40"
+      [nzLoading]="isFormSubmitting"
+      [disabled]="isFormSubmitting"
+      (click)="submitIntakeToTreatment()">
+      Submit
+    </button>
+    }
+  </div>
+</div>
+
+<div *ngIf="!pageFields?.length">
+  <div class="text-center text-primary text-5xl pt-[6rem]">
+    <i class="fa-solid fa-arrows-spin animate-spin"></i>
+  </div>
+</div>

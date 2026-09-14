@@ -1,0 +1,342 @@
+<ng-container *ngIf="!formGroup && loadingForm">
+  <div class="text-center text-primary text-5xl py-[6rem]">
+    <i class="fa-solid fa-arrows-spin animate-spin"></i>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="formGroup && !loadingForm">
+  <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+    <ng-container *ngFor="let row of formConfig?.rows; trackBy: trackByRow">
+      <h3 *ngIf="row.title" class="text-base font-semibold dark:text-gray-200"
+        [ngClass]="row.des ? 'mb-1' : 'pb-2 border-b mb-2'">
+        {{ row.title }}
+      </h3>
+      <h3 *ngIf="row.des" class="text-sm text-gray-400 mb-2 pb-2 border-b dark:border-gray-600 dark:text-gray-300">
+        {{ row.des }}
+      </h3>
+      <div *ngIf="!row.visibilityCondition || isFieldsVisible(row)" [ngClass]="row.class">
+        <ng-container *ngFor="let field of row.fields; trackBy: trackByField">
+          <ng-container [ngTemplateOutlet]="fieldTemplate"
+            [ngTemplateOutletContext]="{ $implicit: field }">
+          </ng-container>
+        </ng-container>
+      </div>
+    </ng-container>
+
+    <div class="flex justify-end pt-3 mt-4 border-t" *ngIf="type !== 'modal'">
+      <button nz-button nzType="primary" [nzLoading]="btnLoading" [disabled]="btnLoading" class="h-10 rounded-2xl">
+        Submit
+      </button>
+    </div>
+
+    <ng-template #fieldTemplate let-field>
+      <div [ngClass]="field.class" *ngIf="isFieldVisibleForRole(field) && (!field.visibilityCondition || isFieldsVisible(field)) && !isFieldHiddenOnEdit(field)">
+        <ng-container *ngIf="field.type === 'text'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <input nz-input appValidationErrors type="text" [formControlName]="field.name" minlength="1" maxlength="100"
+            [placeholder]="field.placeholder" [ngClass]="field?.fieldClass" [disabled]="field?.disabled" (blur)="onBlurTrim($event, true)"
+            class="input-C" />
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'tel'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <input nz-input appValidationErrors type="tel" [formControlName]="field.name"
+            [placeholder]="field.placeholder" [ngClass]="field?.fieldClass" [disabled]="field?.disabled"
+            (input)="onTelInput($event, field)"
+            (paste)="onTelPaste($event, field)"
+            class="input-C" />
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'email'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <input nz-input appValidationErrors type="email" [formControlName]="field.name"
+            [placeholder]="field.placeholder" [ngClass]="field?.fieldClass" [disabled]="field?.disabled"
+            class="input-C" />
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'password'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <div class="relative">
+            <input #passwordLoginField nz-input appValidationErrors
+              [type]="passwordFieldTypes[field.name] || 'password'" [formControlName]="field.name"
+              [placeholder]="field.placeholder" [ngClass]="field?.fieldClass" [disabled]="field?.disabled"
+              class="input-C" />
+            <i class="fa-solid fa-{{ passwordFieldTypes[field.name] === 'text' ? 'eye-slash' : 'eye' }} cursor-pointer absolute h-10 inset-y-0 right-0 pr-3 flex items-center"
+              (click)="togglePasswordVisibility(field.name)">
+            </i>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'number'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <input nz-input appValidationErrors type="number" [formControlName]="field.name"
+            [placeholder]="field.placeholder" [ngClass]="field?.fieldClass" [disabled]="field?.disabled"
+            class="input-C" />
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'checkbox'">
+          <label [nzDisabled]="field?.disabled" nz-checkbox appValidationErrors [formControlName]="field.name"
+            [ngClass]="'label-C-R ' + (field?.labelClass || '')">{{ field.label }}</label>
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'radio'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <nz-radio-group [formControlName]="field.name" [nzDisabled]="field?.disabled" appValidationErrors>
+            <label *ngFor="let option of field.options" nz-radio [nzValue]="option.value" class="label-C-R">
+              {{ option.label }}
+            </label>
+          </nz-radio-group>
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'textarea'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <textarea nz-input [nzAutosize]="{ minRows: 2 }" [disabled]="field?.disabled" appValidationErrors [formControlName]="field.name" [placeholder]="field.placeholder" [ngClass]="field?.fieldClass" class="input-C"></textarea>
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'select'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <nz-select appValidationErrors [formControlName]="field.name" [ngClass]="field?.fieldClass" nzShowSearch
+            [nzDisabled]="field?.disabled || field?.loading" [nzLoading]="field?.loading" class="onForm-Select w-full mt-1" [nzPlaceHolder]="field?.placeholder">
+            <nz-option *ngFor="let option of field.options" [nzValue]="option.value"
+              [nzLabel]="option.label"></nz-option>
+          </nz-select>
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'payment-mode-cards'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <div class="payment-mode-cards mt-2"
+               [class.payment-mode-cards--locked]="formGroup.get(field.name)?.disabled">
+            <input type="number" class="sr-only visually-hidden" [formControlName]="field.name" appValidationErrors tabindex="-1" />
+            <div class="payment-mode-cards-inner">
+              <button type="button"
+                class="payment-mode-card"
+                [class.payment-mode-card-selected]="formGroup.get(field.name)?.value === 1"
+                [class.payment-mode-card-unselected]="formGroup.get(field.name)?.value !== 1"
+                [disabled]="field?.disabled || formGroup.get(field.name)?.disabled"
+                (click)="formGroup.get(field.name)?.setValue(1); formGroup.get(field.name)?.markAsTouched()">
+                <span class="payment-mode-card-logo">
+                  <img src="assets/img/payment/square-logo.svg" alt="" width="32" height="32">
+                </span>
+                <span class="payment-mode-card-label">Square</span>
+              </button>
+              <button type="button"
+                class="payment-mode-card"
+                [class.payment-mode-card-selected]="formGroup.get(field.name)?.value === 2"
+                [class.payment-mode-card-unselected]="formGroup.get(field.name)?.value !== 2"
+                [disabled]="field?.disabled || formGroup.get(field.name)?.disabled"
+                (click)="formGroup.get(field.name)?.setValue(2); formGroup.get(field.name)?.markAsTouched()">
+                <span class="payment-mode-card-logo">
+                  <img src="assets/img/payment/stripe-logo.svg" alt="" width="32" height="32">
+                </span>
+                <span class="payment-mode-card-label">Stripe Direct</span>
+              </button>
+              <button type="button"
+                class="payment-mode-card"
+                [class.payment-mode-card-selected]="formGroup.get(field.name)?.value === 3"
+                [class.payment-mode-card-unselected]="formGroup.get(field.name)?.value !== 3"
+                [disabled]="field?.disabled || formGroup.get(field.name)?.disabled"
+                (click)="formGroup.get(field.name)?.setValue(3); formGroup.get(field.name)?.markAsTouched()">
+                <span class="payment-mode-card-logo">
+                  <img src="assets/img/payment/stripe-logo.svg" alt="" width="32" height="32">
+                </span>
+                <span class="payment-mode-card-label">Stripe Destination</span>
+              </button>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'date'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <nz-date-picker [formControlName]="field.name" [nzDisabled]="field?.disabled" appValidationErrors [nzDisabledDate]="disableDates(field)"
+            [nzFormat]="'MM/dd/YYYY'" class="datepicker-C" [nzPlaceHolder]="field.placeholder"></nz-date-picker>
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'switch'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <nz-switch appValidationErrors [nzDisabled]="field?.disabled" [formControlName]="field.name"
+            [nzCheckedChildren]="field?.checkedLabel || 'Yes'"
+            [nzUnCheckedChildren]="field?.unCheckedLabel || 'No'">
+          </nz-switch>
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'multi-select'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <nz-select appValidationErrors [nzDisabled]="field?.disabled || field?.loading" [nzLoading]="field?.loading"  [formControlName]="field.name"
+            [nzMode]="'multiple'" [nzPlaceHolder]="field.placeholder" [ngClass]="field?.fieldClass" nzShowSearch
+            class="onForm-Select w-full mt-1">
+            <nz-option *ngFor="let option of field.options" [nzValue]="option.value"
+              [nzLabel]="option.label"></nz-option>
+          </nz-select>
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'month'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <nz-date-picker appValidationErrors [formControlName]="field.name" [nzDisabled]="field?.disabled"
+            [nzMode]="'month'" [nzPlaceHolder]="field.placeholder" [ngClass]="field?.fieldClass" [nzDisabledDate]="disableDates(field)"
+            class="datepicker-C"></nz-date-picker>
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'file'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+              [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <nz-upload [nzAction]="uploadUrl"
+            (nzChange)="onFileChange($event, field?.name, field?.fileAllowed || '' )"
+            [nzHeaders]="{ authorization: 'Bearer ' + token }" class="onFileUpload" [ngClass]="field?.fieldClass"
+            [nzDisabled]="field?.disabled">
+            <button type="button" class="ant-btn ant-btn-primary h-10 w-full rounded-2xl">
+              <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Upload
+            </button>
+          </nz-upload>
+
+          <div *ngIf="this.primaryId > 0" class="mt-3">
+            <ul *ngIf="isArray(formGroup.get(field.name)?.value); else singleFile">
+              <li *ngFor="let file of formGroup.get(field.name)?.value"
+                class="flex items-center dark:text-gray-300">
+                <img [src]="file" alt="Uploaded File" class="object-contain aspect-square max-h-10 mr-2" />
+                {{ file }}
+              </li>
+            </ul>
+            <ng-template #singleFile>
+              <div class="flex items-center dark:text-gray-300">
+                <img [src]="formGroup.get(field.name)?.value || 'assets/img/no_image_placeholder.png'"
+                  alt="Uploaded File" class="object-contain aspect-square max-h-10 mr-2" />
+                {{ formGroup.get(field.name)?.value }}
+              </div>
+            </ng-template>
+          </div>
+
+        </ng-container>
+
+        <ng-container *ngIf="field.type === 'file-drag'">
+          <label *ngIf="field?.label" [ngClass]="'label-C ' + (field?.labelClass || '')">
+            {{ field.label }}
+            <span class="text-danger mr-1" *ngIf="field?.validations?.required">*</span>
+            <i class="fa-solid fa-circle-info ml-1 cursor-pointer" *ngIf="field?.iconText" nz-tooltip
+               [nzTooltipTitle]="field?.iconText"></i>
+          </label>
+          <div class="relative">
+            <nz-upload
+              [nzAction]="uploadUrl"
+              (nzChange)="onFileChange($event, field?.name, field?.fileAllowed || '')"
+              [nzMultiple]="field?.fileAllowed === 'multiple'"
+              [nzLimit]="field?.fileAllowed === 'multiple' ? 0 : 1"
+              [nzFileList]="uploadFileLists[field.name] || []"
+              [nzAccept]="'image/*,application/pdf,.pdf'"
+              [nzBeforeUpload]="beforeUploadHandlers[field.name] ?? defaultBeforeUpload"
+              [nzHeaders]="{ authorization: 'Bearer ' + token }"
+              [nzDisabled]="field?.disabled"
+              nzType="drag"
+              class="onDrag-File w-full"
+
+            >
+              <div class="drag-content">
+                <p class="ant-upload-drag-icon dark:text-gray-200">
+                  <i class="fa-solid fa-upload text-lg"></i>
+                </p>
+                <p class="ant-upload-text dark:text-gray-300">
+                  Click or drag files to this area to upload
+                </p>
+                <p class="ant-upload-hint dark:text-gray-400">
+                  Only image files and PDFs are allowed. Size limit: 10MB.
+                </p>
+              </div>
+            </nz-upload>
+          </div>
+          <div *ngIf="this.primaryId > 0" class="mt-3">
+            <ng-container *ngIf="formGroup.get(field.name)?.value as fieldValue">
+              <ul *ngIf="fieldValue | isArray; else singleFile">
+                <li *ngFor="let file of fieldValue" class="flex items-center dark:text-gray-300">
+                  <img [src]="file" alt="Uploaded File" class="object-contain aspect-square max-h-10 mr-2" />
+                  <a [href]="file" target="_blank" rel="noopener noreferrer">
+                    {{ file }}
+                  </a>
+                </li>
+              </ul>
+
+              <ng-template #singleFile>
+                <ng-container *ngIf="fieldValue">
+
+                </ng-container>
+              </ng-template>
+            </ng-container>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="field.additionalText">
+          <p class="text-xs dark:text-gray-400 mt-2">
+            {{ field.additionalText }}
+          </p>
+        </ng-container>
+      </div>
+    </ng-template>
+
+  </form>
+</ng-container>

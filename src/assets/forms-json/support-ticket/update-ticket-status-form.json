@@ -1,0 +1,28 @@
+{
+    "title": "Update Ticket Status Form",
+    "primaryId": "id",
+    "rows": [
+        {
+            "class": "grid grid-cols-1 gap-2 mb-2",
+            "fields": [
+                {
+                    "type": "select",
+                    "label": "Ticket Status",
+                    "name": "status",
+                    "placeholder": "Select Ticket Status",
+                    "class": "col-span-1",
+                    "options": [
+                        { "label": "Pending", "value": "Pending" },
+                        { "label": "Completed", "value": "Completed" },
+                        { "label": "On Hold", "value": "OnHold" },
+                        { "label": "Feedback", "value": "Feedback" },
+                        { "label": "Urgent", "value": "Urgent" }
+                    ],
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        }
+    ]
+}

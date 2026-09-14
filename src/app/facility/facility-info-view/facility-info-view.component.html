@@ -1,0 +1,798 @@
+<ng-container *ngIf="!isLoading; else loadingMain">
+  <ng-container *ngIf="facilityData; else noData">
+    <div class="ehr-workspace-shell">
+      <section class="ehr-summary-hero">
+        <div class="ehr-summary-identity">
+          <span class="ehr-avatar">{{ getFacilityInitials() }}</span>
+          <div>
+            <div class="ehr-summary-name">{{ facilityData.titleLong || 'Clinic' }}</div>
+            <div class="ehr-summary-meta">
+              <span>{{ facilityData.titleShort || '--' }}</span>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="ehr-kpi-grid">
+          <article class="ehr-kpi-card">
+            <div class="ehr-kpi-label">Clinic Admins</div>
+            <div class="ehr-kpi-value">{{ caTotal || 0 }}</div>
+          </article>
+          <article class="ehr-kpi-card">
+            <div class="ehr-kpi-label">Providers</div>
+            <div class="ehr-kpi-value">{{ prTotal || 0 }}</div>
+          </article>
+          <article class="ehr-kpi-card">
+            <div class="ehr-kpi-label">Categories</div>
+            <div class="ehr-kpi-value">{{ assignedCategories.length || 0 }}</div>
+          </article>
+
+        </div>
+      </section>
+
+      <section class="workflow-hub">
+        <nz-tabset class="facility-workflow-tabs" nzSize="small">
+          <nz-tab [nzTitle]="'Profile'">
+            <div class="workflow-pane">
+              <div class="quick-actions-bar">
+                <button nz-button nzType="default" nzShape="round" class="facility-cta-btn" (click)="EditFacility()">
+                  <i class="fa-solid fa-edit"></i>
+                  <span class="ml-2 hidden md:inline-block">Edit Clinic</span>
+                </button>
+              </div>
+
+              <section class="workspace-overview-grid">
+                <article class="info-panel">
+                  <div class="info-panel-head">
+                    <h4 class="info-panel-title">
+                      <i class="fa-solid fa-hospital mr-2 text-primary"></i>Clinic Snapshot
+                    </h4>
+
+                  </div>
+
+                  <div class="info-pair-grid">
+                    <div>
+                      <label>Name (Long)</label>
+                      <span>{{ facilityData.titleLong || '--' }}</span>
+                    </div>
+                    <div>
+                      <label>Name (Short)</label>
+                      <span>{{ facilityData.titleShort || '--' }}</span>
+                    </div>
+
+                    <div>
+                      <label>Fax</label>
+                      <span>{{ facilityData.fax || '--' }}</span>
+                    </div>
+                    <div>
+                      <label>NPI</label>
+                      <span>{{ facilityData.npi || '--' }}</span>
+                    </div>
+                    <div class="col-span-2">
+                      <label>Address</label>
+                      <span>{{ facilityData.completeAddress || '--' }}</span>
+                    </div>
+                    <div>
+                      <label>Billing</label>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <span class="facility-billing-pill"
+                              [class.facility-billing-pill--free]="!facilityData.isBillable">
+                          <i class="fa-solid"
+                             [class.fa-circle-dollar-to-slot]="facilityData.isBillable"
+                             [class.fa-circle-pause]="!facilityData.isBillable"></i>
+                          {{ facilityData.isBillable ? 'Billable' : 'Free' }}
+                        </span>
+                        <button *ngIf="userRole === 'Global Admin'"
+                                nz-button
+                                nzShape="round"
+                                nzSize="small"
+                                class="facility-billing-change-btn"
+                                type="button"
+                                (click)="openToggleBillingModal()"
+                                title="Toggle billing"
+                        >
+                          <i class="fa-solid fa-arrows-rotate mr-1"></i> Change
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="info-panel">
+                  <div class="info-panel-head">
+                    <h4 class="info-panel-title">
+                      <i class="fa-solid fa-receipt mr-2 text-primary"></i>Billing & Compliance
+                    </h4>
+                  </div>
+
+                  <div class="info-pair-grid">
+                    <div>
+                      <label>Federal Tax ID</label>
+                      <span>{{ facilityData.fedearlTaxId || '--' }}</span>
+                    </div>
+                    <div>
+                      <label>Billing Address Type</label>
+                      <span>{{ facilityData.billingAddressType || '--' }}</span>
+                    </div>
+
+                    <div *ngIf="facilityData.billingAddressType !== 'Same as Clinic'" class="col-span-2">
+                      <label>Billing Address</label>
+                      <span>{{ facilityData.completeBillingAddress || '--' }}</span>
+                    </div>
+                  </div>
+                </article>
+              </section>
+            </div>
+          </nz-tab>
+
+          <nz-tab [nzTitle]="'Clinic Admin (' + (caTotal || 0) + ')'">
+            <div class="workflow-pane">
+              <button
+                nz-button
+                nzType="default"
+                nzShape="round"
+                class="facility-cta-btn"
+                [disabled]="isUserLimitReached()"
+                nz-tooltip
+                [nzTooltipTitle]="getLimitTooltip('user')"
+                [nzTooltipTrigger]="isUserLimitReached() ? 'hover' : null"
+                (click)="openAddForRole(3, 'Clinic Admin')"
+              >
+                <i class="fa-solid fa-plus"></i>
+                <span class="ml-2 hidden sm:inline-block">Add Clinic Admin</span>
+              </button>
+
+              <nz-table
+                class="workflow-table"
+                [nzData]="caRows"
+                [nzFrontPagination]="false"
+                [nzLoading]="caLoading"
+                [nzTotal]="caTotal"
+                [nzPageIndex]="caPageIndex"
+                [nzPageSize]="caPageSize"
+                [nzShowSizeChanger]="true"
+                [nzPageSizeOptions]="[5,10,20,50]"
+                (nzQueryParams)="onCaQueryParams($event)"
+              >
+                <thead>
+                  <tr>
+                    <th nzWidth="240px">Name</th>
+                    <th nzWidth="220px">Email</th>
+                    <th nzWidth="160px">Phone</th>
+                    <th nzWidth="120px">Status</th>
+                    <th nzWidth="300px">Address</th>
+                    <th nzWidth="200px" class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of caRows">
+                    <td class="font-medium">{{ row.userName || '--' }}</td>
+                    <td>{{ row.email || '—' }}</td>
+                    <td>{{ row.phone || '—' }}</td>
+                    <td>
+                      <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(row.status)">
+                        {{ row.status || '—' }}
+                      </span>
+                    </td>
+                    <td class="truncate">{{ row.address || facilityData.completeAddress }}</td>
+                    <td class="text-right whitespace-nowrap">
+                      <button nz-button nzType="default" nzShape="circle" class="mr-2" (click)="openEditForRole(3, 'Clinic Admin', row)" title="Edit">
+                        <i class="fa-solid fa-pen"></i>
+                      </button>
+                      <button nz-button nzType="default" nzShape="circle" class="mr-2" (click)="updateRowStatus(3, 'Clinic Admin', row)" title="Update Status">
+                        <i class="fa-solid fa-sync-alt"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!caLoading && caRows.length === 0">
+                    <td colspan="6" class="text-center py-6 text-gray-500">No records found.</td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-tab>
+
+          @if(userRole === 'Global Admin'){
+          <nz-tab [nzTitle]="'Providers (' + (prTotal || 0) + ')'">
+            <div class="workflow-pane">
+
+              @if(!isClinicAdmin){
+              <button
+                nz-button
+                nzType="default"
+                nzShape="round"
+                class="facility-cta-btn"
+                [disabled]="isProviderLimitReached()"
+                nz-tooltip
+                [nzTooltipTitle]="getLimitTooltip('provider')"
+                [nzTooltipTrigger]="isProviderLimitReached() ? 'hover' : null"
+                (click)="assignProviderModel = true; unAssignedProvidersList()"
+              >
+                <i class="fa-solid fa-plus"></i>
+                <span class="ml-2 hidden sm:inline-block">Assign Providers</span>
+              </button>
+              }
+
+              <nz-table
+                class="workflow-table"
+                [nzData]="prRows"
+                [nzFrontPagination]="false"
+                [nzLoading]="prLoading"
+                [nzTotal]="prTotal"
+                [nzPageIndex]="prPageIndex"
+                [nzPageSize]="prPageSize"
+                [nzShowSizeChanger]="true"
+                [nzPageSizeOptions]="[5,10,20,50]"
+                (nzQueryParams)="onPrQueryParams($event)"
+              >
+                <thead>
+                  <tr>
+                    <th nzWidth="240px">Name</th>
+                    <th nzWidth="220px">Email</th>
+                    <th nzWidth="160px">Phone</th>
+                    <th nzWidth="120px">Status</th>
+                    <th nzWidth="300px">Address</th>
+                    @if(!isClinicAdmin){
+                    <th nzWidth="240px" class="text-right">Actions</th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of prRows">
+                    <td class="font-medium">{{ row.userName || '--' }}</td>
+                    <td>{{ row.email || '—' }}</td>
+                    <td>{{ row.phone || '—' }}</td>
+                    <td>
+                      <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(row.status)">
+                        {{ row.status || '—' }}
+                      </span>
+                    </td>
+                    <td class="truncate">{{ row.address || '—' }}</td>
+                    @if(!isClinicAdmin){
+                    <td class="text-right whitespace-nowrap">
+
+                      <button nz-button nzType="default" nzShape="circle" class="mr-2 " (click)="unassignProviderFromRow(row)" title="Un-Assign">
+                        <i class="fa-solid fa-link-slash"></i>
+                      </button>
+                    </td>
+                    }
+                  </tr>
+                  <tr *ngIf="!prLoading && prRows.length === 0">
+                    <td colspan="6" class="text-center py-6 text-gray-500">No records found.</td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-tab>
+          }
+
+          <nz-tab [nzTitle]="'Categories (' + assignedCategories.length + ')'">
+            <div class="workflow-pane">
+              @if(!isClinicAdmin){
+              <button nz-button nzType="default" nzShape="round" class="facility-cta-btn" (click)="showAddCategoriesModal = true;">
+                <i class="fa-solid fa-plus"></i>
+                <span class="ml-2 hidden sm:inline-block">Assign Categories</span>
+              </button>
+              }
+
+              <nz-table
+                class="workflow-table"
+                [nzData]="assignedCategories"
+                [nzLoading]="csLoading"
+                [nzShowPagination]="false"
+              >
+                <thead>
+                  <tr>
+                    <th nzWidth="200px">Category Name</th>
+                    <th nzWidth="420px">Category Description</th>
+                    @if(!isClinicAdmin){
+                    <th nzWidth="100px" class="text-right">Actions</th>
+                    }
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let cat of assignedCategories">
+                    <td class="font-medium">{{ cat.categoryName || '--' }}</td>
+                    <td>{{ cat.categoryDescription || '—' }}</td>
+                    @if(!isClinicAdmin){
+                    <td class="text-right whitespace-nowrap">
+                      <button nz-button nzType="default" nzShape="circle" class="mr-2 " (click)="unassignCategory(cat)" title="Un-Assign">
+                        <i class="fa-solid fa-link-slash"></i>
+                      </button>
+                    </td>
+                    }
+                  </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-tab>
+
+          <nz-tab [nzTitle]="'Get-Started Snippet (' + iframeSnippets.length + ')'">
+            <div class="workflow-pane">
+              <nz-table
+                class="workflow-table"
+                [nzData]="iframeSnippets"
+                [nzFrontPagination]="true"
+                [nzShowSizeChanger]="true"
+                [nzPageSizeOptions]="[5,10,20,50]"
+              >
+                <thead>
+                  <tr>
+                    <th nzWidth="420px">Description</th>
+                    <th nzWidth="120px" class="text-right">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let snippet of iframeSnippets">
+                    <td>{{ snippet.iframeTitle || '—' }}</td>
+                    <td class="text-right whitespace-nowrap">
+                      <button nz-button nzType="default" nzShape="circle" class="mr-2" (click)="copyCode(snippet.iframeSrc)" title="Copy">
+                        <i class="fa-solid fa-copy"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-tab>
+
+          <nz-tab [nzTitle]="'Category Snippets (' + (assignedCategories.length || 0) + ')'">
+            <div class="workflow-pane">
+              <button nz-button nzType="default" nzShape="round" class="facility-cta-btn" (click)="exportCategorySnippetsTxt()">
+                <i class="fa-solid fa-file-lines"></i>
+                <span class="ml-2 hidden sm:inline-block">Export TXT</span>
+              </button>
+
+              <nz-table
+                class="workflow-table"
+                [nzData]="assignedCategories"
+                [nzShowPagination]="false"
+              >
+                <thead>
+                  <tr>
+                    <th nzWidth="220px">Category Name</th>
+                    <th nzWidth="420px">Category Description</th>
+                    <th nzWidth="120px" class="text-right">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let category of assignedCategories">
+                    <td class="font-medium">{{ category.categoryName || '--' }} Snippet</td>
+                    <td>{{ category.categoryDescription || '—' }}</td>
+                    <td class="text-right whitespace-nowrap">
+                      <button
+                        nz-button
+                        nzType="default"
+                        nzShape="circle"
+                        class="mr-2"
+                        (click)="copyCategoryCode(category.categoryId)"
+                        title="Copy"
+                      >
+                        <i class="fa-solid fa-copy"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-tab>
+
+          <nz-tab [nzTitle]="'Package Snippets (' + (packageSnippetsTotal || 0) + ')'">
+            <div class="workflow-pane">
+              <button nz-button nzType="default" nzShape="round" class="facility-cta-btn" (click)="exportPackageSnippetsTxt()">
+                <i class="fa-solid fa-file-lines"></i>
+                <span class="ml-2 hidden sm:inline-block">Export TXT</span>
+              </button>
+
+              <nz-table
+                class="workflow-table"
+                [nzData]="packageSnippets"
+                [nzFrontPagination]="false"
+                [nzLoading]="packageSnippetsLoading"
+                [nzTotal]="packageSnippetsTotal"
+                [nzPageIndex]="packageSnippetPageIndex"
+                [nzPageSize]="packageSnippetPageSize"
+                [nzShowSizeChanger]="true"
+                [nzPageSizeOptions]="[10,20,50,100,200]"
+                (nzQueryParams)="onPackageSnippetQueryParams($event)"
+              >
+                <thead>
+                  <tr>
+                    <th nzWidth="220px">Package Name</th>
+                    <th nzWidth="180px">Category</th>
+                    <th nzWidth="360px">Description</th>
+                    <th nzWidth="120px">Status</th>
+                    <th nzWidth="120px" class="text-right">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let bundle of packageSnippets">
+                    <td class="font-medium">{{ bundle.name || '--' }} Snippet</td>
+                    <td>{{ bundle.categoryName || '—' }}</td>
+                    <td>{{ bundle.description || '—' }}</td>
+                    <td>
+                      <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(bundle.status)">
+                        {{ bundle.status || '—' }}
+                      </span>
+                    </td>
+                    <td class="text-right whitespace-nowrap">
+                      <button
+                        nz-button
+                        nzType="default"
+                        nzShape="circle"
+                        class="mr-2"
+                        (click)="copyPackageCode(bundle)"
+                        title="Copy"
+                      >
+                        <i class="fa-solid fa-copy"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!packageSnippetsLoading && packageSnippets.length === 0">
+                    <td colspan="5" class="text-center py-6 text-gray-500">No package snippets found.</td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-tab>
+
+          <nz-tab nzTitle="Documents">
+            <div class="workflow-pane">
+              <div class="baa-doc-card">
+                <div class="baa-doc-card__head">
+                  <div class="baa-doc-card__icon"><i class="fa-solid fa-file-signature"></i></div>
+                  <div class="baa-doc-card__meta">
+                    <div class="baa-doc-card__title">Business Associate Agreement (BAA)</div>
+                    <div class="baa-doc-card__desc">HIPAA agreement between this clinic and TelehealthUS.</div>
+                  </div>
+                  <span
+                    class="ui-status-badge"
+                    [ngClass]="facilityData.isBaaSigned ? 'ui-status-badge--success' : 'ui-status-badge--pending'"
+                  >
+                    {{ facilityData.isBaaSigned ? 'Signed' : 'Not signed' }}
+                  </span>
+                </div>
+
+                <ng-container *ngIf="facilityData.isBaaSigned; else baaUnsigned">
+                  <div class="baa-doc-card__details">
+                    <div><span class="baa-doc-card__label">Signed by</span>{{ facilityData.baaSignedByName || '—' }}</div>
+                    <div><span class="baa-doc-card__label">Role</span>{{ facilityData.baaSignedByRole || '—' }}</div>
+                    <div><span class="baa-doc-card__label">Date</span>{{ (facilityData.baaSignedDate | date:'mediumDate') || '—' }}</div>
+                  </div>
+                  <div class="baa-doc-card__actions" *ngIf="facilityData.baaPdfUrl">
+                    <button nz-button nzType="primary" nzShape="round" (click)="viewBaaPdf()">
+                      <i class="fa-solid fa-eye"></i>
+                      <span class="ml-2">View</span>
+                    </button>
+                    <button nz-button nzType="default" nzShape="round" (click)="downloadBaaPdf()">
+                      <i class="fa-solid fa-download"></i>
+                      <span class="ml-2">Download</span>
+                    </button>
+                  </div>
+                </ng-container>
+
+                <ng-template #baaUnsigned>
+                  <div class="baa-doc-card__empty">
+                    This clinic has not signed its Business Associate Agreement yet. Its Clinic Admins
+                    are prompted to sign on login.
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+          </nz-tab>
+        </nz-tabset>
+      </section>
+    </div>
+  </ng-container>
+
+  <ng-template #noData>
+    <div class="flex flex-col items-center justify-center min-h-[88vh] py-10 border-t dark:border-gray-700 bg-gray-200 rounded-xl dark:bg-gray-800">
+      <div class="text-center">
+        <i class="fa-solid fa-exclamation-circle text-2xl text-red-500 mb-4"></i>
+        <p class="text-xl text-red-500">No data found or an error occurred.</p>
+        <p class="text-gray-500 text-sm mt-2">Please try again later.</p>
+        <button nz-button nzType="default" nzShape="round" class="mt-4" (click)="getFacilityData()">
+          <i class="fa-solid fa-rotate-right mr-2"></i> Try Again
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ng-container>
+
+<ng-template #loadingMain>
+  <div class="flex items-center justify-center min-h-[88vh] border-t dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl">
+    <div class="text-center">
+      <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Clinic Data...</p>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #loading>
+  <div class="flex items-center justify-center h-40 border-t dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl">
+    <div class="text-center">
+      <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Data...</p>
+    </div>
+  </div>
+</ng-template>
+
+<app-comman-form-modal
+  #commanModel
+  [apiUrl]="modalApiUrl"
+  (formClosed)="refreshTable($event)"
+  (saveStarted)="onClinicSaveStarted()"
+  (validationFailed)="onClinicSaveValidationFailed()"
+></app-comman-form-modal>
+<app-user-add-edit-modal #userAddEditModal (modalClosed)="refreshAllTables()"></app-user-add-edit-modal>
+
+@if (savingLoaderVisible) {
+  <div class="clinic-save-overlay" role="dialog" aria-modal="true" aria-label="Saving clinic">
+    <div class="clinic-save-card">
+      <div class="clinic-save-header">
+        <div class="clinic-save-spinner" [class.clinic-save-done]="savingComplete">
+          <i class="fa-solid" [ngClass]="savingComplete ? 'fa-circle-check' : 'fa-rotate animate-spin'"></i>
+        </div>
+        <div class="clinic-save-titles">
+          <p class="clinic-save-title">{{ savingComplete ? 'All done!' : 'Updating clinic…' }}</p>
+          <p class="clinic-save-subtitle">{{ savingComplete ? 'Clinic updated successfully.' : 'Saving your changes, please wait.' }}</p>
+        </div>
+      </div>
+
+      <div class="clinic-save-progress-wrap">
+        <div class="clinic-save-progress-track">
+          <div class="clinic-save-progress-fill" [style.width.%]="savingProgressPercent"></div>
+        </div>
+        <span class="clinic-save-percent">{{ savingProgressPercent }}%</span>
+      </div>
+
+      <ul class="clinic-save-stages">
+        @for (stage of savingStages; track stage.label; let i = $index) {
+          <li class="clinic-save-stage"
+              [class.clinic-stage-done]="savingComplete || i < savingStageIndex"
+              [class.clinic-stage-active]="!savingComplete && i === savingStageIndex"
+              [class.clinic-stage-pending]="!savingComplete && i > savingStageIndex">
+            <span class="clinic-stage-icon-wrap">
+              @if (savingComplete || i < savingStageIndex) {
+                <i class="fa-solid fa-circle-check"></i>
+              } @else if (i === savingStageIndex) {
+                <i class="fa-solid fa-circle-notch animate-spin"></i>
+              } @else {
+                <i class="fa-regular fa-circle"></i>
+              }
+            </span>
+            <span class="clinic-stage-label">{{ stage.label }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+}
+
+<nz-modal
+  [(nzVisible)]="assignProviderModel"
+  [nzMaskClosable]="false"
+  [nzClosable]="true"
+  [nzTitle]="'Assign Providers To ' + (facilityData?.titleLong || 'Clinic')"
+  (nzOnCancel)="assignProviderModel = false; selectedProviders = []"
+  (nzOnOk)="assignProviders()"
+>
+  <ng-container *nzModalContent>
+    <div class="grid gap-4 mb-4 grid-cols-1">
+      <div>
+        <label class="label-C">Providers <span class="text-danger mr-1">*</span></label>
+        <nz-select
+          nzPlaceHolder="Select Providers"
+          [(ngModel)]="selectedProviders"
+          class="w-full onForm-Select mt-1"
+          nzShowSearch
+          nzMode="multiple"
+          [nzDisabled]="providersLoading"
+          [nzLoading]="providersLoading"
+        >
+          <nz-option *ngFor="let item of providers; trackBy: trackById" [nzValue]="item.providerId" [nzLabel]="item.name"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<nz-modal
+  *ngIf="addEditVisible"
+  [(nzVisible)]="addEditVisible"
+  [nzTitle]="addEditTitle"
+  (nzOnCancel)="handleAddEditCancel()"
+  (nzOnOk)="handleAddEditOk()"
+  [nzOkLoading]="isFormSubmitting"
+  [nzOkDisabled]="isFormSubmitting"
+  nzWidth="800px"
+  [nzMaskClosable]="false"
+>
+  <ng-container *nzModalContent>
+    <form [formGroup]="addEditForm">
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <div class="col-span-1">
+          <label class="label-C">First Name <span class="text-danger">*</span></label>
+          <input nz-input formControlName="firstName" appValidationErrors placeholder="Enter First Name" class="input-C" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Middle Name</label>
+          <input nz-input formControlName="middleName" placeholder="Enter Middle Name" class="input-C" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Last Name <span class="text-danger">*</span></label>
+          <input nz-input formControlName="lastName" appValidationErrors placeholder="Enter Last Name" class="input-C" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Email <span class="text-danger">*</span></label>
+          <input nz-input type="email" formControlName="email" appValidationErrors placeholder="Enter Email" class="input-C" (change)="checkEmailExists($event)" />
+          <div *ngIf="emailExist" class="text-danger text-sm mt-1">Email already exists</div>
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Phone <span class="text-danger">*</span></label>
+          <input nz-input type="tel" formControlName="phone" appValidationErrors placeholder="(###) ###-####" class="input-C" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Billing Type <span class="text-danger">*</span></label>
+          <nz-select
+            nzShowSearch
+            formControlName="addressType"
+            appValidationErrors
+            nzPlaceHolder="Select Billing Type"
+            class="w-full onForm-Select mt-1"
+          >
+            <nz-option nzValue="Same as Clinic" nzLabel="Same as Clinic"></nz-option>
+            <nz-option nzValue="Other Address" nzLabel="Other Address"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 mb-2" *ngIf="addEditForm.get('addressType')?.value === 'Other Address'">
+        <div class="col-span-full">
+          <label class="label-C">Address <span class="text-danger">*</span></label>
+          <input nz-input formControlName="address" appValidationErrors placeholder="Enter Address" class="input-C" />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">City <span class="text-danger">*</span></label>
+          <nz-select
+            nzShowSearch
+            formControlName="cityId"
+            nzPlaceHolder="Select City"
+            class="w-full onForm-Select mt-1"
+            appValidationErrors
+          >
+            <nz-option *ngFor="let city of cities" [nzValue]="city.id" [nzLabel]="city.name"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">State <span class="text-danger">*</span></label>
+          <nz-select
+            nzShowSearch
+            formControlName="stateId"
+            nzPlaceHolder="Select State"
+            class="w-full onForm-Select mt-1"
+            [nzDisabled]="!addEditForm.get('cityId')?.value"
+            [nzLoading]="loadingStates"
+            appValidationErrors
+          >
+            <nz-option *ngIf="state" [nzValue]="state.id" [nzLabel]="state.name + ' (' + state.shortName + ')' "></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Zip Code <span class="text-danger">*</span></label>
+          <input nz-input type="tel" formControlName="zipCode" appValidationErrors placeholder="Enter zip code" class="input-C" />
+        </div>
+      </div>
+    </form>
+  </ng-container>
+</nz-modal>
+
+<nz-modal
+  *ngIf="showAddCategoriesModal"
+  [(nzVisible)]="showAddCategoriesModal"
+  nzTitle='Assign Categories'
+  (nzOnCancel)="handleCategoriesCancel()"
+  (nzOnOk)="handleCategoriesOK()"
+  [nzOkLoading]="isFormSubmitting"
+  [nzOkDisabled]="isFormSubmitting"
+  nzWidth="800px"
+  [nzMaskClosable]="false"
+>
+
+  <ng-container *nzModalContent>
+    <div class="col-span-1 sm:col-span-2">
+      <label class="label-C">Categories <span class="text-red-600">*</span></label>
+      <nz-select
+        class="w-full mt-1"
+        nzMode="multiple"
+        nzPlaceHolder="Select one or more packages"
+        [nzLoading]="isCategoriesLoading"
+        nzShowSearch
+        [(ngModel)]="selectedCategories"
+      >
+        <nz-option
+          *ngFor="let cat of categoriesDropdownData"
+          [nzValue]="cat.categoryId"
+          [nzLabel]="cat.categoryName"
+        ></nz-option>
+      </nz-select>
+    </div>
+
+  </ng-container>
+
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="showToggleBillingModal"
+  nzTitle="Confirm Billing Change"
+  [nzMaskClosable]="!togglingBilling"
+  [nzClosable]="!togglingBilling"
+  [nzFooter]="billingFooterTpl"
+  nzCentered
+  (nzOnCancel)="closeToggleBillingModal()"
+>
+  <ng-container *nzModalContent>
+    <p class="text-sm text-slate-700 mb-3" *ngIf="facilityData">
+      <ng-container *ngIf="!facilityData.isBillable">
+        Are you sure you want to mark
+        <strong>{{ facilityData.titleLong }}</strong>
+        as <strong>Billable</strong>?
+        They will be charged
+        <strong>${{ globalPlan?.monthlyPrice ?? 0 }}/month</strong>
+        starting their next billing cycle.
+      </ng-container>
+      <ng-container *ngIf="facilityData.isBillable">
+        Are you sure you want to mark
+        <strong>{{ facilityData.titleLong }}</strong>
+        as <strong>Free</strong>? They will no longer be charged the monthly fee.
+      </ng-container>
+    </p>
+  </ng-container>
+  <ng-template #billingFooterTpl>
+    <button nz-button nzShape="round" type="button" (click)="closeToggleBillingModal()" [disabled]="togglingBilling">
+      Cancel
+    </button>
+    <button
+      nz-button
+      nzType="primary"
+      nzShape="round"
+      type="button"
+      (click)="confirmToggleBilling()"
+      [nzLoading]="togglingBilling"
+    >
+      <i class="fa-solid fa-circle-check mr-2"></i>
+      Confirm
+    </button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="baaViewerVisible"
+  nzTitle="Business Associate Agreement (BAA)"
+  [nzFooter]="null"
+  [nzWidth]="'min(960px, 94vw)'"
+  nzCentered
+  (nzOnCancel)="closeBaaViewer()"
+  [nzBodyStyle]="{ padding: '0' }"
+>
+  <ng-container *nzModalContent>
+    <iframe
+      *ngIf="baaSafeUrl"
+      class="baa-pdf-frame"
+      [src]="baaSafeUrl"
+      title="Business Associate Agreement"
+    ></iframe>
+  </ng-container>
+</nz-modal>

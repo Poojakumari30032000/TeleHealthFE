@@ -1,0 +1,18 @@
+@if(!isloading){
+  <nz-layout class="min-h-full flex-row bg-white dark:bg-gray-900 px-6 pb-6 pt-4">
+    <app-sidebar></app-sidebar>
+    <nz-layout class="lg:ml-[270px] bg-transparent">
+      <app-navbar></app-navbar>
+      <nz-content>
+        <router-outlet *ngIf="(reload.show$ | async)"></router-outlet>
+      </nz-content>
+    </nz-layout>
+  </nz-layout>
+}@else {
+  <div class="flex items-center justify-center min-h-full dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl">
+    <div class="text-center">
+        <i class="fa-solid fa-arrows-spin animate-spin text-primary dark:text-white text-5xl"></i>
+    </div>
+  </div>
+}
+

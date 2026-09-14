@@ -1,0 +1,279 @@
+<ng-container *ngIf="tableType === 'ServerSide';else clientSide">
+  <nz-table
+    #basicTable
+    ngSkipHydration
+    [nzLoading]="isLoading"
+    [nzData]="tableData"
+    [nzLoadingIndicator]="customLoadingTemplate"
+    nzShowSizeChanger
+    [nzFrontPagination]="false"
+    [nzShowPagination]="showPagination"
+    [nzTotal]="total"
+    [nzPageSizeOptions]="[5, 10, 20, 50, 100]"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="pageIndex"
+    (nzQueryParams)="onQueryParamsChange($event)"
+    [nzScroll]="{ x: width || dynamicWidth, y: null }"
+  >
+    <thead>
+      <tr>
+
+        <th *ngFor="let col of tableColumns" [nzColumnKey]="col.key" [nzWidth]="col.width" [ngClass]="{
+          'max-lg:min-w-36' : col.width === 'auto'
+        }" >
+          {{ col.title }}
+        </th>
+        <th *ngIf="showActions" [nzWidth]="actionDisplay === 'inline' ? actionColumnWidth : '80px'" class="text-center" nzRight>
+          Actions
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of basicTable.data; trackBy: trackByindex">
+        <td *ngFor="let col of tableColumns; trackBy: trackByindex" [ngClass]="{'text-center' : col.type === 'checkbox'}">
+          @if(col?.type === 'badge') {
+            <span
+              [ngClass]="getBadgeClass(data[col.key], col)"
+              class="ui-status-badge">
+              {{ col.secondKeyPosition === 'left' && data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+              {{ getBadgeLabel(data[col.key], col) || '--' }}
+              {{ col.secondKeyPosition === 'right' && data[col.secondKey] ? ' ' + data[col.secondKey] : '' }}
+              {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+            </span>
+          } @else if(col?.type === 'date') {
+            {{ col.secondKeyPosition === 'left' && data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+            {{ data[col.key] ? (data[col.key] | date : 'MM/dd/yyyy') : (col.secondKey || col.extraLabel ? '' : '--') }}
+            {{ col.secondKeyPosition === 'right' && data[col.secondKey] ? ' ' + data[col.secondKey] : '' }}
+            {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+          } @else if(col?.type === 'checkbox') {
+
+            <label nz-checkbox [(ngModel)]="data[col.key]" (ngModelChange)="handleAction(col, data)">
+              {{ data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+              {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+            </label>
+
+          } @else if(col?.type === 'number') {
+            {{ col.secondKeyPosition === 'left' && data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+            {{ data[col.key] ? (data[col.key] | currency) : (col.secondKey || col.extraLabel ? '' : '--') }}
+            {{ col.secondKeyPosition === 'right' && data[col.secondKey] ? ' ' + data[col.secondKey] : '' }}
+            {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+          } @else if(col?.type === 'link') {
+            <button class="text-primary font-semibold text-justify" (click)="handleAction(col, data)">
+              {{ col.secondKeyPosition === 'left' && data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+              {{ data[col.key] || (col.secondKey || col.extraLabel ? '' : '--') }}
+              {{ col.secondKeyPosition === 'right' && data[col.secondKey] ? ' ' + data[col.secondKey] : '' }}
+              {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+            </button>
+          }@else if(col?.type === 'button-view') {
+            <button nz-button nzType="default" nz-popover [nzPopoverContent]="data[col.key]" nzPopoverPlacement="bottom" nzPopoverTrigger="click" [nzPopoverOverlayClassName]="'noArrow w-80 dark:text-gray-300'" class="font-semibold rounded-2xl h-10" >
+              {{ data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+              {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+            </button>
+          }@else if(col?.type === 'image') {
+
+            @if(data[col.key]){
+              <a [href]="data[col.key]" target="_blank" rel="noopener noreferrer">
+                <img [src]="data[col.key]" [alt]="data[col.key]" class="object-contain aspect-square max-h-10 mr-2" />
+              </a>
+            }@else {
+              <img src="assets/img/no_image_placeholder.png" alt="Image Not Found" class="object-contain aspect-square max-h-10 mr-2" />
+            }
+
+          } @else {
+            {{ col.secondKeyPosition === 'left' && data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+            {{ data[col.key] || (col.secondKey || col.extraLabel ? '' : '--') }}
+            {{ col.secondKeyPosition === 'right' && data[col.secondKey] ? ' ' + data[col.secondKey] : '' }}
+            {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+          }
+        </td>
+        <td *ngIf="showActions" nzRight>
+          @if (actionDisplay === 'inline') {
+            <div class="dynamic-action-buttons">
+              <ng-container *ngFor="let action of actions; trackBy: trackByAction">
+                @if (!action.showIf || action.showIf(data)) {
+                  <button
+                    *appHasAnyPermission="action?.permissionKeys || []"
+                    nz-button
+                    nzType="default"
+                    nzShape="circle"
+                    class="action-icon-btn"
+                    [class.action-icon-btn--danger]="action.type === 'danger'"
+                    [attr.title]="action.label"
+                    (click)="handleAction(action, data)"
+                  >
+                    <i *ngIf="action.icon" class="{{ action.icon }}"></i>
+                    <span *ngIf="!action.icon">{{ action.label }}</span>
+                  </button>
+                }
+              </ng-container>
+            </div>
+          } @else {
+
+            <a
+              nz-dropdown
+              nzTrigger="click"
+              [nzDropdownMenu]="menu"
+              nz-button
+              nzType="text"
+              nzPlacement="bottomRight"
+              class="block text-center dark:text-gray-300"
+            >
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </a>
+            <nz-dropdown-menu #menu="nzDropdownMenu">
+              <ul nz-menu>
+                <ng-container *ngFor="let action of actions; trackBy: trackByAction">
+                  @if(!action.showIf || action.showIf(data)){
+                    <li *appHasAnyPermission="action?.permissionKeys || []"
+                      nz-menu-item
+                      [nzDanger]="action.type === 'danger'"
+                      (click)="handleAction(action, data)"
+                    >
+                      <i *ngIf="action.icon" class="{{ action.icon }} mr-2"></i>{{ action.label }}
+                    </li>
+                  }
+                </ng-container>
+              </ul>
+            </nz-dropdown-menu>
+          }
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</ng-container>
+
+<ng-template #clientSide>
+
+  <nz-table
+  #basicTable
+  ngSkipHydration
+  [nzLoading]="isLoading"
+  [nzLoadingIndicator]="customLoadingTemplate"
+  [nzData]="tableData"
+  nzShowSizeChanger
+  [nzFrontPagination]="showPagination"
+  [nzShowPagination]="showPagination"
+  [nzScroll]="{ x: width || dynamicWidth, y: null }"
+>
+    <thead>
+      <tr>
+        <th *ngFor="let col of tableColumns; trackBy: trackByindex" [nzColumnKey]="col.key" [nzWidth]="col.width" [ngClass]="{
+          'max-lg:min-w-36' : col.width === 'auto'
+        }" >
+          {{ col.title }}
+        </th>
+        <th *ngIf="showActions" [nzWidth]="actionDisplay === 'inline' ? actionColumnWidth : '80px'" class="text-center" nzRight>
+          Actions
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of basicTable.data; trackBy: trackByindex">
+        <td *ngFor="let col of tableColumns; trackBy: trackByindex" [ngClass]="{'text-center' : col.type === 'checkbox'}">
+          @if(col.type === 'badge') {
+            <span
+              [ngClass]="getBadgeClass(data[col.key], col)"
+              class="ui-status-badge">
+              {{ col.secondKeyPosition === 'left' && data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+              {{ getBadgeLabel(data[col.key], col) || '--' }}
+              {{ col.secondKeyPosition === 'right' && data[col.secondKey] ? ' ' + data[col.secondKey] : '' }}
+              {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+            </span>
+          } @else if(col.type === 'date') {
+            {{ col.secondKeyPosition === 'left' && data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+            {{ data[col.key] ? (data[col.key] | date : 'MM/dd/yyyy') : (col.secondKey || col.extraLabel ? '' : '--') }}
+            {{ col.secondKeyPosition === 'right' && data[col.secondKey] ? ' ' + data[col.secondKey] : '' }}
+            {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+          } @else if(col.type === 'checkbox') {
+
+            <label nz-checkbox [(ngModel)]="data[col.key]" (ngModelChange)="handleAction(col, data)">
+              {{ data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+              {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+            </label>
+
+          } @else if(col.type === 'number') {
+            {{ col.secondKeyPosition === 'left' && data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+            {{ data[col.key] ? (data[col.key] | currency) : (col.secondKey || col.extraLabel ? '' : '--') }}
+            {{ col.secondKeyPosition === 'right' && data[col.secondKey] ? ' ' + data[col.secondKey] : '' }}
+            {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+          } @else if(col.type === 'link') {
+            <button class="text-primary font-semibold text-justify" (click)="handleAction(col, data)">
+              {{ col.secondKeyPosition === 'left' && data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+              {{ data[col.key] || (col.secondKey || col.extraLabel ? '' : '--') }}
+              {{ col.secondKeyPosition === 'right' && data[col.secondKey] ? ' ' + data[col.secondKey] : '' }}
+              {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+            </button>
+          } @else if(col.type === 'button-view') {
+            <button nz-button nzType="default" nz-popover [nzPopoverContent]="data[col.key]" nzPopoverTrigger="click" [nzPopoverOverlayClassName]="'noArrow w-80'" class="font-semibold rounded-2xl h-10" >
+              {{ data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+              {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+            </button>
+          } @else {
+            {{ col.secondKeyPosition === 'left' && data[col.secondKey] ? data[col.secondKey] + ' ' : '' }}
+            {{ data[col.key] || (col.secondKey || col.extraLabel ? '' : '--') }}
+            {{ col.secondKeyPosition === 'right' && data[col.secondKey] ? ' ' + data[col.secondKey] : '' }}
+            {{ col.extraLabel ? ' ' + col.extraLabel : '' }}
+          }
+        </td>
+        <td *ngIf="showActions" nzRight>
+          @if (actionDisplay === 'inline') {
+            <div class="dynamic-action-buttons">
+              <ng-container *ngFor="let action of actions; trackBy: trackByAction">
+                @if (!action.showIf || action.showIf(data)) {
+                  <button
+                    *appHasAnyPermission="action?.permissionKeys || []"
+                    nz-button
+                    nzType="default"
+                    nzShape="circle"
+                    class="action-icon-btn"
+                    [class.action-icon-btn--danger]="action.type === 'danger'"
+                    [attr.title]="action.label"
+                    (click)="handleAction(action, data)"
+                  >
+                    <i *ngIf="action.icon" class="{{ action.icon }}"></i>
+                    <span *ngIf="!action.icon">{{ action.label }}</span>
+                  </button>
+                }
+              </ng-container>
+            </div>
+          } @else {
+
+            <a
+              nz-dropdown
+              nzTrigger="click"
+              [nzDropdownMenu]="menu"
+              nz-button
+              nzType="text"
+              nzPlacement="bottomRight"
+              class="block text-center dark:text-gray-300"
+            >
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </a>
+            <nz-dropdown-menu #menu="nzDropdownMenu">
+              <ul nz-menu>
+                <ng-container *ngFor="let action of actions; trackBy: trackByAction">
+                  @if(!action.showIf || action.showIf(data)){
+                    <li *appHasAnyPermission="action?.permissionKeys || []"
+                      nz-menu-item
+                      [nzDanger]="action.type === 'danger'"
+                      (click)="handleAction(action, data)"
+                    >
+                      <i *ngIf="action.icon" class="{{ action.icon }} mr-2"></i>{{ action.label }}
+                    </li>
+                  }
+                </ng-container>
+              </ul>
+            </nz-dropdown-menu>
+          }
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+</ng-template>
+
+<ng-template #customLoadingTemplate>
+  <div class="flex flex-col items-center justify-center py-8 h-full">
+    <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+  </div>
+</ng-template>

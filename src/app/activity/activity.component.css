@@ -1,0 +1,346 @@
+:host {
+  display: block;
+}
+
+.activity-workspace-shell {
+  padding: 0.2rem 0.2rem 0.4rem;
+  border-radius: 16px;
+}
+
+.activity-filter-shell,
+.activity-table-shell {
+  position: relative;
+}
+
+.activity-filter-shell {
+  margin-bottom: 0.75rem;
+  border: 1px solid #d9e5f4;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+  padding: 0.75rem;
+}
+
+.activity-filter-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.activity-filter-toolbar-left,
+.activity-filter-toolbar-right {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.62rem;
+}
+
+.activity-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.activity-filter-clear,
+.activity-refresh-btn {
+  font-weight: 600;
+}
+
+.activity-filter-count-pill {
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.35rem;
+  background: var(--primary-color);
+  color: #ffffff;
+  font-size: 0.72rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.activity-filter-chevron {
+  font-size: 0.68rem;
+  transition: transform 0.2s ease;
+}
+
+.activity-filter-summary {
+  color: #627796;
+  font-size: 0.85rem;
+}
+
+.activity-filter-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+}
+
+.activity-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid #cddbf1;
+  border-radius: 999px;
+  background: #f4f8ff;
+  color: #365c9f;
+  height: 29px;
+  padding: 0 0.65rem;
+  font-size: 0.79rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.activity-filter-chip:hover {
+  background: #ebf2ff;
+  border-color: #b7caea;
+}
+
+.activity-filter-grid {
+  margin-top: 0.72rem;
+  padding: 0.82rem;
+  border: 1px solid #dde8f6;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f8fbff 0%, #f5f8ff 100%);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.82rem;
+}
+
+.activity-filter-label {
+  color: var(--primary-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.28rem;
+}
+
+.activity-filter-grid .activity-filter-select,
+.activity-filter-grid .activity-filter-date {
+  margin-top: 0 !important;
+}
+
+:host ::ng-deep .activity-filter-grid .ant-select,
+:host ::ng-deep .activity-filter-grid .ant-picker {
+  margin-top: 0 !important;
+}
+
+:host
+  ::ng-deep
+  .activity-filter-grid
+  .ant-select:not(.ant-select-customize-input)
+  .ant-select-selector,
+:host ::ng-deep .activity-filter-grid .ant-picker,
+.activity-readonly-field {
+  border-color: #d3def0 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  min-height: 34px !important;
+  height: 34px !important;
+}
+
+:host
+  ::ng-deep
+  .activity-filter-grid
+  .ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
+  padding: 0 9px !important;
+}
+
+:host ::ng-deep .activity-filter-grid .ant-select-selection-item,
+:host ::ng-deep .activity-filter-grid .ant-select-selection-placeholder,
+:host ::ng-deep .activity-filter-grid .ant-picker-input > input,
+.activity-readonly-field {
+  line-height: 32px !important;
+}
+
+:host ::ng-deep .activity-filter-grid .ant-picker {
+  padding: 0 9px !important;
+}
+
+:host ::ng-deep .activity-filter-grid .ant-picker-input > input {
+  height: 32px !important;
+}
+
+.activity-filter-actions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.activity-apply-btn {
+  margin: 0 !important;
+}
+
+.activity-json-btn {
+  font-weight: 600;
+}
+
+.activity-table-shell {
+  border: 1px solid #d8e3f3;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+:host ::ng-deep .activity-table .ant-table {
+  background: transparent;
+}
+
+:host ::ng-deep .activity-table .ant-table-thead > tr > th {
+  background: #f4f8ff;
+  color: #31538a;
+  font-size: 12px;
+  font-weight: 700;
+  border-bottom: 1px solid #d9e6f7;
+}
+
+:host ::ng-deep .activity-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #edf2fa;
+  transition: background-color 0.16s ease;
+}
+
+:host ::ng-deep .activity-table .ant-table-tbody > tr:hover > td {
+  background: #f7fbff;
+}
+
+:host-context(.dark) .activity-filter-shell,
+:host-context(.dark) .activity-table-shell {
+  border-color: rgba(148, 163, 184, 0.24);
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: none;
+}
+
+:host-context(.dark) .activity-filter-toggle,
+:host-context(.dark) .activity-filter-clear,
+:host-context(.dark) .activity-refresh-btn {
+  color: #d2e2ff !important;
+}
+
+:host-context(.dark) .activity-filter-summary {
+  color: #94a3b8;
+}
+
+:host-context(.dark) .activity-filter-label {
+  color: var(--primary-color);
+}
+
+:host-context(.dark) .activity-filter-chip {
+  border-color: rgba(96, 165, 250, 0.35);
+  background: rgba(37, 99, 235, 0.14);
+  color: #bfdbfe;
+}
+
+:host-context(.dark) .activity-filter-grid {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+:host-context(.dark) ::ng-deep .activity-filter-grid .ant-select-selector,
+:host-context(.dark) ::ng-deep .activity-filter-grid .ant-picker,
+:host-context(.dark) .activity-readonly-field {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: rgba(100, 116, 139, 0.6) !important;
+  color: #dbeafe !important;
+}
+
+:host-context(.dark)
+  ::ng-deep
+  .activity-filter-grid
+  .activity-filter-select.ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: rgba(100, 116, 139, 0.6) !important;
+  color: #dbeafe !important;
+}
+
+:host-context(.dark) ::ng-deep .activity-filter-grid .ant-select-selection-item,
+:host-context(.dark) ::ng-deep .activity-filter-grid .ant-picker-input > input {
+  color: #dbeafe !important;
+}
+
+:host-context(.dark)
+  ::ng-deep
+  .activity-filter-grid
+  .activity-filter-select.ant-select
+  .ant-select-selection-search-input {
+  background: transparent !important;
+  color: #dbeafe !important;
+  -webkit-text-fill-color: #dbeafe;
+}
+
+:host-context(.dark) ::ng-deep .activity-filter-grid .ant-select-selection-placeholder,
+:host-context(.dark) ::ng-deep .activity-filter-grid .ant-picker-input > input::placeholder {
+  color: #8ea3c7 !important;
+}
+
+:host-context(.dark) ::ng-deep .activity-filter-grid .ant-select-arrow,
+:host-context(.dark) ::ng-deep .activity-filter-grid .ant-picker-suffix {
+  color: #9fb4d9 !important;
+}
+
+:host-context(.dark) ::ng-deep .activity-table .ant-table-thead > tr > th {
+  background: rgba(30, 41, 59, 0.86);
+  border-bottom-color: rgba(148, 163, 184, 0.24);
+  color: #d2e0fb;
+}
+
+:host-context(.dark) ::ng-deep .activity-table .ant-table-tbody > tr > td {
+  border-bottom-color: rgba(148, 163, 184, 0.18);
+}
+
+:host-context(.dark) ::ng-deep .activity-table .ant-table-tbody > tr:hover > td {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+@media (max-width: 1400px) {
+  .activity-filter-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .activity-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .activity-workspace-shell {
+    padding: 0.15rem;
+  }
+
+  .activity-filter-shell {
+    padding: 0.62rem;
+  }
+
+  .activity-filter-grid {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0.7rem;
+  }
+
+  .activity-filter-toolbar,
+  .activity-filter-toolbar-left,
+  .activity-filter-toolbar-right {
+    align-items: stretch;
+  }
+
+  .activity-filter-toggle,
+  .activity-filter-clear,
+  .activity-refresh-btn,
+  .activity-apply-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .activity-filter-actions {
+    justify-content: stretch;
+  }
+}

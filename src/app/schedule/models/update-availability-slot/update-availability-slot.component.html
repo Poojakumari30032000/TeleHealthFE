@@ -1,0 +1,41 @@
+<nz-modal *ngIf="isVisible" [(nzVisible)]="isVisible" [nzTitle]="modelTitle" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()" [nzOkLoading]="isFormSubmitting" [nzOkDisabled]="isFormSubmitting" nzWidth="800px" [nzMaskClosable]="false">
+    <ng-container *nzModalContent>
+        <form [formGroup]="slotForm">
+            <div class="grid gap-4 mb-4 md:grid-cols-2 sm:grid-cols-1">
+                <div>
+                    <label class="label-C">Start Date
+                        <span class="text-danger mr-1">*</span>
+                    </label>
+                    <nz-date-picker appValidationErrors class="datepicker-C" [nzFormat]="'MM/dd/YYYY'" formControlName="startDate" [nzDisabledDate]="disabledDate"></nz-date-picker>
+                </div>
+                <div>
+                    <label class="label-C">Duration
+                        <span class="text-danger mr-1">*</span>
+                    </label>
+                    <nz-select appValidationErrors formControlName="duration" nzPlaceHolder="Select Duration" class="w-full onForm-Select mt-1" nzShowSearch>
+                        <nz-option [nzValue]="15" nzLabel="15 mins"></nz-option>
+                        <nz-option [nzValue]="30" nzLabel="30 mins"></nz-option>
+                        <nz-option [nzValue]="45" nzLabel="45 mins"></nz-option>
+                        <nz-option [nzValue]="60" nzLabel="60 mins"></nz-option>
+                    </nz-select>
+                </div>
+                <div>
+                    <label class="label-C">Start Time
+                        <span class="text-danger mr-1">*</span>
+                    </label>
+                    <nz-select appValidationErrors formControlName="startTime" nzPlaceHolder="Select Start Time" (ngModelChange)="updateEndTimeOptions()" class="w-full onForm-Select mt-1" nzShowSearch>
+                        <nz-option *ngFor="let time of timeOptions; trackBy: trackByTime" [nzValue]="time.value" [nzLabel]="time.label" [nzDisabled]="time.disabled"></nz-option>
+                    </nz-select>
+                </div>
+                <div>
+                    <label class="label-C">End Time
+                        <span class="text-danger mr-1">*</span>
+                    </label>
+                    <nz-select appValidationErrors formControlName="endTime" nzPlaceHolder="Select End Time" class="w-full onForm-Select mt-1" [nzDisabled]="true" nzShowSearch>
+                        <nz-option *ngFor="let time of filteredEndTimeOptions; trackBy: trackByTime" [nzValue]="time.value" [nzLabel]="time.label"></nz-option>
+                    </nz-select>
+                </div>
+            </div>
+        </form>
+    </ng-container>
+</nz-modal>

@@ -1,0 +1,282 @@
+:host {
+  display: block;
+}
+
+.payment-workspace-shell {
+  padding: 0.2rem 0.2rem 0.4rem;
+  border-radius: 16px;
+}
+
+.payment-filter-shell,
+.payment-table-shell {
+  position: relative;
+}
+
+.payment-filter-shell {
+  margin-bottom: 0.75rem;
+  border: 1px solid #d9e5f4;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+  padding: 0.75rem;
+}
+
+.payment-filter-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.payment-filter-toolbar-left,
+.payment-filter-toolbar-right {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.62rem;
+}
+
+.payment-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.payment-filter-clear {
+  font-weight: 600;
+}
+
+.payment-filter-count-pill {
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.35rem;
+  background: var(--primary-color);
+  color: #ffffff;
+  font-size: 0.72rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.payment-filter-chevron {
+  font-size: 0.68rem;
+  transition: transform 0.2s ease;
+}
+
+.payment-filter-summary {
+  color: #627796;
+  font-size: 0.85rem;
+}
+
+.payment-filter-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+}
+
+.payment-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid #cddbf1;
+  border-radius: 999px;
+  background: #f4f8ff;
+  color: #365c9f;
+  height: 29px;
+  padding: 0 0.65rem;
+  font-size: 0.79rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.payment-filter-chip:hover {
+  background: #ebf2ff;
+  border-color: #b7caea;
+}
+
+.payment-filter-grid {
+  margin-top: 0.72rem;
+  padding: 0.82rem;
+  border: 1px solid #dde8f6;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f8fbff 0%, #f5f8ff 100%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.82rem;
+}
+
+.payment-filter-label {
+  color: var(--primary-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.28rem;
+}
+
+.payment-filter-grid .payment-filter-date {
+  margin-top: 0 !important;
+}
+
+:host ::ng-deep .payment-filter-grid .ant-picker {
+  margin-top: 0 !important;
+  border-color: #d3def0 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 9px !important;
+}
+
+:host ::ng-deep .payment-filter-grid .ant-picker-input > input {
+  line-height: 32px !important;
+}
+
+.payment-filter-actions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.payment-apply-btn {
+  margin: 0 !important;
+}
+
+.payment-table-shell {
+  border: 1px solid #d8e3f3;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+:host ::ng-deep .payment-table .ant-table {
+  background: transparent;
+}
+
+:host ::ng-deep .payment-table .ant-table-thead > tr > th {
+  background: #f4f8ff;
+  color: #31538a;
+  font-size: 12px;
+  font-weight: 700;
+  border-bottom: 1px solid #d9e6f7;
+}
+
+:host ::ng-deep .payment-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #edf2fa;
+  transition: background-color 0.16s ease;
+}
+
+:host ::ng-deep .payment-table .ant-table-tbody > tr.payment-row:hover > td {
+  background: #f7fbff;
+}
+
+.payment-row {
+  cursor: default;
+}
+
+:host-context(.dark) .payment-filter-shell,
+:host-context(.dark) .payment-table-shell {
+  border-color: rgba(148, 163, 184, 0.24);
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: none;
+}
+
+:host-context(.dark) .payment-filter-toggle,
+:host-context(.dark) .payment-filter-clear {
+  color: #d2e2ff !important;
+}
+
+:host-context(.dark) .payment-filter-summary {
+  color: #94a3b8;
+}
+
+:host-context(.dark) .payment-filter-label {
+  color: var(--primary-color);
+}
+
+:host-context(.dark) .payment-filter-chip {
+  border-color: rgba(96, 165, 250, 0.35);
+  background: rgba(37, 99, 235, 0.14);
+  color: #bfdbfe;
+}
+
+:host-context(.dark) .payment-filter-grid {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+:host-context(.dark) ::ng-deep .payment-filter-grid .ant-picker {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: rgba(100, 116, 139, 0.6) !important;
+}
+
+:host-context(.dark) ::ng-deep .payment-filter-grid .ant-picker-input > input {
+  color: #dbeafe !important;
+}
+
+:host-context(.dark) ::ng-deep .payment-filter-grid .ant-picker-input > input::placeholder {
+  color: #8ea3c7 !important;
+}
+
+:host-context(.dark) ::ng-deep .payment-filter-grid .ant-picker-suffix,
+:host-context(.dark) ::ng-deep .payment-filter-grid .ant-picker-separator {
+  color: #9fb4d9 !important;
+}
+
+:host-context(.dark) ::ng-deep .payment-table .ant-table-thead > tr > th {
+  background: rgba(30, 41, 59, 0.86);
+  border-bottom-color: rgba(148, 163, 184, 0.24);
+  color: #d2e0fb;
+}
+
+:host-context(.dark) ::ng-deep .payment-table .ant-table-tbody > tr > td {
+  border-bottom-color: rgba(148, 163, 184, 0.18);
+}
+
+:host-context(.dark) ::ng-deep .payment-table .ant-table-tbody > tr.payment-row:hover > td {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+@media (max-width: 1024px) {
+  .payment-filter-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .payment-workspace-shell {
+    padding: 0.15rem;
+  }
+
+  .payment-filter-shell {
+    padding: 0.62rem;
+  }
+
+  .payment-filter-grid {
+    padding: 0.7rem;
+  }
+
+  .payment-filter-toolbar,
+  .payment-filter-toolbar-left,
+  .payment-filter-toolbar-right {
+    align-items: stretch;
+  }
+
+  .payment-filter-toggle,
+  .payment-filter-clear,
+  .payment-apply-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .payment-filter-actions {
+    justify-content: stretch;
+  }
+}

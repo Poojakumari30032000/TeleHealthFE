@@ -1,0 +1,322 @@
+:host {
+  display: block;
+  --ehr-surface: #ffffff;
+  --ehr-surface-muted: #f8fafc;
+  --ehr-border: #dbe4f1;
+  --ehr-text: #1f2f4f;
+  --ehr-subtle-text: #64748b;
+  --ehr-primary: #2f5fcc;
+  --ehr-primary-hover: #264ea8;
+}
+
+.flow-shell {
+  background: #f8fafc;
+}
+
+.flow-container {
+  background: var(--ehr-surface);
+  border: 1px solid var(--ehr-border);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+  padding: 1.1rem;
+}
+
+.section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  color: #1f365e;
+  font-size: 1.36rem;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.section-title i {
+  color: var(--ehr-primary);
+  font-size: 0.94rem;
+}
+
+.section-divider {
+  border-bottom: 1px solid #d7e1ef;
+  margin-top: 0.5rem;
+}
+
+.section-table-head {
+  color: var(--ehr-subtle-text);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.get-started-card {
+  background: var(--ehr-surface);
+  border: 1px solid var(--ehr-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.get-started-card:hover {
+  background: #f9fbff;
+}
+
+.plan-card {
+  transition: background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.plan-card:hover {
+  border-color: #c5d3e7;
+}
+
+.plan-price {
+  color: #1f365e;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.payment-panel {
+  padding: 0.95rem;
+  border: 1px solid var(--ehr-border);
+  border-radius: 0;
+  background: var(--ehr-surface-muted);
+}
+
+.plan-summary-card,
+.coupon-card,
+.payment-method-card,
+.saved-card-note,
+.payment-card-shell {
+  border: 1px solid #d8e3f3;
+  border-radius: 0;
+  background: #ffffff;
+  padding: 0.85rem 0.95rem;
+}
+
+.plan-summary-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.method-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.7rem;
+}
+
+.radio-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid #d8e3f3;
+  border-radius: 0;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.84rem;
+  color: #20365f;
+  background: #ffffff;
+}
+
+.igc-footer-note {
+  font-size: 0.76rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.radio-option input {
+  accent-color: var(--ehr-primary);
+}
+
+.radio-option--active {
+  border-color: #9db4db;
+  background: #f6f9fe;
+}
+
+.coupon-input-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+.coupon-input {
+  height: 38px;
+  border: 1px solid #c9d7eb;
+  border-radius: 0;
+  color: #0f172a;
+}
+
+.coupon-input:focus {
+  border-color: #8da7d1;
+  box-shadow: none;
+}
+
+.coupon-input--valid {
+  border-color: #16a34a !important;
+}
+
+.coupon-input--error {
+  border-color: #dc2626 !important;
+}
+
+.coupon-button {
+  min-width: 110px;
+}
+
+#card-container {
+  border: 1px solid #d7e1ef;
+  border-radius: 0;
+  min-height: 72px;
+  background: #ffffff;
+  padding: 0.85rem;
+}
+
+.brand-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.brand-pill {
+  width: 42px;
+  height: 30px;
+  border: 1px solid #d7e1ef;
+  border-radius: 0;
+  background: #ffffff;
+  color: #71839f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+}
+
+.payment-footer {
+  padding-top: 0.95rem;
+  margin-top: 0.1rem;
+  border-top: 1px dashed #d7e1ef;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.trust-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  color: var(--ehr-subtle-text);
+  font-size: 0.75rem;
+}
+
+.consent-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  border: 1px solid #d8e3f3;
+  background: #ffffff;
+  padding: 0.72rem 0.8rem;
+  border-radius: 0;
+  color: #2a416a;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.consent-box input[type='checkbox'] {
+  margin-top: 0.15rem;
+  accent-color: var(--ehr-primary);
+}
+
+.action-btn {
+  height: 38px;
+  border-radius: 0;
+  padding: 0 15px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border: 1px solid transparent;
+}
+
+.action-btn--primary {
+  color: #ffffff !important;
+  background: var(--ehr-primary) !important;
+  border-color: var(--ehr-primary) !important;
+}
+
+.action-btn--primary:hover:not(:disabled) {
+  background: var(--ehr-primary-hover) !important;
+  border-color: var(--ehr-primary-hover) !important;
+}
+
+.action-btn--secondary {
+  color: #28467b !important;
+  background: #ffffff !important;
+  border-color: #c7d4e8 !important;
+}
+
+.action-btn--secondary:hover:not(:disabled) {
+  background: #f6f9fe !important;
+  border-color: #acbfdc !important;
+}
+
+.action-btn:disabled {
+  color: #94a3b8 !important;
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.flow-container button[class*='bg-blue-500'] {
+  border-radius: 0 !important;
+  border-color: var(--ehr-primary) !important;
+  background: var(--ehr-primary) !important;
+  color: #ffffff !important;
+}
+
+.flow-container button[class*='bg-blue-500']:hover:not(:disabled) {
+  border-color: var(--ehr-primary-hover) !important;
+  background: var(--ehr-primary-hover) !important;
+}
+
+.flow-container button[class*='disabled:bg-gray-500']:disabled {
+  border-color: #cbd5e1 !important;
+  background: #e2e8f0 !important;
+  color: #94a3b8 !important;
+}
+
+.payment-step .rounded-lg,
+.payment-step .rounded-sm {
+  border-radius: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .flow-container {
+    padding: 0.9rem;
+  }
+
+  .section-title {
+    font-size: 1.22rem;
+  }
+
+  .plan-summary-card {
+    flex-direction: column;
+  }
+
+  .coupon-input-wrap {
+    flex-direction: column;
+  }
+
+  .coupon-button {
+    width: 100%;
+  }
+
+  .payment-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .payment-footer > div {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

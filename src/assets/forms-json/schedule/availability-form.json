@@ -1,0 +1,172 @@
+{
+    "title": "Appointment",
+    "primaryId": "id",
+    "rows": [
+      {
+        "class": "grid grid-cols-1 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "text",
+            "label": "Title",
+            "name": "title",
+            "placeholder": "Enter Title",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          },
+          {
+            "type": "select",
+            "label": "Provider",
+            "name": "provider",
+            "placeholder": "Select Provider",
+            "class": "col-span-1",
+            "options": [
+              { "label": "Provider 1", "value": 1 },
+              { "label": "Provider 2", "value": 2 }
+            ],
+            "validations": { "required": true }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-2 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "date",
+            "label": "Start Date",
+            "name": "startDate",
+            "placeholder": "Select Start Date",
+            "class": "col-span-1",
+            "dependsOn": ["provider"],
+            "fetchUrl": "Appointments/getAvailableDates?providerId={provider}",
+            "validations": { "required": true }
+          },
+          {
+            "type": "select",
+            "label": "Start Time",
+            "name": "startTime",
+            "placeholder": "Select Start Time",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          },
+          {
+            "type": "select",
+            "label": "End Time",
+            "name": "endTime",
+            "placeholder": "Select End Time",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          },
+          {
+            "type": "select",
+            "label": "Duration",
+            "name": "duration",
+            "placeholder": "Select Duration",
+            "class": "col-span-1",
+            "options": [
+              { "label": "15 minutes", "value": 15 },
+              { "label": "30 minutes", "value": 30 },
+              { "label": "45 minutes", "value": 45 },
+              { "label": "60 minutes", "value": 60 }
+            ],
+            "validations": { "required": true }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-1 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "checkbox",
+            "label": "Repeat",
+            "name": "repeat",
+            "fieldClass": "",
+            "class": "col-span-1",
+            "validations": { "required": false }
+          }
+        ]
+      },
+      {
+        "visibilityCondition": { "name": "repeat", "value": true },
+        "class": "grid grid-cols-1 gap-2 mb-2 px-3 py-2 bg-gray-100  make-bg_dark rounded-2xl",
+        "fields": [
+          {
+              "type": "select",
+              "label": null,
+              "name": "week",
+              "placeholder": "No. of Weeks",
+              "class": "col-span-1",
+              "options": [
+                { "label": "1 Week", "value": 1 },
+                { "label": "2 Week", "value": 2 },
+                { "label": "3 Week", "value": 3 },
+                { "label": "4 Week", "value": 4 }
+              ],
+              "validations": { "required": true }
+          },
+          {
+            "type": "multi-select",
+            "label": null,
+            "name": "days",
+            "placeholder": "Select Days",
+            "fieldClass": "",
+            "class": "col-span-1",
+            "options": [
+              { "label": "Monday", "value": "monday" },
+              { "label": "Tuesday", "value": "tuesday" },
+              { "label": "Wednesday", "value": "wednesday" },
+              { "label": "Thursday", "value": "thursday" },
+              { "label": "Friday", "value": "friday" },
+              { "label": "Saturday", "value": "saturday" },
+              { "label": "Sunday", "value": "sunday" }
+            ],
+            "validations": { "required": true }
+          },
+          {
+            "type": "radio",
+            "label": null,
+            "name": "endType",
+            "class": "col-span-1",
+            "options": [
+              { "label": "On", "value": "on" },
+              { "label": "After", "value": "after" }
+            ],
+            "validations": { "required": true }
+          },
+          {
+            "visibilityCondition": { "name": "endType", "value": "on" },
+            "type": "date",
+            "label": null,
+            "name": "endByDate",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          },
+          {
+            "visibilityCondition": { "name": "endType", "value": "after" },
+            "type": "number",
+            "label": null,
+            "placeholder": "No. of Slots",
+            "name": "endByNumber",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-1",
+        "fields": [
+          {
+            "type": "select",
+            "label": "Service",
+            "name": "service",
+            "placeholder": "Select Service",
+            "class": "col-span-2",
+            "fetchUrl": "Services/getAll",
+            "labelKey": ["name"],
+            "valueKey": "id",
+            "validations": { "required": true }
+          }
+        ]
+      }
+    ]
+  }
+  

@@ -1,0 +1,102 @@
+<div class="category-workspace-shell">
+  <section class="category-toolbar-shell">
+    <button
+      *appHasAnyPermission="['product_category_add']"
+      nz-button
+      nzType="default"
+      nzShape="round"
+      class="category-add-btn"
+      (click)="AddEditCategory()"
+      type="button"
+    >
+      <i class="fa-solid fa-plus"></i>
+      <span class="ml-2 hidden md:inline-block">Add Category</span>
+    </button>
+  </section>
+
+  <section class="category-table-shell">
+    <nz-table
+      [nzData]="categories"
+      [nzLoading]="loading"
+      [nzFrontPagination]="false"
+      [nzTotal]="total"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50, 100]"
+      (nzQueryParams)="onQueryParamsChange($event)"
+      [nzScroll]="{ x: '1200px' }"
+      class="w-full category-table"
+    >
+      <thead>
+        <tr>
+          @if (userRole === 'Global Admin'){
+          <th nzWidth="60px">Actions</th>
+          }
+          <th nzWidth="140px">Image</th>
+          <th nzWidth="280px">Name</th>
+          <th nzWidth="520px">Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let row of categories; trackBy: trackByCategoryId"
+          class="category-row-clickable"
+          [class.category-row-readonly]="!canEditCategory"
+          [attr.role]="canEditCategory ? 'button' : null"
+          [attr.tabindex]="canEditCategory ? 0 : null"
+          (click)="onRowActivate(row)"
+          (keydown.enter)="onRowActivate(row)"
+          (keydown.space)="onRowActivate(row); $event.preventDefault()"
+        >
+          @if (userRole === 'Global Admin'){
+            <td>
+            <div class="flex items-center gap-2">
+              <button
+                *appHasAnyPermission="['product_category_edit']"
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                class="action-icon-btn"
+                (click)="$event.stopPropagation(); AddEditCategory(row)"
+                title="Edit"
+              >
+                <i class="fa-regular fa-pen-to-square"></i>
+              </button>
+            </div>
+          </td>
+          }
+          <td>
+            <img
+              *ngIf="row.imageURL; else noImage"
+              [src]="row.imageURL"
+              [alt]="row.categoryName || 'Category image'"
+              class="category-thumb"
+            />
+            <ng-template #noImage>
+              <img
+                src="assets/img/no_image_placeholder.png"
+                alt="No image"
+                class="category-thumb"
+              />
+            </ng-template>
+          </td>
+          <td>{{ row.categoryName || '--' }}</td>
+          <td>
+            <span class="line-clamp-2" [title]="row.categoryDescription || '--'">
+              {{ row.categoryDescription || '--' }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </section>
+</div>
+
+<app-comman-form-modal
+  #commanModel
+  [apiUrl]="this.modalApiUrl"
+  (formClosed)="refreshAfterModal()"
+  width="600px"
+></app-comman-form-modal>

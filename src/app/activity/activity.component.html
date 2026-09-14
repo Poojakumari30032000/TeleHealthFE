@@ -1,0 +1,271 @@
+<div class="activity-workspace-shell">
+  <section class="activity-filter-shell">
+    <div class="activity-filter-toolbar">
+      <div class="activity-filter-toolbar-left">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="activity-filter-toggle"
+          (click)="showFilters = !showFilters"
+          [attr.aria-expanded]="showFilters"
+          type="button"
+        >
+          <i class="fa-solid fa-sliders"></i>
+          <span>Filters</span>
+          <span *ngIf="visibleFiltersCount > 0" class="activity-filter-count-pill">
+            {{ visibleFiltersCount }}
+          </span>
+          <i class="fa-solid fa-chevron-down activity-filter-chevron" [class.rotate-180]="showFilters"></i>
+        </button>
+
+        <span *ngIf="!showFilters && visibleFiltersCount > 0" class="activity-filter-summary">
+          {{ visibleFiltersCount }} active filters
+        </span>
+      </div>
+
+      <div class="activity-filter-toolbar-right">
+        <button
+          *ngIf="visibleFiltersCount > 0"
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="activity-filter-clear"
+          (click)="clearFilters()"
+          [disabled]="isLoading"
+          type="button"
+        >
+          Reset
+        </button>
+
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="activity-refresh-btn"
+          (click)="fetchAuditLogs()"
+          [disabled]="isLoading"
+          type="button"
+        >
+          <span>Refresh</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="visibleFiltersCount > 0 && !showFilters" class="activity-filter-chip-row">
+      @for (filter of appliedFilters; track trackByFilterName($index, filter)) {
+        <button
+          *ngIf="!shouldHideAppliedFilter(filter.name)"
+          class="activity-filter-chip"
+          type="button"
+          (click)="removeFilter(filter.name)"
+        >
+          <span>{{ getFilterDisplayName(filter.name) }}: {{ getFilterDisplayValue(filter) }}</span>
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      }
+    </div>
+
+    <div *ngIf="showFilters" class="activity-filter-grid">
+      <div *ngIf="['Global Admin', 'Provider'].includes(userRole); else facilityReadOnly">
+        <label class="label-C-F activity-filter-label">Facility:</label>
+        <nz-select
+          class="w-full activity-filter-select"
+          nzPlaceHolder="Select facility"
+          nzShowSearch
+          nzAllowClear
+          [nzLoading]="facilitiesLoading"
+          [(ngModel)]="selectedFacilityId"
+        >
+          <nz-option *ngFor="let f of facilities" [nzValue]="f.facilityId" [nzLabel]="f.titlelong"></nz-option>
+        </nz-select>
+      </div>
+
+      <ng-template #facilityReadOnly>
+        <div>
+          <label class="label-C-F activity-filter-label">Facility:</label>
+          <div class="activity-readonly-field">
+            {{ getFilterDisplayValue({ name: 'FacilityId', value: selectedFacilityId }) }}
+          </div>
+        </div>
+      </ng-template>
+
+      <div>
+        <label class="label-C-F activity-filter-label">Module:</label>
+        <nz-select
+          class="w-full activity-filter-select"
+          nzPlaceHolder="Select module"
+          nzShowSearch
+          nzAllowClear
+          [(ngModel)]="selectedModule"
+        >
+          <nz-option *ngFor="let m of modules" [nzValue]="m" [nzLabel]="m"></nz-option>
+        </nz-select>
+      </div>
+
+      <div>
+        <label class="label-C-F activity-filter-label">Start Date:</label>
+        <nz-date-picker
+          class="w-full activity-filter-date"
+          nzPlaceHolder="Start date"
+          [(ngModel)]="startDate"
+        ></nz-date-picker>
+      </div>
+
+      <div>
+        <label class="label-C-F activity-filter-label">End Date:</label>
+        <nz-date-picker
+          class="w-full activity-filter-date"
+          nzPlaceHolder="End date"
+          [(ngModel)]="endDate"
+        ></nz-date-picker>
+      </div>
+
+      <div class="activity-filter-actions">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="activity-apply-btn"
+          (click)="applyFiltersAndFetch(true)"
+          [nzLoading]="isLoading"
+          [disabled]="isLoading"
+          type="button"
+        >
+          Apply Filters
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="activity-table-shell">
+    <nz-table
+      [nzData]="auditLogs"
+      [nzFrontPagination]="false"
+      [nzLoading]="isLoading"
+      [nzTotal]="total"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10,20,50,100]"
+      (nzPageIndexChange)="onPageIndexChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
+      [nzScroll]="{ x: '2600px', y: 'calc(100vh - 360px)' }"
+      nzSize="middle"
+      class="w-full activity-table"
+    >
+      <thead>
+      <tr>
+        <th nzWidth="50px">ID</th>
+        <th nzWidth="180px">Created Date</th>
+        <th nzWidth="170px">User Name</th>
+        <th nzWidth="120px">Action</th>
+        <th nzWidth="140px">Module</th>
+        <th nzWidth="110px">Entity ID</th>
+        <th nzWidth="110px">Patient ID</th>
+        <th nzWidth="190px">Patient Name</th>
+        <th nzWidth="110px">Facility ID</th>
+        <th nzWidth="190px">Facility Name</th>
+        <th nzWidth="420px">Description</th>
+        <th nzWidth="130px">Status</th>
+        <th nzWidth="170px">Old Values</th>
+        <th nzWidth="170px">New Values</th>
+        <th nzWidth="190px">Additional Data</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr *ngFor="let log of auditLogs">
+        <td class="font-medium">{{ log.auditLogId }}</td>
+        <td>{{ log.createdDate | date: 'yyyy-MM-dd HH:mm' }}</td>
+        <td>{{ log.userName ?? '--' }}</td>
+        <td>{{ log.action ?? '--' }}</td>
+        <td>{{ log.module ?? '--' }}</td>
+        <td>{{ log.entityId ?? '--' }}</td>
+        <td>{{ log.patientId ?? '--' }}</td>
+        <td>{{ log.patientName ?? '--' }}</td>
+        <td>{{ log.facilityId ?? '--' }}</td>
+        <td>{{ log.facilityName ?? '--' }}</td>
+
+        <td>
+          <ng-container *ngIf="isLongText(log.description, 90); else fullDesc">
+            <span nz-popover nzPopoverTitle="Description" [nzPopoverContent]="safeText(log.description, '')">
+              {{ safeText(log.description, '') | slice: 0:90 }}...
+            </span>
+          </ng-container>
+          <ng-template #fullDesc>
+            {{ log.description ?? '--' }}
+          </ng-template>
+        </td>
+
+        <td>
+          <span class="ui-status-badge" [ngClass]="statusBadgeClass(log.status)">
+            {{ log.status ?? '--' }}
+          </span>
+        </td>
+
+        <td>
+          <button
+            *ngIf="log.oldValues; else dashOld"
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="activity-json-btn"
+            (click)="openJsonModal('Old Values', log.oldValues)"
+            title="View Old Values"
+            type="button"
+          >
+            <i class="fa-regular fa-file-lines mr-2"></i>
+            View ({{ jsonFieldCount(log.oldValues) }})
+          </button>
+          <ng-template #dashOld>--</ng-template>
+        </td>
+
+        <td>
+          <button
+            *ngIf="log.newValues; else dashNew"
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="activity-json-btn"
+            (click)="openJsonModal('New Values', log.newValues)"
+            title="View New Values"
+            type="button"
+          >
+            <i class="fa-regular fa-file-lines mr-2"></i>
+            View ({{ jsonFieldCount(log.newValues) }})
+          </button>
+          <ng-template #dashNew>--</ng-template>
+        </td>
+
+        <td>
+          <button
+            *ngIf="log.additionalData; else dashAdd"
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="activity-json-btn"
+            (click)="openJsonModal('Additional Data', log.additionalData)"
+            title="View Additional Data"
+            type="button"
+          >
+            <i class="fa-regular fa-file-lines mr-2"></i>
+            View ({{ jsonFieldCount(log.additionalData) }})
+          </button>
+          <ng-template #dashAdd>--</ng-template>
+        </td>
+      </tr>
+
+      <tr *ngIf="!isLoading && auditLogs.length === 0">
+        <td colspan="15" class="text-center py-6 text-gray-500">No records found.</td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </section>
+
+  <ng-template #jsonModalTpl>
+    <div class="p-3">
+      <pre class="m-0 whitespace-pre-wrap break-words text-xs leading-5">{{ jsonModalString }}</pre>
+    </div>
+  </ng-template>
+</div>

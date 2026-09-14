@@ -1,0 +1,25 @@
+{
+    "title": "Connect Product",
+    "primaryId": "bundleId",
+    "rows": [
+        {
+            "class": "grid grid-cols-1 gap-2 mb-2",
+            "fields": [
+                {
+                    "type": "select",
+                    "label": "Product",
+                    "name": "productId",
+                    "placeholder": "Select Product",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    },
+                    "labelKey": ["productName"],
+                    "valueKey": "productId",
+                    "fetchUrl": "DropDowns/getAllProducts?IsBundle=false&BundleId={primaryId}",
+                    "additionalText": "Important: any unsaved changes on Bundle details will be lost when you connect a product, be sure to save them before proceeding"
+                }
+            ]
+        }
+    ]
+}

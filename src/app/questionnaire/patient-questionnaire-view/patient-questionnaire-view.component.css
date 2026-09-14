@@ -1,0 +1,291 @@
+.contentLayout{
+    min-height: 100vh;
+    background-color: #fff;
+}
+
+.contentLayout ::ng-deep .ant-layout-header{
+    border-top-left-radius: 1.5rem;
+    border-top-right-radius: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+nz-header {
+    position: fixed;
+    width: 100%;
+}
+
+nz-content {
+    padding: 0 0 1rem 0;
+    margin-top: 8rem;
+}
+
+@media(max-width: 440px){
+    nz-content {
+        padding: 0 2rem 1rem 0;
+    }
+}
+
+nz-sider {
+  padding: 5rem 1rem 5rem 1rem;
+  margin-top: 7rem;
+}
+
+@media (min-width: 768px) {
+  nz-sider {
+    padding: 0 2rem 0rem 2rem;
+  }
+}
+
+::ng-deep .ant-steps-item-description {
+  line-height: 30px;
+}
+
+@media (min-width: 1024px) {
+  ::ng-deep .ant-steps-item-description {
+    line-height: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  ::ng-deep .ant-steps-item-description {
+    display: none !important;
+
+  }
+}
+
+@media (max-width: 425px) {
+  ::ng-deep .ant-steps-item-title::after {
+    position: absolute;
+    top: 16px;
+    left: 100%;
+    display: block;
+    width: 9999px;
+    height: 1px;
+}
+
+}
+
+::ng-deep .ant-steps-item-container {
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  ::ng-deep .ant-steps-item-container {
+    margin-bottom: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  ::ng-deep .ant-steps-item-container {
+    margin-bottom: 0;
+  }
+}
+
+.visit-card ::ng-deep .ant-card-body{
+    padding: 1rem 0.25rem 0.25rem 0.25rem !important;
+}
+
+.visit-card ::ng-deep .ant-card-meta-title{
+    text-wrap: wrap !important;
+}
+
+.category-card::ng-deep .ant-card-meta-title{
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.category-card::ng-deep .ant-card-meta-title:is(.dark *), .visit-card ::ng-deep .ant-card-meta-title:is(.dark *){
+    color: theme('colors.gray.300');
+}
+
+.category-card::ng-deep .ant-card-meta-description:is(.dark *){
+    color: theme('colors.gray.400');
+}
+
+.visit-radioButton ::ng-deep .ant-radio-button-wrapper{
+	height: 35px;
+	line-height: 33px;
+    border-left-width: 1px;
+}
+
+.visit-radioButton ::ng-deep .ant-radio-button-wrapper:is(.dark *):not(.ant-radio-button-wrapper-checked){
+    background: theme('colors.gray.800');
+    color: theme('colors.gray.300');
+    border-color: theme('colors.gray.700');
+}
+
+.visit-radioButton ::ng-deep .ant-radio-button-wrapper:first-child{
+	border-radius: 0.375rem 0 0 0.375rem;
+    margin-right: 0.5rem;
+}
+
+.visit-radioButton ::ng-deep .ant-radio-button-wrapper:last-child{
+	border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.visit-radioButton ::ng-deep .ant-radio-button-wrapper:last-child::before{
+	display: none;
+}
+
+.visit-radioButton.in-valid ::ng-deep .ant-radio-button-wrapper:not(:is(.dark *)){
+    background: theme('colors.danger.50');
+    border-color: theme('colors.danger.500');
+}
+
+.visit-radioButton.in-valid ::ng-deep .ant-radio-button-wrapper:is(.dark *), .onVisit-Select.in-valid ::ng-deep .ant-select-selector:is(.dark *){
+    border-color: theme('colors.danger.500');
+}
+
+.visitCheckbox ::ng-deep .ant-checkbox + span{
+    padding-right: 4px !important;
+}
+
+.onVisit-Select ::ng-deep .ant-select-selector{
+    height: 35px !important;
+    align-items: center;
+    border-radius: 1rem;
+}
+
+.onVisit-Select.in-valid ::ng-deep .ant-select-selector:not(:is(.dark *)){
+    background-color: theme('colors.danger.50');
+    border-color: theme('colors.danger.500');
+}
+
+.visit-progress ::ng-deep .ant-progress-line{
+    top: -0.75rem !important;
+}
+
+.visit-progress ::ng-deep .ant-progress-inner:is(.dark *){
+   background-color: theme("colors.gray.500");
+}
+
+::ng-deep .ant-steps-item-wait .ant-steps-item-icon:is(.dark *) {
+    background-color: theme("colors.gray.500");
+}
+::ng-deep .dark .ant-steps-icon {
+  color: theme('colors.danger.50');
+}
+
+::ng-deep .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title:is(.dark *) {
+   color: theme('colors.danger.50');
+}
+
+::ng-deep .no-step-interaction .ant-steps-item {
+  pointer-events: none;
+  cursor: default !important;
+}
+
+::ng-deep .no-step-interaction .ant-steps-item:hover {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.pqv-banner {
+  background: var(--lightP-color);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
+  border-radius: 16px;
+  padding: 16px 20px 12px;
+  margin-bottom: 24px;
+}
+.pqv-banner-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.pqv-back-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+}
+.pqv-banner-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--primary-color);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+.pqv-banner-body {
+  flex: 1;
+  min-width: 0;
+}
+.pqv-banner-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.3;
+}
+.pqv-banner-sub {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+.pqv-banner-step {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+.pqv-progress {
+  margin: 0;
+}
+.pqv-progress ::ng-deep .ant-progress-inner {
+  border-radius: 999px;
+}
+.pqv-progress ::ng-deep .ant-progress-bg {
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.pqv-banner:is(.dark *) {
+  background: theme('colors.gray.800');
+  border-color: theme('colors.gray.700');
+}
+.pqv-banner-title:is(.dark *) { color: #e2e8f0; }
+.pqv-banner-sub:is(.dark *) { color: #94a3b8; }
+.pqv-progress ::ng-deep .ant-progress-inner:is(.dark *) {
+  background-color: theme('colors.gray.700');
+}
+
+@media (max-width: 768px) {
+  ::ng-deep .ant-layout-sider {
+    display: none !important;
+  }
+
+  ::ng-deep .ant-layout-content {
+    width: 100% !important;
+    margin-left: 2rem;
+    margin-right: 2rem;
+  }
+}
+
+::ng-deep .horizontal-steps .ant-steps-icon .anticon {
+  border: 1px solid rgb(191, 191, 191);
+  border-radius: 9999px;
+  height: 2rem;
+  width: 2rem;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+::ng-deep .horizontal-steps .ant-steps-item-process .ant-steps-icon .anticon {
+  border-color: #1677ff;
+  color: #1677ff;
+}
+
+::ng-deep .horizontal-steps .no-step-interaction .ant-steps-icon{
+  pointer-events: none;
+  cursor: default !important;
+}

@@ -1,0 +1,162 @@
+<div class="slot-workspace-shell">
+  <section class="slot-filter-shell">
+    <div class="slot-filter-toolbar">
+      <div class="slot-filter-toolbar-left">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="slot-filter-toggle"
+          (click)="showFilters = !showFilters"
+          [attr.aria-expanded]="showFilters"
+          type="button"
+        >
+          <i class="fa-solid fa-sliders"></i>
+          <span>Filters</span>
+          <span *ngIf="visibleFiltersCount > 0" class="slot-filter-count-pill">
+            {{ visibleFiltersCount }}
+          </span>
+          <i
+            class="fa-solid fa-chevron-down slot-filter-chevron"
+            [class.rotate-180]="showFilters"
+          ></i>
+        </button>
+
+        <span *ngIf="!showFilters && visibleFiltersCount > 0" class="slot-filter-summary">
+          {{ visibleFiltersCount }} active filters
+        </span>
+      </div>
+
+      <div class="slot-filter-toolbar-right">
+        <button
+          *ngIf="visibleFiltersCount > 0"
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="slot-filter-clear"
+          (click)="clearFilters()"
+          type="button"
+        >
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="visibleFiltersCount > 0 && !showFilters" class="slot-filter-chip-row">
+      @for (filter of appliedFilters; track trackByFilterName($index, filter)) {
+        <button
+          *ngIf="!shouldHideAppliedFilter(filter.name)"
+          class="slot-filter-chip"
+          type="button"
+          (click)="removeFilter(filter.name)"
+        >
+          <span>{{ getFilterDisplayName(filter.name) }}: {{ getFilterDisplayValue(filter) }}</span>
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      }
+    </div>
+
+    <div *ngIf="showFilters" class="slot-filter-grid">
+      <div>
+        <label class="label-C-F slot-filter-label">Time Duration:</label>
+        <nz-select
+          class="w-full slot-filter-select"
+          nzPlaceHolder="Select Duration"
+          [(ngModel)]="selectedDuration"
+          nzShowSearch
+          nzAllowClear
+          (ngModelChange)="applyFilter(true)"
+        >
+          <nz-option [nzValue]="15" nzLabel="15 mins"></nz-option>
+          <nz-option [nzValue]="30" nzLabel="30 mins"></nz-option>
+          <nz-option [nzValue]="45" nzLabel="45 mins"></nz-option>
+          <nz-option [nzValue]="60" nzLabel="1 hour"></nz-option>
+        </nz-select>
+      </div>
+
+      <div>
+        <label class="label-C-F slot-filter-label">Appointment:</label>
+        <nz-select
+          class="w-full slot-filter-select"
+          nzPlaceHolder="Select Appointment"
+          [(ngModel)]="selectedApptStatus"
+          nzShowSearch
+          nzAllowClear
+          (ngModelChange)="applyFilter(true)"
+        >
+          <nz-option nzValue="booked" nzLabel="Booked"></nz-option>
+          <nz-option nzValue="available" nzLabel="Available"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+  </section>
+
+  <section class="slot-table-shell">
+    <nz-table
+      [nzData]="slots"
+      [nzLoading]="loading"
+      [nzFrontPagination]="false"
+      [nzTotal]="total"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50, 100]"
+      (nzQueryParams)="onQueryParamsChange($event)"
+      [nzScroll]="{ x: '1200px' }"
+      class="w-full slot-table"
+    >
+      <thead>
+        <tr>
+          <th nzWidth="150px">Actions</th>
+          <th nzWidth="220px">Date</th>
+          <th nzWidth="180px">Start Time</th>
+          <th nzWidth="180px">End Time</th>
+          <th nzWidth="150px">Duration</th>
+          <th nzWidth="160px">Appointment</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let row of slots; trackBy: trackBySlotId"
+          class="slot-row-clickable"
+          role="button"
+          tabindex="0"
+        >
+          <td>
+            <div class="flex items-center gap-2">
+
+              <button
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                class="action-icon-btn"
+                (click)="$event.stopPropagation(); onDelete(row)"
+                title="Delete"
+              >
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          </td>
+          <td>{{ row.date ? (row.date | date: 'MM/dd/yyyy') : '--' }}</td>
+          <td>{{ formatTime(row.startTime) }}</td>
+          <td>{{ formatTime(row.endTime) }}</td>
+          <td>{{ row.duration }} Min(s)</td>
+          <td>
+            <span class="ui-status-badge" [ngClass]="getAppointmentBadgeClass(row.isAppointment)">
+              {{ getAppointmentLabel(row.isAppointment) }}
+            </span>
+          </td>
+        </tr>
+
+        <tr *ngIf="!loading && slots.length === 0">
+          <td colspan="6" class="text-center py-6 text-gray-500">
+            No records found.
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </section>
+</div>
+
+<app-update-availability-slot (formClosed)="refreshTable()"></app-update-availability-slot>

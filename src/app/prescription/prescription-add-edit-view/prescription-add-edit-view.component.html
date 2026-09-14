@@ -1,0 +1,158 @@
+@if(!hasError){
+    <ng-container *ngIf="!isLoading;else loadingMain">
+        <form [formGroup]="prescriptionForm">
+            <div class="grid grid-cols-1 md:max-lg:grid-cols-2 lg:grid-cols-4 gap-4  my-2 p-4 bg-gray-100 rounded-xl  dark:border-gray-700 dark:bg-gray-800">
+                <div class="col-span-1">
+                    <label class="text-gray-500 dark:text-gray-400 text-sm">Presciption Id :</label>
+                    <span class="label-C font-semibold  mt-1">{{ this.prescriptionData?.patientPrescriptionGuid || "--" }}</span>
+                </div>
+                <div class="col-span-1">
+                    <label class="text-gray-500 dark:text-gray-400 text-sm block mb-1">Presciption Status :</label>
+                    <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded-full" [ngClass]="{
+                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : this.prescriptionData?.prescriptionStatus === 'Complete',
+                    'bg-danger-100 text-danger-800 dark:bg-danger-900 dark:text-danger-300' : this.prescriptionData?.prescriptionStatus === 'Pending'
+                    }">
+                        {{ prescriptionData?.prescriptionStatus || '--'}}
+                    </span>
+                </div>
+                <div class="col-span-1">
+                    <label class="text-gray-500 dark:text-gray-400 text-sm">Patient Name :</label>
+                    <span class="label-C font-semibold mt-1 underline cursor-pointer hover:text-primary" (click)="navigate('patient/detail/', 'patientId')">
+                        {{ prescriptionData?.patientName || '--' }}
+                    </span>
+                </div>
+                <div class="col-span-1">
+                    <label class="text-gray-500 dark:text-gray-400 text-sm">Patient Treatment :</label>
+                    <span class="label-C font-semibold mt-1 underline cursor-pointer hover:text-primary" (click)="navigate('treatment/detail/', 'patientTreatmentId')">
+                        {{ prescriptionData?.patientTreamentGuid || '--' }}
+                    </span>
+                </div>
+                <div class="col-span-1">
+                    <label class="text-gray-500 dark:text-gray-400 text-sm">Patient Order:</label>
+                    <span class="label-C font-semibold mt-1 underline cursor-pointer hover:text-primary" (click)="navigate('order/detail/', 'patientOrderId')">
+                        {{ prescriptionData?.patientOrderGuid || '--' }}
+                    </span>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 my-2 py-3 border-t dark:border-gray-700">
+                <div class="col-span-full flex items-center justify-between">
+                    <h4 class="font-semibold text-base dark:text-gray-300">Product & Dosage Directions:</h4>
+                    <button  (click)="isDrawerOpen = true" class="lg:hidden main-btn m-0">
+                        <i class="fa-solid fa-history mr-2"></i>
+                        Show Previous
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:col-span-3">
+                    <div class="col-span-1 lg:col-span-2">
+                        <label class="label-C">Product <span class="text-danger mr-1">*</span></label>
+                        <nz-select appValidationErrors class="w-full onForm-Select mt-1" nzShowSearch nzPlaceHolder="Select Product" formControlName="productId" [nzLoading]="LoadingProducts" [nzDisabled]="LoadingProducts">
+                            <nz-option *ngFor="let product of products" [nzValue]="product.productId" [nzLabel]="product.productName"></nz-option>
+                        </nz-select>
+                    </div>
+                    <div class="col-span-full">
+                        <label class="label-C">Patient Directions <span class="text-danger mr-1">*</span></label>
+                        <textarea class="input-C" placeholder="Enter Patient Directions Here ..." [nzAutosize]="{ minRows: 3 }" nz-input formControlName="prescriptionInstruction"></textarea>
+                    </div>
+                </div>
+
+                <div class="hidden lg:block lg:col-span-2">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg h-full sticky top-4">
+                        <h4 class="font-semibold text-base dark:text-gray-300 mb-4">Previous Prescriptions</h4>
+                        @if(!LoadingPrevPrescription){
+                            <div class="space-y-4" *ngIf="prevPrescriptionData?.length; else noPrevPrescriptionMobile">
+                                <div class="p-3 bg-white dark:bg-gray-700 rounded-lg shadow-sm"
+                                     *ngFor="let prev of prevPrescriptionData">
+                                    <div class="flex justify-between items-start mb-2">
+                                    </div>
+                                    <div class="mb-2">
+                                        <p class="text-sm font-medium dark:text-gray-300">{{ prev.drugName }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ prev.writtenDate | date : 'MM/dd/yyyy' }}
+                                        </p>
+                                    </div>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                                        {{ prev.prescriptionInstruction }}
+                                    </p>
+                                </div>
+                            </div>
+                        }@else {
+                            <ng-template [ngTemplateOutlet]="loading"></ng-template>
+                        }
+                    </div>
+                </div>
+
+            </div>
+            <div class="mt-2 pt-4 pb-2 sticky bottom-0 h-[60px] backdrop-blur-xl rounded border-t dark:border-gray-700">
+                <button type="submit" class="main-btn mb-0" (click)="savePrescription()">
+                    <i class="fa-regular fa-floppy-disk"></i>
+                    <span class="ml-2 hidden md:inline-block">
+                        Save
+                    </span>
+                </button>
+                <button type="button" class="main-btn mb-0 mr-2" (click)="disCardChanges()">
+                    <i class="fa-solid fa-trash"></i>
+                    <span class="ml-2 hidden md:inline-block">
+                        Discard
+                    </span>
+                </button>
+            </div>
+        </form>
+    </ng-container>
+} @else{
+    <div class="flex flex-col items-center justify-center text-center text-red-500 dark:text-red-400"
+        style="height: calc(100dvh - 10rem);">
+        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+        <p class="text-lg font-medium">An error occurred while loading the prescription data.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Please try again later or contact support.</p>
+
+        <div class="flex flex-col sm:flex-row gap-4">
+            <button class="main-btn w-full sm:w-auto" (click)="getPrescriptionDetails()">
+                <i class="fa-solid fa-rotate-right mr-2"></i>
+                Reload
+            </button>
+            <button class="main-btn w-full sm:w-auto" (click)="moveBack()">
+                <i class="fa-solid fa-arrow-left mr-2"></i>
+                Go Back
+            </button>
+        </div>
+    </div>
+}
+
+<ng-template #loading>
+    <div class="text-center text-primary text-3xl pt-[5rem]">
+        <i class="fa-solid fa-arrows-spin animate-spin"></i>
+    </div>
+</ng-template>
+
+<ng-template #loadingMain>
+    <div class="flex items-center justify-center min-h-[88vh] border-t dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl">
+        <div class="text-center">
+            <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+            <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Prescriptions data...</p>
+        </div>
+    </div>
+</ng-template>
+
+<nz-drawer [nzClosable]="true" [nzVisible]="isDrawerOpen" nzPlacement="right" nzTitle="Previous Prescriptions" (nzOnClose)="isDrawerOpen = false" class="dark:bg-gray-800">
+    <div class="space-y-4" *ngIf="prevPrescriptionData?.length; else noPrevPrescriptionMobile">
+        <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg" *ngFor="let prev of prevPrescriptionData">
+            <div class="p-3 bg-white dark:bg-gray-700 rounded-lg shadow-sm"
+                *ngFor="let prev of prevPrescriptionData">
+                <div class="mb-2">
+                    <p class="text-sm font-medium dark:text-gray-300">{{ prev.drugName }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ prev.writtenDate | date }}
+                    </p>
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                    {{ prev.prescriptionInstruction }}
+                </p>
+            </div>
+        </div>
+    </div>
+</nz-drawer>
+
+<ng-template #noPrevPrescriptionMobile>
+    <p class="text-gray-500 dark:text-gray-400 text-sm">No previous prescriptions found</p>
+</ng-template>

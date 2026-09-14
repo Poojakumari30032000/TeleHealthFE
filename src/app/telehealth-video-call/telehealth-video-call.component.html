@@ -1,0 +1,139 @@
+<div class="flex flex-col min-h-[88.73dvh]">
+  <div class="flex-1 flex flex-col lg:flex-row overflow-hidden transition-all duration-300 mb-4 gap-4 ">
+    <div class="relative flex-1 overflow-auto">
+      <div class="grid gap-4">
+
+        <div class="absolute bottom-4 right-4 w-32 h-32 md:w-48 md:h-48 rounded-xl overflow-hidden shadow-2xl z-10">
+          <div *ngIf="!publishVideo" class="absolute inset-0 flex items-center justify-center bg-gray-800 text-white text-xl font-semibold">
+            {{ getInitials(userData?.firstName + ' ' + userData?.lastName || 'You') }}
+          </div>
+          <div *ngIf="isLoading" class="absolute inset-0 flex items-center justify-center bg-black/50">
+            <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <div id="publisher-floating" class="absolute inset-0 w-full h-full"></div>
+          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-2">
+            <span class="text-white text-xs font-medium">{{ userData?.firstName + ' ' + userData?.lastName || 'You' }}</span>
+          </div>
+          <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 bg-black/30">
+            <div class="flex space-x-1">
+              <button (click)="toggleAudio()" class="text-white w-6 h-6 bg-blue-500 rounded-full hover:bg-blue-600 transition-all duration-200">
+                <i class="fas text-xs" [ngClass]="publishAudio ? 'fa-microphone' : 'fa-microphone-slash'"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngFor="let stream of cameraStreams; let i = index" class="relative bg-black rounded-xl overflow-hidden shadow-xl aspect-video">
+          <div *ngIf="!stream.hasVideo" class="absolute inset-0 flex items-center justify-center bg-gray-800 text-white text-2xl font-semibold">
+            {{ getInitials(stream.name || 'Participant ' + (i + 1)) }}
+          </div>
+          <div *ngIf="isLoading" class="absolute inset-0 flex items-center justify-center bg-black/50">
+            <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <div id="subscriber-{{stream.streamId}}" class="absolute inset-0 w-full h-full"></div>
+          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3">
+            <span class="text-white text-sm font-medium">{{ stream.name || 'Participant ' + (i + 1) }}</span>
+          </div>
+          <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 bg-black/30">
+            <div class="flex space-x-2">
+              <button (click)="muteParticipant(stream)" class="text-white w-10 h-10 bg-blue-500 rounded-full p-2 hover:bg-blue-600 transition-all duration-200" [disabled]="userData?.roleName !== 'Provider'">
+                <i class="fas fa-microphone-slash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="userData?.roleName === 'Provider' && activePanel === 'prescription' && !isPrescriptionCollapsed" class="max-h-[60dvh] overflow-auto w-full lg:w-96 lg:max-h-[78dvh] bg-white dark:bg-gray-900 border rounded-2xl border-gray-200 dark:border-gray-800 flex flex-col shadow transition-all duration-300">
+      <div class="flex justify-between items-center p-6">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Prescription</h2>
+        <button (click)="togglePanel(null)" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-all duration-200">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form class="flex-1 flex flex-col space-y-6 px-6 pb-6" [formGroup]="prescriptionForm">
+        <div class="col-span-1 @lg:col-span-2" *ngIf="prescriptionData?.productType?.includes('Drug')">
+          <label class="label-C">Drugs <span class="text-red-500 mr-1">*</span></label>
+          <nz-select class="w-full mt-1" nzShowSearch nzPlaceHolder="Select Drug" formControlName="productId" [nzLoading]="LoadingProductVarients" [nzDisabled]="LoadingProductVarients">
+            <nz-option *ngFor="let product of productVarients;trackBy: trackByProductId" [nzValue]="product.productId" [nzLabel]="product.productName"></nz-option>
+          </nz-select>
+        </div>
+        <div class="col-span-full" *ngIf="prescriptionData?.productType?.includes('Bundle')">
+          <label class="text-gray-500 dark:text-gray-400 text-sm">Bundle:</label>
+          <span class="label-C font-semibold mt-1">
+            {{ prescriptionData?.productName || '--' }}
+          </span>
+        </div>
+        <div class="col-span-full">
+          <label class="label-C">Patient Directions <span class="text-red-500 mr-1">*</span></label>
+          <textarea class="input-C" placeholder="Enter Patient Directions Here ..."  [nzAutosize]="{ minRows: 3, maxRows: 8 }" nz-input formControlName="prescriptionInstruction"></textarea>
+        </div>
+        <div class="flex space-x-4 justify-end">
+          <button type="button" (click)="clearPrescriptionForm()" class="main-btn">
+            <i class="fa-regular fa-rectangle-xmark"></i>
+            <span class="ml-2 hidden @md:inline-block">Clear</span>
+          </button>
+          <button type="submit" (click)="savePrescription()" [disabled]="!prescriptionForm.valid" class="main-btn">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span class="ml-2 hidden @md:inline-block">Submit</span>
+          </button>
+        </div>
+      </form>
+
+      <div class="p-4 rounded-lg h-full sticky top-4 block border-t dark:border-gray-700">
+          <h4 class="font-semibold text-base dark:text-gray-300 mb-4">Previous Prescriptions</h4>
+          @if(!LoadingPrevPrescription){
+              <div class="space-y-4" *ngIf="prevPrescriptionData?.length; else noPrevPrescriptionMobile">
+                  <div class="p-3 bg-white dark:bg-gray-700 rounded-lg shadow-sm"
+                       *ngFor="let prev of prevPrescriptionData; trackBy: trackByPrescriptionId">
+                      <div class="mb-2">
+                        <p class="text-sm font-medium dark:text-gray-300">{{ prev.drugName }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            {{ prev.writtenDate | date : 'MM/dd/yyyy' }}
+                        </p>
+                      </div>
+                      <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                          {{ prev.prescriptionInstruction }}
+                      </p>
+                  </div>
+              </div>
+          }@else {
+              <ng-template [ngTemplateOutlet]="loading"></ng-template>
+          }
+      </div>
+    </div>
+  </div>
+
+  <div class="backdrop-blur-md p-4 flex justify-center items-center space-x-2 md:space-x-4 border-t border-gray-200/50 dark:border-gray-700 transition-all duration-300">
+    <button (click)="toggleAudio()" class="group relative w-10 h-10 md:w-12 md:h-12 bg-gray-200 dark:bg-gray-700 dark:text-gray-300 rounded-full flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 shadow-md transition-all duration-200 transform hover:scale-105" [ngClass]="{'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 dark:from-red-600 dark:to-red-500': !publishAudio}">
+      <i class="fas text-base md:text-lg" [ngClass]="publishAudio ? 'fa-microphone' : 'fa-microphone-slash'"></i>
+      <span class="absolute bottom-12 md:bottom-14 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-gray-700 text-white text-xs rounded-lg px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">Mic</span>
+    </button>
+    <button (click)="toggleVideo()" class="group relative w-10 h-10 md:w-12 md:h-12 bg-gray-200 dark:bg-gray-700 dark:text-gray-300 rounded-full flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 shadow-md transition-all duration-200 transform hover:scale-105" [ngClass]="{'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 dark:from-red-600 dark:to-red-500': !publishVideo}">
+      <i class="fas text-base md:text-lg" [ngClass]="publishVideo ? 'fa-video' : 'fa-video-slash'"></i>
+      <span class="absolute bottom-12 md:bottom-14 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-gray-700 text-white text-xs rounded-lg px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">Camera</span>
+    </button>
+    <button *ngIf="userData?.roleName === 'Provider'" (click)="togglePanel('prescription')"
+    class="group relative w-10 h-10 md:w-12 md:h-12 bg-gray-200 dark:bg-gray-700 dark:text-gray-300 rounded-full flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 shadow-md transition-all duration-200 transform hover:scale-105"
+    [ngClass]="{'bg-primary text-white hover:bg-primary-600 dark:bg-primary dark:text-white dark:hover:bg-primary-600': userData?.roleName === 'Provider' && activePanel === 'prescription' && !isPrescriptionCollapsed}">
+      <i class="fas text-base md:text-lg fa-prescription-bottle"></i>
+      <span class="absolute bottom-12 md:bottom-14 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-gray-700 text-white text-xs rounded-lg px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">Prescription</span>
+    </button>
+    <button (click)="disconnectSession()" class="group relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full flex items-center justify-center hover:from-red-600 hover:to-red-700 dark:from-red-600 dark:to-red-500 shadow-md transition-all duration-200 transform hover:scale-105">
+      <i class="fas text-base md:text-lg fa-phone-slash"></i>
+      <span class="absolute bottom-12 md:bottom-14 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-gray-700 text-white text-xs rounded-lg px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">End Call</span>
+    </button>
+  </div>
+</div>
+
+<ng-template #noPrevPrescriptionMobile>
+  <p class="text-gray-500 dark:text-gray-400 text-sm">No previous prescriptions found</p>
+</ng-template>
+
+<ng-template #loading>
+  <div class="text-center text-primary text-3xl pt-[5rem]">
+      <i class="fa-solid fa-arrows-spin animate-spin"></i>
+  </div>
+</ng-template>

@@ -1,0 +1,7 @@
+::ng-deep calendar-footer{
+    display: none !important;
+}
+
+::ng-deep .ant-picker-panel-container, ::ng-deep .ant-picker-panel-container .ant-picker-panel{
+    border-radius: 1rem !important;
+}

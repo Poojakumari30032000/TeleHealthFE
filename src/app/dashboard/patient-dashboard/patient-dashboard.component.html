@@ -1,0 +1,195 @@
+<div class="pd-dashboard-shell">
+  <section class="pd-kpi-grid">
+    <article
+      class="pd-kpi-card pd-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open treatments"
+      (click)="openTreatments()"
+      (keydown.enter)="openTreatments()"
+      (keydown.space)="openTreatments(); $event.preventDefault()"
+    >
+      <div class="pd-kpi-head">
+        <h3>Active Treatments</h3>
+        <span class="pd-kpi-icon"><i class="fas fa-pills"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="pd-kpi-value">{{ activeTreatments }}</div>
+      </ng-container>
+
+    </article>
+
+    <article
+      class="pd-kpi-card pd-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open appointments"
+      (click)="openAppointments()"
+      (keydown.enter)="openAppointments()"
+      (keydown.space)="openAppointments(); $event.preventDefault()"
+    >
+      <div class="pd-kpi-head">
+        <h3>Upcoming Appointment</h3>
+        <span class="pd-kpi-icon"><i class="fas fa-calendar-check"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="pd-kpi-value pd-kpi-value-sm">{{ upcomingAppointment ? (upcomingAppointment | date: 'mediumDate') : '--' }}</div>
+      </ng-container>
+
+    </article>
+
+    <article
+      class="pd-kpi-card pd-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open orders"
+      (click)="openOrders()"
+      (keydown.enter)="openOrders()"
+      (keydown.space)="openOrders(); $event.preventDefault()"
+    >
+      <div class="pd-kpi-head">
+        <h3>Next Shipping</h3>
+        <span class="pd-kpi-icon"><i class="fas fa-truck"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="pd-kpi-value pd-kpi-value-sm">{{ nextShippingDate ? (nextShippingDate | date: 'mediumDate') : '--' }}</div>
+      </ng-container>
+
+    </article>
+
+    <article
+      class="pd-kpi-card pd-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open prescriptions"
+      (click)="openPrescriptions()"
+      (keydown.enter)="openPrescriptions()"
+      (keydown.space)="openPrescriptions(); $event.preventDefault()"
+    >
+      <div class="pd-kpi-head">
+        <h3>Next Refill</h3>
+        <span class="pd-kpi-icon"><i class="fas fa-file-prescription"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="pd-kpi-value pd-kpi-value-sm">{{ nextRefill }}</div>
+      </ng-container>
+
+    </article>
+  </section>
+
+  <section class="pd-panel-grid">
+    <article class="pd-panel">
+      <div class="pd-panel-head">
+        <h4><i class="fa-solid fa-capsules text-primary mr-2"></i>Medication History</h4>
+        <button nz-button nzType="default" nzShape="round" (click)="openTreatments()">Open Treatments</button>
+      </div>
+      <div class="pd-panel-body">
+        <div *ngIf="!medicationHistoryLoading; else listLoading" class="pd-records-list">
+          <ng-container *ngIf="medicationHistory.length > 0; else noMedication">
+            <article
+              *ngFor="let med of medicationHistory"
+              class="pd-record-row"
+              role="button"
+              tabindex="0"
+              title="Open treatment detail"
+              (click)="openTreatment(med)"
+              (keydown.enter)="openTreatment(med)"
+              (keydown.space)="openTreatment(med); $event.preventDefault()"
+            >
+              <div class="pd-record-main">
+                <div class="pd-record-title">Treatment #{{ med.patientTreatmentId || '--' }}</div>
+                <div class="pd-record-subtitle">{{ med.packageName || '--' }}</div>
+              </div>
+              <div class="pd-record-facts">
+                <div class="pd-record-fact">
+                  <label>Duration</label>
+                  <span>{{ med.duration || '--' }}</span>
+                </div>
+                <div class="pd-record-fact">
+                  <label>Price</label>
+                  <span>{{ med.price | currency }}</span>
+                </div>
+                <div class="pd-record-fact">
+                  <label>Status</label>
+                  <span>{{ med.status }}</span>
+                </div>
+              </div>
+              <button nz-button nzType="default" nzShape="circle" class="action-icon-btn">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </article>
+          </ng-container>
+          <ng-template #noMedication>
+            <div class="pd-empty-state">
+              <i class="fa-regular fa-folder-open"></i>
+              <span>No medication history found.</span>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </article>
+
+    <article class="pd-panel">
+      <div class="pd-panel-head">
+        <h4><i class="fa-solid fa-file-invoice-dollar text-primary mr-2"></i>Payment History</h4>
+        <button nz-button nzType="default" nzShape="round" (click)="openBilling()">Open Billing</button>
+      </div>
+      <div class="pd-panel-body">
+        <div *ngIf="!paymentHistoryLoading; else listLoading" class="pd-records-list">
+          <ng-container *ngIf="paymentHistory.length > 0; else noPayments">
+            <article
+              *ngFor="let payment of paymentHistory"
+              class="pd-record-row"
+              role="button"
+              tabindex="0"
+              title="Open invoice detail"
+              (click)="openPayment(payment)"
+              (keydown.enter)="openPayment(payment)"
+              (keydown.space)="openPayment(payment); $event.preventDefault()"
+            >
+              <div class="pd-record-main">
+                <div class="pd-record-title">Invoice #{{ payment.invoiceNo || '--' }}</div>
+                <div class="pd-record-subtitle">{{ payment.date | date: 'mediumDate' }}</div>
+              </div>
+              <div class="pd-record-facts">
+                <div class="pd-record-fact">
+                  <label>Amount</label>
+                  <span>{{ payment.amount | currency }}</span>
+                </div>
+              </div>
+              <div class="pd-record-facts">
+                <div class="pd-record-fact">
+                  <label>Status</label>
+                  <span>{{ payment.status }}</span>
+                </div>
+              </div>
+              <button nz-button nzType="default" nzShape="circle" class="action-icon-btn">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </article>
+          </ng-container>
+          <ng-template #noPayments>
+            <div class="pd-empty-state">
+              <i class="fa-regular fa-folder-open"></i>
+              <span>No payment history found.</span>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </article>
+  </section>
+</div>
+
+<ng-template #kpiLoading>
+  <div class="pd-kpi-loading">
+    <div class="pd-loading-line lg"></div>
+    <div class="pd-loading-line sm"></div>
+  </div>
+</ng-template>
+
+<ng-template #listLoading>
+  <div class="pd-chart-loading">
+    <i class="fa-solid fa-arrows-spin animate-spin"></i>
+    <span>Loading data...</span>
+  </div>
+</ng-template>

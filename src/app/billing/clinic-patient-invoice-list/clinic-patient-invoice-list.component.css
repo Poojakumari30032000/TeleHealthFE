@@ -1,0 +1,406 @@
+:host {
+  display: block;
+}
+
+:host ::ng-deep .invoice-list-tabs > .ant-tabs-nav {
+  margin-bottom: 12px;
+}
+
+:host ::ng-deep .invoice-list-tabs > .ant-tabs-nav .ant-tabs-nav-wrap {
+  background: #f8fafc;
+  border: 1px solid #e5eaf3;
+  border-radius: 10px;
+  padding: 4px;
+}
+
+:host ::ng-deep .invoice-list-tabs.ant-tabs-card .ant-tabs-tab {
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  color: var(--primary-color);
+  font-weight: 600;
+  padding: 7px 12px !important;
+  margin: 0 4px 0 0 !important;
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .invoice-list-tabs.ant-tabs-card .ant-tabs-tab:hover {
+  background: #eef3ff !important;
+  color: var(--primary-color);
+}
+
+:host ::ng-deep .invoice-list-tabs.ant-tabs-card .ant-tabs-tab-active {
+  background: #ffffff !important;
+  color: var(--primary-color) !important;
+  border-color: #d3dcf0 !important;
+  box-shadow: 0 1px 3px rgba(21, 34, 66, 0.1);
+}
+
+:host
+  ::ng-deep
+  .invoice-list-tabs.ant-tabs-card
+  .ant-tabs-tab
+  .ant-tabs-tab-btn {
+  color: inherit !important;
+}
+
+:host
+  ::ng-deep
+  .invoice-list-tabs.ant-tabs-card
+  .ant-tabs-tab
+  .ant-tabs-tab-remove {
+  margin-left: 6px;
+  color: #7c8ead;
+  font-size: 11px;
+  transition: color 0.2s ease;
+}
+
+:host
+  ::ng-deep
+  .invoice-list-tabs.ant-tabs-card
+  .ant-tabs-tab:hover
+  .ant-tabs-tab-remove,
+:host
+  ::ng-deep
+  .invoice-list-tabs.ant-tabs-card
+  .ant-tabs-tab-active
+  .ant-tabs-tab-remove {
+  color: #4a669f;
+}
+
+:host ::ng-deep .invoice-list-tabs > .ant-tabs-content-holder {
+  border-top: 1px solid #e6ebf4;
+  padding-top: 4px;
+}
+
+.invoice-list-workspace-shell {
+  padding: 0.2rem 0.2rem 0.4rem;
+  border-radius: 16px;
+}
+
+.invoice-list-filter-shell,
+.invoice-list-table-shell {
+  position: relative;
+}
+
+.invoice-list-filter-shell {
+  margin-bottom: 0.75rem;
+  border: 1px solid #d9e5f4;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+  padding: 0.75rem;
+}
+
+.invoice-list-filter-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.invoice-list-filter-toolbar-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.62rem;
+}
+
+.invoice-list-filter-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.invoice-list-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.invoice-list-filter-count-pill {
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.35rem;
+  background: var(--primary-color);
+  color: #ffffff;
+  font-size: 0.72rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.invoice-list-filter-chevron {
+  font-size: 0.68rem;
+  transition: transform 0.2s ease;
+}
+
+.invoice-list-filter-summary {
+  color: #627796;
+  font-size: 0.85rem;
+}
+
+.invoice-list-filter-clear {
+  font-weight: 600;
+}
+
+.invoice-list-create-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 !important;
+}
+
+.invoice-list-filter-grid {
+  margin-top: 0.72rem;
+  padding: 0.82rem;
+  border: 1px solid #dde8f6;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f8fbff 0%, #f5f8ff 100%);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.82rem;
+}
+
+.invoice-list-filter-label {
+  color: var(--primary-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.28rem;
+}
+
+.invoice-list-filter-grid .invoice-list-filter-select {
+  margin-top: 0 !important;
+}
+
+:host ::ng-deep .invoice-list-filter-grid .ant-select {
+  margin-top: 0 !important;
+}
+
+:host
+  ::ng-deep
+  .invoice-list-filter-grid
+  .ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
+  border-color: #d3def0 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 9px !important;
+}
+
+:host ::ng-deep .invoice-list-filter-grid .ant-select-selection-item,
+:host ::ng-deep .invoice-list-filter-grid .ant-select-selection-placeholder {
+  line-height: 32px !important;
+}
+
+:host ::ng-deep .invoice-list-filter-grid .ant-select-selector:hover {
+  border-color: #aac0e6 !important;
+}
+
+:host ::ng-deep .invoice-list-filter-grid .ant-select-focused .ant-select-selector {
+  border-color: #5f8fdd !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12) !important;
+}
+
+.invoice-list-table-shell {
+  border: 1px solid #d8e3f3;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+:host ::ng-deep .invoice-list-table .ant-table {
+  background: transparent;
+}
+
+:host ::ng-deep .invoice-list-table .ant-table-thead > tr > th {
+  background: #f4f8ff;
+  color: #31538a;
+  font-size: 12px;
+  font-weight: 700;
+  border-bottom: 1px solid #d9e6f7;
+}
+
+:host ::ng-deep .invoice-list-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #edf2fa;
+  transition: background-color 0.16s ease;
+}
+
+:host ::ng-deep .invoice-list-table .ant-table-tbody > tr.invoice-list-row-clickable:hover > td {
+  background: #f7fbff;
+}
+
+.invoice-list-row-clickable {
+  cursor: pointer;
+}
+
+.invoice-list-row-clickable:focus-visible {
+  outline: 2px solid #8cb4ff;
+  outline-offset: -2px;
+}
+
+.invoice-list-id-link {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #1f4fb0;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.invoice-list-id-link:hover {
+  color: #123f96;
+}
+
+.action-icon-btn {
+  cursor: pointer !important;
+}
+
+:host-context(.dark) ::ng-deep .invoice-list-tabs > .ant-tabs-nav .ant-tabs-nav-wrap {
+  background: #1f2a3b;
+  border-color: #32445f;
+}
+
+:host-context(.dark) .invoice-list-filter-shell,
+:host-context(.dark) .invoice-list-table-shell {
+  border-color: rgba(148, 163, 184, 0.24);
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: none;
+}
+
+:host-context(.dark) ::ng-deep .invoice-list-tabs.ant-tabs-card .ant-tabs-tab {
+  color: var(--primary-color);
+}
+
+:host-context(.dark) ::ng-deep .invoice-list-tabs.ant-tabs-card .ant-tabs-tab:hover {
+  background: #2a3850 !important;
+  color: var(--primary-color);
+}
+
+:host-context(.dark) ::ng-deep .invoice-list-tabs.ant-tabs-card .ant-tabs-tab-active {
+  background: #27344a !important;
+  color: var(--primary-color) !important;
+  border-color: #3f5476 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+:host-context(.dark) ::ng-deep .invoice-list-tabs > .ant-tabs-content-holder {
+  border-top-color: #31445f;
+}
+
+:host-context(.dark) .invoice-list-filter-toggle,
+:host-context(.dark) .invoice-list-filter-clear {
+  color: #d2e2ff !important;
+}
+
+:host-context(.dark) .invoice-list-filter-summary {
+  color: #94a3b8;
+}
+
+:host-context(.dark) .invoice-list-filter-label {
+  color: var(--primary-color);
+}
+
+:host-context(.dark) .invoice-list-filter-grid {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+:host-context(.dark) ::ng-deep .invoice-list-filter-grid .ant-select-selector {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: rgba(100, 116, 139, 0.6) !important;
+}
+
+:host-context(.dark)
+  ::ng-deep
+  .invoice-list-filter-grid
+  .invoice-list-filter-select.ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: rgba(100, 116, 139, 0.6) !important;
+  color: #dbeafe !important;
+}
+
+:host-context(.dark) ::ng-deep .invoice-list-filter-grid .ant-select-selection-item {
+  color: #dbeafe !important;
+}
+
+:host-context(.dark)
+  ::ng-deep
+  .invoice-list-filter-grid
+  .invoice-list-filter-select.ant-select
+  .ant-select-selection-search-input {
+  background: transparent !important;
+  color: #dbeafe !important;
+  -webkit-text-fill-color: #dbeafe;
+}
+
+:host-context(.dark) ::ng-deep .invoice-list-filter-grid .ant-select-selection-placeholder {
+  color: #8ea3c7 !important;
+}
+
+:host-context(.dark) ::ng-deep .invoice-list-filter-grid .ant-select-arrow {
+  color: #9fb4d9 !important;
+}
+
+:host-context(.dark) ::ng-deep .invoice-list-table .ant-table-thead > tr > th {
+  background: rgba(30, 41, 59, 0.86);
+  border-bottom-color: rgba(148, 163, 184, 0.24);
+  color: #d2e0fb;
+}
+
+:host-context(.dark) ::ng-deep .invoice-list-table .ant-table-tbody > tr > td {
+  border-bottom-color: rgba(148, 163, 184, 0.18);
+}
+
+:host-context(.dark) ::ng-deep .invoice-list-table .ant-table-tbody > tr.invoice-list-row-clickable:hover > td {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+:host-context(.dark) .invoice-list-id-link {
+  color: #9bc0ff;
+}
+
+:host-context(.dark) .invoice-list-id-link:hover {
+  color: #bfd8ff;
+}
+
+@media (max-width: 768px) {
+  .invoice-list-workspace-shell {
+    padding: 0.15rem;
+  }
+
+  .invoice-list-filter-shell {
+    padding: 0.62rem;
+  }
+
+  .invoice-list-filter-grid {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0.7rem;
+  }
+
+  .invoice-list-filter-toolbar,
+  .invoice-list-filter-toolbar-left,
+  .invoice-list-filter-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .invoice-list-filter-toggle,
+  .invoice-list-filter-clear,
+  .invoice-list-create-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

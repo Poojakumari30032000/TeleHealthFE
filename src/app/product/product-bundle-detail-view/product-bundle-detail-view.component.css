@@ -1,0 +1,6 @@
+.ant-input-disabled.disabled,
+.ant-input[disabled].disabled,
+::ng-deep .ant-select-disabled.disabled.ant-select:not(.ant-select-customize-input) .ant-select-selector,
+::ng-deep .ant-checkbox-wrapper.disabled .ant-checkbox-disabled + span {
+    color: inherit !important;
+}

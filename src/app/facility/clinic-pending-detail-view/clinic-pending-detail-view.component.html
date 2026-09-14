@@ -1,0 +1,308 @@
+<ng-container *ngIf="!loading; else loadingTpl">
+  <ng-container *ngIf="!errorMessage; else errorTpl">
+
+    <div class="cpd-shell" *ngIf="data">
+
+      <header class="cpd-header">
+        <div class="cpd-header-stripe"></div>
+        <div class="cpd-header-body">
+          <div class="cpd-header-left">
+            <span class="cpd-pending-pill">
+              <i class="fa-regular fa-clock"></i>
+              Pending Approval
+            </span>
+            <h2 class="cpd-clinic-name">{{ data?.titleLong || data?.titleShort }}</h2>
+            <div class="cpd-header-meta">
+              <span><i class="fa-solid fa-envelope"></i> {{ data?.email || '—' }}</span>
+              <span><i class="fa-solid fa-phone"></i> {{ data?.phone || '—' }}</span>
+            </div>
+          </div>
+          <button
+            nz-button
+            nzType="primary"
+            nzSize="large"
+            class="cpd-approve-cta"
+            (click)="openApproveModal()"
+          >
+            <i class="fa-solid fa-circle-check mr-2"></i>
+            Approve Clinic
+          </button>
+        </div>
+      </header>
+
+      <div class="cpd-warning">
+        <i class="fa-solid fa-shield-halved"></i>
+        <div>
+          <strong>Review carefully before approving.</strong>
+          Once approved, the clinic admin will be granted access to the platform and will be able
+          to start using TelehealthUS immediately. Make sure all the information below is accurate.
+        </div>
+      </div>
+
+      <div class="cpd-grid">
+
+        <section class="cpd-card">
+          <header class="cpd-card-head">
+            <span class="cpd-card-icon"><i class="fa-solid fa-hospital"></i></span>
+            <h3>Clinic Info</h3>
+          </header>
+          <dl class="cpd-dl">
+            <div class="cpd-row">
+              <dt>Long Name</dt>
+              <dd>{{ data?.titleLong || '—' }}</dd>
+            </div>
+            <div class="cpd-row">
+              <dt>Short Name</dt>
+              <dd>{{ data?.titleShort || '—' }}</dd>
+            </div>
+            <div class="cpd-row">
+              <dt>NPI</dt>
+              <dd>{{ data?.npi || '—' }}</dd>
+            </div>
+            <div class="cpd-row">
+              <dt>Federal Tax ID</dt>
+              <dd>{{ data?.fedearlTaxId || '—' }}</dd>
+            </div>
+            <div class="cpd-row">
+              <dt>Fax</dt>
+              <dd>{{ data?.fax || '—' }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="cpd-card">
+          <header class="cpd-card-head">
+            <span class="cpd-card-icon"><i class="fa-solid fa-user-shield"></i></span>
+            <h3>Clinic Admin</h3>
+          </header>
+          <dl class="cpd-dl">
+            <div class="cpd-row">
+              <dt>Name</dt>
+              <dd>{{ adminFullName }}</dd>
+            </div>
+            <div class="cpd-row">
+              <dt>Email</dt>
+              <dd>{{ adminEmail }}</dd>
+            </div>
+            <div class="cpd-row">
+              <dt>Phone</dt>
+              <dd>{{ adminPhone }}</dd>
+            </div>
+            <div class="cpd-row" *ngIf="adminUser">
+              <dt>Status</dt>
+              <dd>{{ adminStatus }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="cpd-card">
+          <header class="cpd-card-head">
+            <span class="cpd-card-icon"><i class="fa-solid fa-location-dot"></i></span>
+            <h3>Address</h3>
+          </header>
+          <dl class="cpd-dl">
+            <div class="cpd-row">
+              <dt>Address</dt>
+              <dd>{{ data?.completeAddress || data?.address || '—' }}</dd>
+            </div>
+            <div class="cpd-row">
+              <dt>ZIP</dt>
+              <dd>{{ data?.zipCode || '—' }}</dd>
+            </div>
+            <div class="cpd-row">
+              <dt>Billing Type</dt>
+              <dd>{{ data?.billingAddressType || '—' }}</dd>
+            </div>
+            <ng-container *ngIf="hasOtherBilling">
+              <div class="cpd-row">
+                <dt>Billing Address</dt>
+                <dd>{{ data?.completeBillingAddress || data?.billingAddress || '—' }}</dd>
+              </div>
+              <div class="cpd-row">
+                <dt>Billing ZIP</dt>
+                <dd>{{ data?.billingZipCode || '—' }}</dd>
+              </div>
+            </ng-container>
+          </dl>
+        </section>
+
+      </div>
+    </div>
+
+  </ng-container>
+</ng-container>
+
+<ng-template #loadingTpl>
+  <div class="cpd-loading">
+    <div class="cpd-loading-inner">
+      <div class="cpd-loading-ring"></div>
+      <p class="cpd-loading-text">Loading clinic details…</p>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #errorTpl>
+  <div class="cpd-error">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <p>{{ errorMessage }}</p>
+  </div>
+</ng-template>
+
+<nz-modal
+  [(nzVisible)]="showApproveModal"
+  nzTitle="Approve Clinic"
+  [nzMaskClosable]="!approving"
+  [nzClosable]="!approving"
+  [nzFooter]="approveFooterTpl"
+  nzCentered
+  (nzOnCancel)="closeApproveModal()"
+>
+  <ng-container *nzModalContent>
+    <div class="cpd-modal-warning">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <div>
+        Please make sure you have <strong>reviewed all the clinic's information</strong> before approving.
+        Approving will activate the clinic admin's account and they will be able to sign in and start
+        using TelehealthUS immediately.
+      </div>
+    </div>
+
+    <div class="cpd-clinic-summary">
+      <div class="cpd-summary-label">Approving</div>
+      <div class="cpd-summary-name">{{ data?.titleLong || data?.titleShort }}</div>
+      <div class="cpd-summary-meta">{{ data?.email }} · {{ data?.cityName }}, {{ data?.stateName }}</div>
+    </div>
+
+    <label class="cpd-channel-toggle">
+      <input
+        type="checkbox"
+        [(ngModel)]="approveCanViewChannels"
+        (ngModelChange)="!$event && (approveSendMessages = false)"
+        [disabled]="approving"
+      />
+      <div class="cpd-channel-text">
+        <span class="cpd-channel-label">Allow this clinic to view Channels</span>
+        <span class="cpd-channel-help">
+          When enabled, all clinic admins in this facility will be able to see the
+          Channels tab in the chat interface (view-only access). Recommended only for
+          clinics that explicitly need it.
+        </span>
+      </div>
+    </label>
+
+    <label class="cpd-channel-toggle">
+      <input
+        type="checkbox"
+        [(ngModel)]="approveSendMessages"
+        [disabled]="approving || !approveCanViewChannels"
+      />
+      <div class="cpd-channel-text">
+        <span class="cpd-channel-label">Allow this clinic to send messages</span>
+        <span class="cpd-channel-help">
+          When enabled, clinic admins can send messages in channels (not just view).
+          Requires "Allow this clinic to view Channels".
+        </span>
+      </div>
+    </label>
+
+    <label class="cpd-channel-toggle">
+      <input
+        type="checkbox"
+        [(ngModel)]="approveCanViewPharmacyName"
+        [disabled]="approving"
+      />
+      <div class="cpd-channel-text">
+        <span class="cpd-channel-label">Allow this clinic to view Pharmacy Name</span>
+        <span class="cpd-channel-help">
+          When enabled, this clinic sees the Pharmacy Name column in its drug list.
+        </span>
+      </div>
+    </label>
+
+    <div class="cpd-channel-toggle cpd-billing-toggle">
+      <div class="cpd-channel-text" style="flex: 1;">
+        <span class="cpd-channel-label">Billing</span>
+        <span class="cpd-channel-help">
+          Set whether this clinic will be charged the global monthly fee.
+          You can change this later from the Clinics page.
+        </span>
+      </div>
+      <nz-select
+        class="cpd-billing-select"
+        [(ngModel)]="approveIsBillable"
+        [nzDisabled]="approving"
+      >
+        <nz-option [nzValue]="true" nzLabel="Billable"></nz-option>
+        <nz-option [nzValue]="false" nzLabel="Free"></nz-option>
+      </nz-select>
+    </div>
+
+    <div class="cpd-payment-mode">
+      <span class="cpd-channel-label">
+        Payment Mode <span class="cpd-req">*</span>
+      </span>
+      <span class="cpd-channel-help">
+        Choose which payment provider this clinic will use to process payments.
+      </span>
+      <div class="payment-mode-cards-inner">
+        <button
+          type="button"
+          class="payment-mode-card"
+          [class.payment-mode-card-selected]="approvePaymentModeId === 1"
+          [class.payment-mode-card-unselected]="approvePaymentModeId !== 1"
+          [disabled]="approving"
+          (click)="selectPaymentMode(1)"
+        >
+          <span class="payment-mode-card-logo">
+            <img src="assets/img/payment/square-logo.svg" alt="" width="32" height="32" />
+          </span>
+          <span class="payment-mode-card-label">Square</span>
+        </button>
+        <button
+          type="button"
+          class="payment-mode-card"
+          [class.payment-mode-card-selected]="approvePaymentModeId === 2"
+          [class.payment-mode-card-unselected]="approvePaymentModeId !== 2"
+          [disabled]="approving"
+          (click)="selectPaymentMode(2)"
+        >
+          <span class="payment-mode-card-logo">
+            <img src="assets/img/payment/stripe-logo.svg" alt="" width="32" height="32" />
+          </span>
+          <span class="payment-mode-card-label">Stripe Direct</span>
+        </button>
+        <button
+          type="button"
+          class="payment-mode-card"
+          [class.payment-mode-card-selected]="approvePaymentModeId === 3"
+          [class.payment-mode-card-unselected]="approvePaymentModeId !== 3"
+          [disabled]="approving"
+          (click)="selectPaymentMode(3)"
+        >
+          <span class="payment-mode-card-logo">
+            <img src="assets/img/payment/stripe-logo.svg" alt="" width="32" height="32" />
+          </span>
+          <span class="payment-mode-card-label">Stripe Destination</span>
+        </button>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #approveFooterTpl>
+    <button nz-button nzShape="round" type="button" (click)="closeApproveModal()" [disabled]="approving">
+      Cancel
+    </button>
+    <button
+      nz-button
+      nzType="primary"
+      nzShape="round"
+      type="button"
+      (click)="confirmApprove()"
+      [nzLoading]="approving"
+      [disabled]="approving || !approvePaymentModeId"
+    >
+      <i class="fa-solid fa-circle-check mr-2"></i>
+      Approve &amp; Activate
+    </button>
+  </ng-template>
+</nz-modal>

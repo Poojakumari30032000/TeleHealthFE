@@ -1,0 +1,454 @@
+.sidebar {
+  position: fixed;
+  isolation: isolate;
+  overflow: hidden !important;
+  border-right: 1px solid
+    color-mix(in srgb, var(--secondP-color) 62%, #ffffff 38%);
+  box-shadow:
+    0 20px 44px color-mix(in srgb, var(--secondP-color) 34%, #0f172a 66%),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+.sidebar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      90% 55% at 12% 0%,
+      color-mix(in srgb, #ffffff 38%, transparent) 0%,
+      transparent 72%
+    ),
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, #ffffff 9%, transparent) 0%,
+      transparent 46%
+    );
+  opacity: 0.75;
+}
+
+.sidebar > * {
+  position: relative;
+  z-index: 1;
+}
+
+.sidebar .logo {
+  background: color-mix(in srgb, #ffffff 18%, transparent);
+  border: 1px solid color-mix(in srgb, #ffffff 44%, transparent);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+.sidebar .logo .bg-logo {
+  filter: drop-shadow(0 2px 2px rgba(15, 23, 42, 0.2));
+}
+
+.sidebar ::ng-deep .ant-layout-sider-children,
+.sidebar ::ng-deep .ant-menu,
+.sidebar ::ng-deep .ant-menu-light,
+.sidebar ::ng-deep .ant-menu-root,
+.sidebar ::ng-deep .ant-menu-inline {
+  background: transparent !important;
+}
+
+.sidebar ::ng-deep .ant-menu:not(.ant-menu-horizontal) .ant-menu-item,
+.sidebar ::ng-deep .ant-menu-inline.ant-menu-root .ant-menu-submenu-title {
+  min-height: 42px;
+  line-height: 42px;
+  margin: 6px 0 !important;
+  border-radius: 12px;
+  padding: 0 14px !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+  font-weight: 600;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.sidebar ::ng-deep .ant-menu-item .ant-menu-title-content,
+.sidebar ::ng-deep .ant-menu-submenu-title .ant-menu-title-content {
+  letter-spacing: 0.01em;
+}
+
+.sidebar ::ng-deep .ant-menu-item {
+  position: relative;
+}
+
+.sidebar .sidebar-msg-has-badge .ant-menu-title-content {
+  padding-right: 24px;
+}
+
+.sidebar .sidebar-msg-badge {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  background-color: #dc2626;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.sidebar ::ng-deep .ant-menu-item i,
+.sidebar ::ng-deep .ant-menu-submenu-title i {
+  color: rgba(255, 255, 255, 0.98) !important;
+}
+
+.sidebar
+  ::ng-deep
+  .ant-menu-light
+  .ant-menu-item:hover:not(.ant-menu-item-selected, .ant-menu-item-disabled),
+.sidebar ::ng-deep .ant-menu-light .ant-menu-item-active,
+.sidebar
+  ::ng-deep
+  .ant-menu-light
+  .ant-menu-submenu:not(.ant-menu-submenu-disabled)
+  .ant-menu-submenu-title:hover:not(.ant-menu-item-disabled) {
+  background: color-mix(in srgb, var(--secondP-color) 72%, #ffffff 28%) !important;
+  color: #ffffff !important;
+  transform: translateX(2px);
+}
+
+.sidebar
+  ::ng-deep
+  .ant-menu-light
+  .ant-menu-submenu-title:hover:not(.ant-menu-item-disabled)
+  .ant-menu-submenu-arrow,
+.sidebar
+  ::ng-deep
+  .ant-menu-inline.ant-menu-root
+  .ant-menu-submenu.ant-menu-submenu-selected
+  .ant-menu-submenu-title
+  .ant-menu-submenu-arrow {
+  color: #ffffff !important;
+}
+
+.sidebar ::ng-deep .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected,
+.sidebar
+  ::ng-deep
+  .ant-menu-inline.ant-menu-root
+  .ant-menu-submenu.ant-menu-submenu-selected
+  > .ant-menu-submenu-title {
+  background: color-mix(in srgb, #ffffff 88%, transparent) !important;
+  border: 1px solid color-mix(in srgb, #ffffff 70%, transparent) !important;
+  color: color-mix(in srgb, var(--secondP-color) 80%, #0f172a 20%) !important;
+  box-shadow: none !important;
+}
+
+.sidebar ::ng-deep .ant-menu-item-selected i,
+.sidebar
+  ::ng-deep
+  .ant-menu-submenu.ant-menu-submenu-selected
+  > .ant-menu-submenu-title
+  i,
+.sidebar
+  ::ng-deep
+  .ant-menu-submenu.ant-menu-submenu-selected
+  > .ant-menu-submenu-title
+  .ant-menu-submenu-arrow {
+  color: color-mix(in srgb, var(--secondP-color) 80%, #0f172a 20%) !important;
+}
+
+.sidebar ::ng-deep .ant-menu-sub.ant-menu-inline {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 12px;
+  background: transparent !important;
+}
+
+.sidebar ::ng-deep .ant-menu-submenu-open > .ant-menu-sub.ant-menu-inline {
+  margin: 6px 2px 10px !important;
+  padding: 6px !important;
+  border: 1px solid color-mix(in srgb, #ffffff 72%, transparent) !important;
+  background: color-mix(in srgb, #ffffff 90%, transparent) !important;
+}
+
+.sidebar ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-item,
+.sidebar ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-submenu-title {
+  color: rgba(30, 41, 59, 0.9) !important;
+  transform: none;
+}
+
+.sidebar ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-item i,
+.sidebar ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-submenu-title i {
+  color: color-mix(in srgb, var(--secondP-color) 55%, #334155 45%) !important;
+}
+
+.sidebar
+  ::ng-deep
+  .ant-menu-sub.ant-menu-inline
+  .ant-menu-item:hover:not(.ant-menu-item-selected, .ant-menu-item-disabled),
+.sidebar
+  ::ng-deep
+  .ant-menu-sub.ant-menu-inline
+  .ant-menu-submenu-title:hover:not(.ant-menu-item-disabled) {
+  background: color-mix(in srgb, var(--secondP-color) 16%, #ffffff 84%) !important;
+  color: color-mix(in srgb, var(--secondP-color) 72%, #1e293b 28%) !important;
+  transform: none;
+}
+
+.sidebar ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-item-selected {
+  background: color-mix(in srgb, var(--secondP-color) 24%, #ffffff 76%) !important;
+  border: 1px solid color-mix(in srgb, var(--secondP-color) 38%, #ffffff 62%) !important;
+  color: color-mix(in srgb, var(--secondP-color) 72%, #1e293b 28%) !important;
+  box-shadow: none !important;
+}
+
+.sidebar ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-item-selected i,
+.sidebar
+  ::ng-deep
+  .ant-menu-sub.ant-menu-inline
+  .ant-menu-item-selected
+  .ant-menu-submenu-arrow {
+  color: color-mix(in srgb, var(--secondP-color) 72%, #1e293b 28%) !important;
+}
+
+.sidebar ::ng-deep .ant-menu-item-disabled,
+.sidebar ::ng-deep .ant-menu-submenu-disabled,
+.sidebar ::ng-deep .ant-menu-item-disabled > .ant-menu-submenu-title,
+.sidebar ::ng-deep .ant-menu-submenu-disabled > .ant-menu-submenu-title {
+  color: rgba(255, 255, 255, 0.68) !important;
+}
+
+.sidebar ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-item-disabled,
+.sidebar ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-submenu-disabled,
+.sidebar
+  ::ng-deep
+  .ant-menu-sub.ant-menu-inline
+  .ant-menu-item-disabled
+  > .ant-menu-submenu-title,
+.sidebar
+  ::ng-deep
+  .ant-menu-sub.ant-menu-inline
+  .ant-menu-submenu-disabled
+  > .ant-menu-submenu-title {
+  color: rgba(71, 85, 105, 0.65) !important;
+}
+
+.sidebar .sidebar-logout-btn.ant-btn {
+  height: 44px !important;
+  border-radius: 12px !important;
+  border: 1px solid color-mix(in srgb, #ffffff 72%, transparent) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: color-mix(in srgb, var(--secondP-color) 80%, #0f172a 20%) !important;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.sidebar .sidebar-logout-btn.ant-btn:hover,
+.sidebar .sidebar-logout-btn.ant-btn:focus {
+  background: #ffffff !important;
+  color: color-mix(in srgb, var(--secondP-color) 86%, #0f172a 14%) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.22);
+}
+
+.sidebar .sidebar-logout-btn.ant-btn:active {
+  transform: translateY(0);
+}
+
+nz-sider.ant-layout-sider-collapsed {
+  left: -270px !important;
+}
+
+.sidebar ::ng-deep .ant-menu-vertical .ant-menu-item::after,
+.sidebar ::ng-deep .ant-menu-vertical-left .ant-menu-item::after,
+.sidebar ::ng-deep .ant-menu-vertical-right .ant-menu-item::after,
+.sidebar ::ng-deep .ant-menu-inline .ant-menu-item::after {
+  display: none !important;
+}
+
+:host-context(.dark) .sidebar {
+  border-right-color: rgba(148, 163, 184, 0.25);
+  box-shadow:
+    0 16px 36px rgba(2, 6, 23, 0.55),
+    inset 0 1px 0 rgba(148, 163, 184, 0.16);
+}
+
+:host-context(.dark) .sidebar::after {
+  background:
+    radial-gradient(
+      80% 55% at 8% 0%,
+      color-mix(in srgb, var(--secondP-color) 24%, transparent) 0%,
+      transparent 68%
+    ),
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--secondP-color) 18%, transparent) 0%,
+      transparent 48%
+    );
+  opacity: 0.55;
+}
+
+:host-context(.dark) .sidebar .logo {
+  background: rgba(15, 23, 42, 0.62);
+  border-color: rgba(148, 163, 184, 0.28);
+  box-shadow: 0 8px 16px rgba(2, 6, 23, 0.35);
+}
+
+:host-context(.dark)
+  .sidebar
+  ::ng-deep
+  .ant-menu:not(.ant-menu-horizontal)
+  .ant-menu-item-selected,
+:host-context(.dark)
+  .sidebar
+  ::ng-deep
+  .ant-menu-inline.ant-menu-root
+  .ant-menu-submenu.ant-menu-submenu-selected
+  > .ant-menu-submenu-title {
+  background: color-mix(in srgb, var(--secondP-color) 26%, #0f172a 74%) !important;
+  border: 1px solid color-mix(in srgb, var(--secondP-color) 44%, #334155 56%) !important;
+  color: #e2e8f0 !important;
+  box-shadow: none !important;
+}
+
+:host-context(.dark)
+  .sidebar
+  ::ng-deep
+  .ant-menu-item-selected
+  i,
+:host-context(.dark)
+  .sidebar
+  ::ng-deep
+  .ant-menu-submenu.ant-menu-submenu-selected
+  > .ant-menu-submenu-title
+  i,
+:host-context(.dark)
+  .sidebar
+  ::ng-deep
+  .ant-menu-submenu.ant-menu-submenu-selected
+  > .ant-menu-submenu-title
+  .ant-menu-submenu-arrow {
+  color: #e2e8f0 !important;
+}
+
+:host-context(.dark) .sidebar ::ng-deep .ant-menu-submenu-open > .ant-menu-sub.ant-menu-inline {
+  background: color-mix(in srgb, var(--secondP-color) 10%, #0b1220 90%) !important;
+  border-color: rgba(71, 85, 105, 0.75) !important;
+}
+
+:host-context(.dark) .sidebar ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-item,
+:host-context(.dark) .sidebar ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-submenu-title {
+  color: rgba(226, 232, 240, 0.92) !important;
+}
+
+:host-context(.dark) .sidebar ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-item i,
+:host-context(.dark) .sidebar ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-submenu-title i {
+  color: rgba(191, 219, 254, 0.9) !important;
+}
+
+:host-context(.dark)
+  .sidebar
+  ::ng-deep
+  .ant-menu-sub.ant-menu-inline
+  .ant-menu-item:hover:not(.ant-menu-item-selected, .ant-menu-item-disabled),
+:host-context(.dark)
+  .sidebar
+  ::ng-deep
+  .ant-menu-sub.ant-menu-inline
+  .ant-menu-submenu-title:hover:not(.ant-menu-item-disabled) {
+  background: color-mix(in srgb, var(--secondP-color) 28%, #0f172a 72%) !important;
+  color: #ffffff !important;
+}
+
+:host-context(.dark) .sidebar ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-item-selected {
+  background: color-mix(in srgb, var(--secondP-color) 32%, #111827 68%) !important;
+  border: 1px solid color-mix(in srgb, var(--secondP-color) 48%, #334155 52%) !important;
+  color: #f1f5f9 !important;
+  box-shadow: none !important;
+}
+
+:host-context(.dark) .sidebar .sidebar-logout-btn.ant-btn {
+  background: color-mix(in srgb, var(--secondP-color) 14%, #0b1220 86%) !important;
+  border-color: rgba(71, 85, 105, 0.85) !important;
+  color: #e2e8f0 !important;
+  box-shadow: none !important;
+}
+
+:host-context(.dark) .sidebar .sidebar-logout-btn.ant-btn:hover,
+:host-context(.dark) .sidebar .sidebar-logout-btn.ant-btn:focus {
+  background: color-mix(in srgb, var(--secondP-color) 22%, #0f172a 78%) !important;
+  border-color: rgba(100, 116, 139, 0.95) !important;
+  color: #f8fafc !important;
+}
+
+.messages-unread-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  min-height: 8px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.sidebar.sidebar-dark-theme ::ng-deep .ant-menu-submenu-open > .ant-menu-sub.ant-menu-inline {
+  background: color-mix(in srgb, var(--secondP-color) 10%, #0b1220 90%) !important;
+  border-color: rgba(71, 85, 105, 0.75) !important;
+}
+
+.sidebar.sidebar-dark-theme ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-item,
+.sidebar.sidebar-dark-theme ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-submenu-title {
+  color: rgba(226, 232, 240, 0.92) !important;
+}
+
+.sidebar.sidebar-dark-theme ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-item i,
+.sidebar.sidebar-dark-theme ::ng-deep .ant-menu-sub.ant-menu-inline .ant-menu-submenu-title i {
+  color: rgba(191, 219, 254, 0.9) !important;
+}
+
+.sidebar.sidebar-dark-theme .sidebar-logout-btn.ant-btn {
+  background: color-mix(in srgb, var(--secondP-color) 14%, #0b1220 86%) !important;
+  border-color: rgba(71, 85, 105, 0.85) !important;
+  color: #e2e8f0 !important;
+  box-shadow: none !important;
+}
+
+.sidebar.sidebar-dark-theme .sidebar-logout-btn.ant-btn:hover,
+.sidebar.sidebar-dark-theme .sidebar-logout-btn.ant-btn:focus {
+  background: color-mix(in srgb, var(--secondP-color) 22%, #0f172a 78%) !important;
+  border-color: rgba(100, 116, 139, 0.95) !important;
+  color: #f8fafc !important;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: theme("colors.gray.200");
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: theme("colors.gray.400");
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background-color 0.1s ease;
+}

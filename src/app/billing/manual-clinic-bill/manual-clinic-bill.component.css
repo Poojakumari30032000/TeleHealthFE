@@ -1,0 +1,39 @@
+@import '../manual-patient-bill/manual-patient-bill.component.css';
+
+.manual-line-description {
+  min-height: 40px;
+}
+
+:host ::ng-deep .manual-clinic-lines-table .ant-table-content > table {
+  min-width: 1140px;
+}
+
+:host ::ng-deep .manual-clinic-lines-table .ant-table-thead > tr > th:nth-child(1),
+:host ::ng-deep .manual-clinic-lines-table .ant-table-tbody > tr > td:nth-child(1) {
+  width: 560px !important;
+  min-width: 560px !important;
+}
+
+:host ::ng-deep .manual-clinic-lines-table .ant-table-thead > tr > th:nth-child(2),
+:host ::ng-deep .manual-clinic-lines-table .ant-table-tbody > tr > td:nth-child(2) {
+  width: 110px !important;
+  min-width: 110px !important;
+}
+
+:host ::ng-deep .manual-clinic-lines-table .ant-table-thead > tr > th:nth-child(3),
+:host ::ng-deep .manual-clinic-lines-table .ant-table-tbody > tr > td:nth-child(3) {
+  width: 180px !important;
+  min-width: 180px !important;
+}
+
+:host ::ng-deep .manual-clinic-lines-table .ant-table-thead > tr > th:nth-child(4),
+:host ::ng-deep .manual-clinic-lines-table .ant-table-tbody > tr > td:nth-child(4) {
+  width: 190px !important;
+  min-width: 190px !important;
+}
+
+:host ::ng-deep .manual-clinic-lines-table .ant-table-thead > tr > th:nth-child(5),
+:host ::ng-deep .manual-clinic-lines-table .ant-table-tbody > tr > td:nth-child(5) {
+  width: 100px !important;
+  min-width: 100px !important;
+}

@@ -1,0 +1,273 @@
+<nz-tabset
+  nzType="editable-card"
+  class="treatment-list-tabs mt-1"
+  [nzHideAdd]="true"
+  [nzSelectedIndex]="selectedTabIndex"
+  (nzSelectedIndexChange)="onTabIndexChange($event)"
+  (nzClose)="onTabClose($event)"
+>
+  <nz-tab nzTitle="Treatment List" [nzClosable]="false">
+    <div class="treatment-workspace-shell">
+      <section class="treatment-filter-shell">
+        <div class="treatment-filter-toolbar">
+          <div class="treatment-filter-toolbar-left">
+            <button
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="treatment-filter-toggle"
+              (click)="showFilters = !showFilters"
+              [attr.aria-expanded]="showFilters"
+              type="button"
+            >
+              <i class="fa-solid fa-sliders"></i>
+              <span>Filters</span>
+              <span *ngIf="visibleFiltersCount > 0" class="treatment-filter-count-pill">
+                {{ visibleFiltersCount }}
+              </span>
+              <i
+                class="fa-solid fa-chevron-down treatment-filter-chevron"
+                [class.rotate-180]="showFilters"
+              ></i>
+            </button>
+
+            <span *ngIf="!showFilters && visibleFiltersCount > 0" class="treatment-filter-summary">
+              {{ visibleFiltersCount }} active filters
+            </span>
+          </div>
+
+          <div class="treatment-filter-toolbar-right">
+            <button
+              *ngIf="visibleFiltersCount > 0"
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="treatment-filter-clear"
+              type="button"
+              (click)="clearFilters()"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="visibleFiltersCount > 0 && !showFilters" class="treatment-filter-chip-row">
+          @for (filter of appliedFilters; track trackByFilterName($index, filter)) {
+            <button
+              *ngIf="!shouldHideAppliedFilter(filter.name)"
+              class="treatment-filter-chip"
+              type="button"
+              (click)="removeFilter(filter.name)"
+            >
+              <span>{{ getFilterDisplayName(filter.name) }}: {{ getFilterDisplayValue(filter) }}</span>
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          }
+        </div>
+
+        <div *ngIf="showFilters" class="treatment-filter-grid">
+          <div *ngIf="userRole === 'Provider' || userRole === 'Global Admin'">
+            <label class="label-C-F ">Clinic:</label>
+            <nz-select
+              class="w-full treatment-filter-select"
+              nzPlaceHolder="Select Clinic"
+              nzShowSearch
+              [nzShowArrow]="true"
+              [(ngModel)]="selectedFacility"
+              [nzLoading]="facilitiesLoading"
+              [nzDisabled]="facilitiesLoading"
+              (ngModelChange)="applyFilter('Clinic', true)"
+            >
+              <nz-option nzValue="" nzLabel="All"></nz-option>
+              <nz-option
+                *ngFor="let option of facilities"
+                [nzValue]="option.facilityId"
+                [nzLabel]="option.titlelong"
+              ></nz-option>
+            </nz-select>
+          </div>
+
+          <div>
+            <label class="label-C-F">Title:</label>
+            <input
+              nz-input
+              placeholder="Search by name, email, phone number, MRN#"
+              title="Search by name, email, phone number, MRN#"
+              id="search"
+              class="input-C treatment-filter-input"
+              [(ngModel)]="searchQuery"
+              (input)="searchTermChanged()"
+            />
+          </div>
+
+          <div>
+            <label class="label-C-F ">Date:</label>
+            <nz-range-picker
+              nzFormat="MM/dd/yyyy"
+              class="datepicker-C w-full treatment-filter-date"
+              [(ngModel)]="selectedDateRange"
+              (ngModelChange)="applyFilter(undefined, true)"
+            ></nz-range-picker>
+          </div>
+
+          <div>
+            <label class="label-C-F ">Treatment Status:</label>
+            <nz-select
+              class="w-full treatment-filter-select"
+              nzPlaceHolder="Select Treatment Status"
+              nzShowSearch
+              nzAllowClear
+              [nzShowArrow]="true"
+              [(ngModel)]="selectedTreatmentStatus"
+              (ngModelChange)="applyFilter(undefined, true)"
+            >
+              <nz-option
+                *ngFor="let option of treatmentStatusOptions"
+                [nzValue]="option"
+                [nzLabel]="option"
+              ></nz-option>
+            </nz-select>
+          </div>
+
+          <div>
+            <label class="label-C-F ">Refill Status:</label>
+            <nz-select
+              class="w-full treatment-filter-select"
+              nzPlaceHolder="Select Refill Status"
+              nzShowSearch
+              nzAllowClear
+              [nzShowArrow]="true"
+              [(ngModel)]="selectedRefillStatus"
+              (ngModelChange)="applyFilter(undefined, true)"
+            >
+              <nz-option
+                *ngFor="let option of refillStatusOptions"
+                [nzValue]="option.value"
+                [nzLabel]="option.label"
+              ></nz-option>
+            </nz-select>
+          </div>
+
+          <div *ngIf="userRole !== 'Patient'">
+            <label class="label-C-F ">Patient:</label>
+            <nz-select
+              class="w-full treatment-filter-select"
+              nzPlaceHolder="Select Patient"
+              nzShowSearch
+              nzAllowClear
+              [nzShowArrow]="true"
+              [nzLoading]="loadingPatient"
+              [nzDisabled]="loadingPatient"
+              [(ngModel)]="patientId"
+              (ngModelChange)="applyFilter(undefined, true)"
+            >
+              <nz-option
+                *ngFor="let item of patientData; trackBy: trackByPatientId"
+                [nzValue]="item.patientId"
+                [nzLabel]="item.patientName"
+              ></nz-option>
+            </nz-select>
+          </div>
+        </div>
+      </section>
+
+      <section class="treatment-table-shell">
+        <nz-table
+          [nzData]="treatments"
+          [nzLoading]="loading"
+          [nzFrontPagination]="false"
+          [nzTotal]="total"
+          [nzPageIndex]="pageIndex"
+          [nzPageSize]="pageSize"
+          [nzShowSizeChanger]="true"
+          [nzPageSizeOptions]="[10, 20, 50, 100]"
+          (nzQueryParams)="onQueryParamsChange($event)"
+          [nzScroll]="{ x: userRole === 'Provider' || userRole === 'Global Admin' ? '1900px' : '1700px' }"
+          class="w-full treatment-table"
+        >
+          <thead>
+            <tr>
+              <th nzWidth="140px">Actions</th>
+              <th nzWidth="140px">Treatment #</th>
+              <th nzWidth="150px">Start Date</th>
+              <th nzWidth="250px">Patient Name</th>
+              <th nzWidth="120px">MRN #</th>
+              <th *ngIf="userRole === 'Provider' || userRole === 'Global Admin'" nzWidth="190px">Clinic</th>
+              <th nzWidth="260px">Email</th>
+              <th nzWidth="170px">Phone number</th>
+              <th nzWidth="150px">Treat. Status</th>
+              <th nzWidth="150px">Refill Status</th>
+              <th nzWidth="100px">Order(s)</th>
+              <th nzWidth="150px">Last Order</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr
+              *ngFor="let row of treatments; trackBy: trackByTreatmentId"
+              class="treatment-row-clickable"
+              role="button"
+              tabindex="0"
+              (click)="navigateToViewTreatment(row)"
+              (keydown.enter)="navigateToViewTreatment(row)"
+              (keydown.space)="navigateToViewTreatment(row); $event.preventDefault()"
+            >
+              <td>
+                <div class="flex items-center gap-2">
+                  <button
+                    nz-button
+                    nzType="default"
+                    nzShape="circle"
+                    (click)="$event.stopPropagation(); navigateToViewTreatment(row)"
+                    title="View"
+                  >
+                    <i class="fa fa-eye"></i>
+                  </button>
+
+                </div>
+              </td>
+              <td>{{ row.patientTreatmentId || '--' }}</td>
+              <td>{{ row.treatmentStartDate ? (row.treatmentStartDate | date: 'MM/dd/yyyy') : '--' }}</td>
+              <td>{{ row.patientName || '--' }}</td>
+              <td>{{ row.patientMRN || '--' }}</td>
+              <td *ngIf="userRole === 'Provider' || userRole === 'Global Admin'">
+                {{ row.facilityName || row.location || '--' }}
+              </td>
+              <td>{{ row.email || '--' }}</td>
+              <td>{{ row.phoneNumber || '--' }}</td>
+              <td>
+                <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(row.treatmentStatus)">
+                  {{ row.treatmentStatus || '--' }}
+                </span>
+              </td>
+              <td>
+                <span class="ui-status-badge" [ngClass]="getRefillBadgeClass(row.refill)">
+                  {{ getRefillLabel(row.refill) }}
+                </span>
+              </td>
+              <td>{{ row.orderCount !== null && row.orderCount !== undefined ? row.orderCount : '--' }}</td>
+              <td>{{ row.lastOrder ? (row.lastOrder | date: 'MM/dd/yyyy') : '--' }}</td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </section>
+    </div>
+  </nz-tab>
+
+  <nz-tab
+    *ngFor="let tab of detailTabs; trackBy: trackByTabKey"
+    [nzTitle]="tab.title"
+    [nzClosable]="true"
+  >
+    <app-treatment-detail-view
+      [treatmentIdInput]="tab.treatmentId"
+      [embeddedInTabs]="true"
+    ></app-treatment-detail-view>
+  </nz-tab>
+</nz-tabset>
+
+<app-comman-form-modal
+  #commanModel
+  [apiUrl]="this.modalApiUrl"
+  (formClosed)="refreshAfterModal()"
+></app-comman-form-modal>

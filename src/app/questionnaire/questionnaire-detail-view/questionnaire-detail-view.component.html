@@ -1,0 +1,382 @@
+<div class="flex flex-col h-full qdv-workspace-shell">
+  @if(!hasError){
+
+    @if (userRole == 'Global Admin'){
+  <div class="flex flex-wrap items-center gap-3 mb-6 border-b pb-4 dark:border-gray-700 qdv-toolbar">
+    <span class="text-xs font-medium me-2 px-3 py-1 rounded-lg mr-auto shadow-sm" [ngClass]="{
+      'bg-green-100 text-green-800 dark:bg-green-900/80 dark:text-green-200 border border-green-200 dark:border-green-800' : this.apiData?.status === 'Completed',
+      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/80 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800' : this.apiData?.status === 'In-Review',
+      'bg-blue-100 text-blue-800 dark:bg-blue-900/80 dark:text-blue-200 border border-blue-200 dark:border-blue-800' : this.apiData?.status === 'Draft',
+      'bg-red-100 text-red-800 dark:bg-red-900/80 dark:text-red-200 border border-red-200 dark:border-red-800' : this.apiData?.status === 'Pending'
+    }">
+      <i class="fas fa-circle mr-1"></i>
+      {{ this.apiData?.status }}
+    </span>
+
+    <button nz-button nzType="default" nzShape="round" class="qdv-cta-btn qdv-toolbar-icon-btn" nz-tooltip nzTooltipTitle="Preview" (click)="previewForm()" *ngIf="this.questionnaire.fields.length > 0">
+      <i class="fa-regular fa-eye"></i>
+    </button>
+
+    <button nz-button nzType="default" nzShape="round" class="qdv-cta-btn" (click)="addQuestion()" *appHasAnyPermission="['questionnaier_edit']">
+      <i class="fa-solid fa-plus mr-2"></i>
+      <span>Add Question</span>
+    </button>
+  </div>
+    }
+
+    @if (userRole == 'Clinic Admin'){
+
+      <div class="flex flex-wrap justify-end gap-3 mb-6 border-b pb-4 dark:border-gray-700 qdv-toolbar">
+
+      <button nz-button nzType="default" nzShape="round" class="qdv-cta-btn qdv-toolbar-icon-btn" nz-tooltip nzTooltipTitle="Preview" (click)="previewForm()" *ngIf="this.questionnaire.fields.length > 0">
+        <i class="fa-regular fa-eye"></i>
+      </button>
+
+      <button nz-button nzType="default" nzShape="round" class="qdv-cta-btn" (click)="addQuestion()" *appHasAnyPermission="['questionnaier_edit']">
+        <i class="fa-solid fa-plus mr-2"></i>
+        <span>Add Question</span>
+      </button>
+      </div>
+
+    }
+
+    <ng-container *ngIf="!isloading; else loadingMain">
+
+    @if( this.questionnaire.fields.length > 0){
+      <div class="questionnaire-container qdv-list-shell">
+        <div
+          cdkDropList
+          (cdkDropListDropped)="drop($event)"
+          [cdkDropListEnterPredicate]="canMoveBetweenLists"
+          class="question-list qdv-question-list space-y-3 mb-4">
+
+          <div *ngFor="let field of questionnaire.fields; let i = index"
+               cdkDrag
+               [cdkDragDisabled]="!isParentField(field.id)"
+               [cdkDragData]="field"
+               class="question-item qdv-question-card bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200 flex items-start"
+               [class.opacity-75]="!isParentField(field.id)"
+               [style.margin-left.px]="getIndentLevel(field) * 24">
+
+            <span class="drag-handle text-gray-400 dark:text-gray-500 cursor-move pr-3 pt-1"
+                  *ngIf="isParentField(field.id)">
+              <i class="fas fa-grip-lines"></i>
+            </span>
+
+            <div class="flex-grow qdv-question-content" (click)="openDrawer(field)">
+              <div class="flex items-center gap-2">
+                <span class="font-medium text-gray-800 dark:text-gray-200">{{ field.label }}</span>
+                <nz-tag *ngIf="field.required" nzColor="red">Required</nz-tag>
+                <nz-tag *ngIf="field.type === 'consent'" nzColor="magenta">
+                  Consent {{ field?.consentFields?.length ? '(' + field?.consentFields?.length + ')' : '' }}
+                </nz-tag>
+              </div>
+
+              <div *ngIf="!isParentField(field.id)" class="mt-1 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                <i class="fas fa-link mr-1 text-[10px]"></i>
+                <span>Linked to {{ getParentField(field.id)?.label }}</span>
+              </div>
+
+              <div class="mt-2 flex flex-wrap gap-2">
+                <nz-tag [nzColor]="getTagColor(field.type)">{{ getTypeLabel(field.type) }}</nz-tag>
+                <nz-tag *ngIf="field.showTextarea && field.type !== 'consent'" nzColor="purple">Has Textarea</nz-tag>
+              </div>
+            </div>
+
+            <button nz-button nzType="default" nzShape="circle"
+              (click)="previewSingleQuestion(field)"
+              class="qdv-row-action-btn text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700/60"
+              nz-tooltip
+              nzTooltipTitle="View Question">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+
+            <button nz-button nzType="default" nzShape="circle" (click)="deleteQuestion(i)" class="qdv-row-action-btn text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 flex-grow flex-wrap pt-5 mt-4 border-t dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-800 p-4 z-50 qdv-footer-actions" *appHasAnyPermission="['questionnaier_edit']">
+        @if(this.userRole === 'Global Admin'){
+        <button nz-button nzType="default" nzShape="round" class="qdv-cta-btn mt-0" (click)="saveQuestionnaire('Draft')">
+          <i class="fa-solid fa-file-lines mr-2"></i>
+          Save as Draft
+        </button>
+        }
+        <button nz-button nzType="primary" nzShape="round" class="qdv-cta-btn" (click)="saveQuestionnaire('Completed')">
+          <i class="fa-regular fa-save mr-2"></i>
+          Submit
+        </button>
+      </div>
+    } @else {
+      <div class="flex flex-col items-center justify-center h-full text-center py-16 text-gray-500 dark:text-gray-400 qdv-empty-state">
+        <div class="bg-gray-100 dark:bg-gray-800 p-5 rounded-full w-20 h-20 flex items-center justify-center mb-4">
+          <i class="fas fa-exclamation-circle text-2xl"></i>
+        </div>
+        <p class="text-lg font-medium">No questions found</p>
+        <p class="text-sm mt-2 max-w-md">Click "Add Question" to start building your questionnaire</p>
+      </div>
+    }
+
+  </ng-container>
+
+} @else {
+  <div class="flex flex-col items-center justify-center text-center text-red-500 dark:text-red-400 qdv-error-state" style="height: calc(100dvh - 10rem);">
+    <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+    <p class="text-lg font-medium">An error occurred while loading the question fields.</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Please try again later or contact support.</p>
+    <div class="flex flex-col sm:flex-row gap-4">
+      <button class="main-btn w-full sm:w-auto" (click)="loadQuestionnaire()">
+        <i class="fa-solid fa-rotate-right mr-2"></i>
+        Reload
+      </button>
+      <button class="main-btn w-full sm:w-auto" (click)="moveBack()">
+        <i class="fa-solid fa-arrow-left mr-2"></i>
+        Go Back
+      </button>
+    </div>
+  </div>
+}
+
+<nz-drawer
+  *ngIf="isDrawerOpen && selectedField"
+  [(nzVisible)]="isDrawerOpen"
+  (nzOnClose)="closeDrawer()"
+  nzSize="large"
+  nzTitle="Edit Question"
+  [nzBodyStyle]="{ padding: '24px', overflow: 'auto' }"
+  [nzMaskClosable]="false"
+  [nzFooter]="footerTpl">
+
+  <ng-container *nzDrawerContent>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="space-y-4">
+        <div>
+          <label class="label-C font-medium">Title</label>
+          <input type="text" nz-input [(ngModel)]="selectedField.label" class="input-C mt-1"
+                 placeholder="What would you like to ask?" />
+        </div>
+
+        <div *ngIf="selectedField.type !== 'consent'">
+          <label class="label-C font-medium">Placeholder</label>
+          <input type="text" nz-input [(ngModel)]="selectedField.placeholder" class="input-C mt-1"
+                 placeholder="Enter placeholder text" />
+        </div>
+
+        <div *ngIf="selectedField.type !== 'consent'">
+          <label class="label-C font-medium">Description</label>
+          <quill-editor class="w-full mt-1"
+                        [(ngModel)]="selectedField.description"
+                        [styles]="{ height: '150px' }"
+                        placeholder="Add description (optional)"></quill-editor>
+        </div>
+
+        <div *ngIf="selectedField.type === 'consent'">
+          <label class="label-C font-medium">Consent HTML</label>
+          <quill-editor class="w-full mt-1"
+                        [(ngModel)]="selectedField.consentHtml"
+                        [styles]="{ height: '260px' }"
+                        placeholder="Paste or author the consent body (HTML supported)"></quill-editor>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="label-C font-medium">Question Type</label>
+          <nz-select id="question-type" [(ngModel)]="selectedField.type" nzShowSearch class="w-full mt-1">
+            <nz-option nzValue="text" nzLabel="Text"></nz-option>
+            <nz-option nzValue="checkbox" nzLabel="Checkbox"></nz-option>
+            <nz-option nzValue="radio" nzLabel="Radio"></nz-option>
+            <nz-option nzValue="select" nzLabel="Select"></nz-option>
+            <nz-option nzValue="select-multiple" nzLabel="Multi Select"></nz-option>
+            <nz-option nzValue="textarea" nzLabel="Textarea"></nz-option>
+            <nz-option nzValue="file" nzLabel="File"></nz-option>
+            <nz-option nzValue="date" nzLabel="Date"></nz-option>
+            <nz-option nzValue="number" nzLabel="Number"></nz-option>
+            <nz-option nzValue="consent" nzLabel="Consent"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <label nz-checkbox [(ngModel)]="selectedField.required" class="label-C-R">Required Question</label>
+          <label nz-checkbox [(ngModel)]="selectedField.showTextarea" class="label-C-R" *ngIf="selectedField.type !== 'consent'">
+            Show Additional Textbox
+          </label>
+        </div>
+
+        <div *ngIf="showOptionsSection()" class="pt-2">
+          <div class="flex justify-between items-center mb-4">
+            <label class="label-C font-medium">Options</label>
+            <button (click)="addOption(selectedField!)" class="text-sm text-primary font-medium">
+              <i class="fa-solid fa-plus mr-1"></i> Add Option
+            </button>
+          </div>
+
+          <div class="space-y-3">
+            <div *ngFor="let option of selectedField.options; let j = index"
+                 class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 p-4 shadow-sm">
+
+              <div class="flex items-center justify-between gap-3">
+                <div class="text-xs font-medium text-gray-500 dark:text-gray-400">Option {{ j + 1 }}</div>
+                <div class="flex items-center gap-4">
+                  <label nz-checkbox [(ngModel)]="option.disableContinue" class="text-sm leading-6">
+                    Disable Continue
+                  </label>
+                  <button (click)="deleteOption(selectedField!, j)"
+                          class="btn-icon text-gray-500 hover:text-red-500"
+                          nz-tooltip nzTooltipTitle="Delete option">
+                    <i class="fa-regular fa-trash-can"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-3">
+                <div>
+                  <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Label</div>
+                  <input type="text" nz-input [(ngModel)]="option.label" class="input-C w-full" placeholder="Option label" />
+                </div>
+                <div>
+                  <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Value</div>
+                  <input type="text" nz-input [(ngModel)]="option.value" class="input-C w-full" placeholder="Option value" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="selectedField.type === 'consent'" class="pt-6">
+          <div class="flex justify-between items-center mb-4">
+            <label class="label-C font-medium">Consent Mini-Form Fields</label>
+            <button (click)="addConsentField()" class="text-sm text-primary font-medium">
+              <i class="fa-solid fa-plus mr-1"></i> Add Field
+            </button>
+          </div>
+
+          <div class="space-y-3">
+            <div *ngFor="let cf of selectedField.consentFields; let idx = index"
+                 class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 p-4 shadow-sm">
+
+              <div class="flex items-center justify-between gap-3">
+                <div class="text-xs font-medium text-gray-500 dark:text-gray-400">Field {{ idx + 1 }}</div>
+                <div class="flex items-center gap-4">
+                  <label nz-checkbox [(ngModel)]="cf.required" class="text-sm leading-6">Required</label>
+                  <button (click)="deleteConsentField(idx)"
+                          class="btn-icon text-gray-500 hover:text-red-500"
+                          nz-tooltip nzTooltipTitle="Delete field">
+                    <i class="fa-regular fa-trash-can"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-3">
+                <div class="lg:col-span-4">
+                  <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Label</div>
+                  <input nz-input class="input-C w-full" [(ngModel)]="cf.label" placeholder="e.g., Signature" />
+                </div>
+                <div class="lg:col-span-4">
+                  <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Key</div>
+                  <input nz-input class="input-C w-full" [(ngModel)]="cf.key" placeholder="e.g., sign" />
+                </div>
+                <div class="lg:col-span-4">
+                  <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Type</div>
+                  <nz-select class="w-full" [(ngModel)]="cf.type">
+                    <nz-option nzValue="text" nzLabel="Text"></nz-option>
+                    <nz-option nzValue="date" nzLabel="Date"></nz-option>
+                    <nz-option nzValue="signature" nzLabel="Signature"></nz-option>
+                  </nz-select>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Placeholder</div>
+                <input nz-input class="input-C w-full" [(ngModel)]="cf.placeholder" placeholder="Placeholder (optional)" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div *ngIf="selectedField.type === 'radio' || selectedField.type === 'select'" class="mt-6 pt-6 border-t dark:border-gray-700">
+      <h3 class="font-medium text-gray-800 dark:text-gray-200 mb-4">Next Field Mapping</h3>
+      <nz-alert *ngIf="hasCircularDependency(selectedField!)" nzType="error" nzMessage="Circular dependency detected!" class="mb-4"></nz-alert>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div *ngFor="let option of selectedField.options"
+             class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-4">
+          <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-3">{{ option.label || option.value }}</h4>
+          <nz-select [(ngModel)]="selectedField.nextFields![option.value]"
+                     nzShowSearch
+                     nzMode="multiple"
+                     [nzMaxMultipleCount]="1"
+                     class="w-full">
+            <nz-option-group nzLabel="Finish">
+              <nz-option nzValue="done" nzLabel="Proceed To Next Step"></nz-option>
+              <nz-option nzValue="discontinue" nzLabel="Disqualify User"></nz-option>
+            </nz-option-group>
+            <nz-option-group nzLabel="Next Questions">
+              <nz-option *ngFor="let field of getAvailableNextFields(selectedField.id)"
+                         [nzValue]="field.id"
+                         [nzLabel]="field.label">
+              </nz-option>
+            </nz-option-group>
+          </nz-select>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <ng-template #footerTpl>
+    <div class="flex justify-end gap-2">
+      <button nz-button class="h-10 rounded-md" (click)="closeDrawer()">Cancel</button>
+      <button nz-button nzType="primary" class="h-10 rounded-md" (click)="saveChanges()" *appHasAnyPermission="['questionnaier_edit']">
+        Save Changes
+      </button>
+    </div>
+  </ng-template>
+</nz-drawer>
+
+<nz-modal
+  [(nzVisible)]="isPreviewModalVisible"
+  [nzCentered]="true"
+  [nzClosable]="true"
+  [nzFooter]="null"
+  [nzKeyboard]="true"
+  [nzMaskClosable]="false"
+  [nzWidth]="'96vw'"
+  [nzStyle]="{ 'max-width.px': 1100 }"
+  [nzTitle]="previewModalTitle"
+  [nzBodyStyle]="{
+    'max-height': 'calc(100vh - 180px)',
+    'overflow': 'auto',
+    'padding': '16px'
+  }"
+  (nzOnCancel)="closePreviewModal()"
+  (nzAfterOpen)="renderPreviewComponent()">
+  <ng-container *nzModalContent>
+    <ng-container #previewContainer></ng-container>
+  </ng-container>
+</nz-modal>
+
+<ng-template #loadingMain>
+  <div class="flex items-center justify-center min-h-[88vh] border-t dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl qdv-loading-shell">
+    <div class="text-center">
+      <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Questionnaire data...</p>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #loading>
+  <div class="flex items-center justify-center h-40 border-t dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl qdv-loading-shell">
+    <div class="text-center">
+      <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Data...</p>
+    </div>
+  </div>
+</ng-template>

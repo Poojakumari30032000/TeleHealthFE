@@ -1,0 +1,89 @@
+<ng-container *ngIf="!isLoading; else loading">
+  <div class="block">
+    <button nz-button nzType="default" class="mb-4 rounded-lg h-8" (click)="goToPreviousStep()">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+  </div>
+
+  <div class="">
+    <h2 class="text-xl font-semibold mb-6 dark:text-gray-200">
+      {{ selectedTimeGroup ? 'Select Provider' : selectedDate ? 'Select Time Slot' : 'Select Date' }}
+    </h2>
+
+    <nz-date-picker
+      *ngIf="!selectedDate && !selectedTimeGroup"
+      nzInline
+      [(ngModel)]="selectedDate"
+      (ngModelChange)="onDateChange($event)"
+      [nzDisabledDate]="disabledDate"
+      class="w-full dark:bg-gray-800 rounded-lg shadow-sm"
+      [nzFormat]="'MM/dd/YYYY'"
+    ></nz-date-picker>
+
+    <div *ngIf="selectedDate && !selectedTimeGroup">
+      <div *ngIf="timeSlotGroups.length === 0" class="text-center py-6">
+        <i class="fa-solid fa-inbox text-muted text-7xl text-primary"></i>
+        <p class="text-muted font-semibold text-base mt-2 dark:text-gray-200">No slots available for this date</p>
+      </div>
+
+      <div nz-row [nzGutter]="[16, 24]">
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" *ngFor="let group of timeSlotGroups">
+          <div
+            class="slot-card p-4 rounded-2xl cursor-pointer transition-colors border dark:border-gray-700 h-full hover:shadow-md  dark:hover:shadow-gray-700/50"
+            [ngClass]="{'border-primary bg-primary-50': selectedTimeGroup === group}"
+            (click)="selectTimeGroup(group)"
+          >
+            <div class="font-medium text-lg dark:text-gray-200">
+              {{ group.startTime | date: 'shortTime' }} - {{ group.endTime | date: 'shortTime' }}
+            </div>
+            <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              Available Providers: {{ group.slots.length }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="selectedTimeGroup" class="mb-4">
+      <h3 class="text-base font-semibold mb-2 dark:text-gray-300">
+        Available Providers for <span class="text-primary">{{ selectedTimeGroup.startTime | date: 'shortTime' }} -
+        {{ selectedTimeGroup.endTime | date: 'shortTime' }}</span>:
+      </h3>
+
+      <div nz-row [nzGutter]="[16, 24]">
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" *ngFor="let slot of selectedTimeGroup.slots">
+          <div
+            class="provider-card p-4 rounded-2xl cursor-pointer transition-colors border dark:border-gray-700 h-full hover:shadow-md  dark:hover:shadow-gray-700/50"
+            [ngClass]="{'border-primary bg-primary-50': selectedSlot?.providerScheduledSlotId === slot.providerScheduledSlotId}"
+            (click)="selectProvider(slot)"
+          >
+            <div class="font-medium text-lg dark:text-gray-200">
+              {{ slot.providerName }}
+            </div>
+            <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              Duration: {{ slot.duration }} minutes
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-center py-5 sticky bottom-0 right-0 left-0 w-full bg-white dark:bg-gray-900" *ngIf="selectedTimeGroup">
+      <button
+        nz-button
+        nzType="primary"
+        class="w-full block rounded-lg h-10"
+        (click)="continue()"
+        [disabled]="selectedTimeGroup ? !selectedSlot : !selectedDate"
+      >
+        {{ selectedTimeGroup ? 'Confirm Provider' : selectedDate ? 'Select Time Slot' : 'Next' }}
+      </button>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #loading>
+  <div class="text-center text-primary text-5xl py-[6rem]">
+    <i class="fa-solid fa-arrows-spin animate-spin"></i>
+  </div>
+</ng-template>

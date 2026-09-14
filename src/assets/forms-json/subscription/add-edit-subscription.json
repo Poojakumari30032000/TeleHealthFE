@@ -1,0 +1,191 @@
+{
+  "title": "Subscription Plan Management",
+  "primaryId": "subscriptionId",
+  "rows": [
+    {
+      "title": "Basic Information",
+      "des": "Core details of the subscription plan",
+      "class": "grid grid-cols-1 md:grid-cols-2 gap-4",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Plan Name",
+          "name": "planName",
+          "placeholder": "Enter plan name",
+          "validations": {
+            "required": true,
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "iconText": "Unique name for identification"
+        }
+      ]
+    },
+    {
+      "title": "Pricing",
+      "class": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
+      "fields": [
+        {
+          "type": "number",
+          "label": "Monthly Price ($)",
+          "name": "monthlyPrice",
+          "placeholder": "0.00",
+          "validations": {
+            "required": true,
+            "min": 0
+          },
+          "additionalText": "Recurring monthly charge"
+        },
+        {
+          "type": "number",
+          "label": "Annual Price ($)",
+          "name": "annualPrice",
+          "placeholder": "0.00",
+          "validations": {
+            "required": true,
+            "min": 0
+          },
+          "additionalText": "Yearly subscription cost"
+        },
+        {
+          "type": "number",
+          "label": "Setup Fee ($)",
+          "name": "setupFee",
+          "placeholder": "0.00",
+          "validations": {
+            "required": true,
+            "min": 0
+          },
+          "additionalText": "One-time implementation fee"
+        }
+      ]
+    },
+    {
+      "title": "Usage Limits",
+      "class": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
+      "fields": [
+        {
+          "type": "number",
+          "label": "Max Staff",
+          "name": "maxUsers",
+          "placeholder": "0",
+          "validations": {
+            "required": true,
+            "min": 1
+          },
+          "iconText": "Includes Clinc Admin and Customer Support"
+        },
+        {
+          "type": "number",
+          "label": "Max Providers",
+          "name": "maxProviders",
+          "placeholder": "0",
+          "validations": {
+            "required": true,
+            "min": 1
+          }
+        },
+        {
+          "type": "number",
+          "label": "Max Patients",
+          "name": "maxPatients",
+          "placeholder": "0",
+          "validations": {
+            "required": true,
+            "min": 0
+          },
+          "iconText": "Active patient records"
+        },
+        {
+          "type": "number",
+          "label": "Storage (GB)",
+          "name": "storage",
+          "placeholder": "0",
+          "validations": {
+            "required": true,
+            "min": 1
+          },
+          "additionalText": "Including medical images"
+        }
+      ]
+    },
+    {
+      "title": "Plan Status",
+      "class": "grid grid-cols-1 gap-4",
+      "fields": [
+        {
+          "type": "select",
+          "label": "Status",
+          "name": "status",
+          "placeholder": "Select Status",
+          "options": [
+            {"label": "Active", "value": "Active"},
+            {"label": "In-Active", "value": "InActive"}
+          ],
+          "validations": {
+            "required": true
+          },
+          "iconText": "Visible to customers when active"
+        }
+      ]
+    },
+    {
+      "title": "Contract Details",
+      "class": "grid grid-cols-1 md:grid-cols-2 gap-4",
+      "fields": [
+        {
+          "type": "select",
+          "label": "Billing Cycle",
+          "name": "billingCycle",
+          "placeholder": "Select cycle",
+          "options": [
+            {"label": "Monthly", "value": "monthly"},
+            {"label": "Quarterly", "value": "quarterly"},
+            {"label": "Annual", "value": "annual"},
+            {"label": "Biannual", "value": "biannual"}
+          ],
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "number",
+          "label": "Contract Term (Months)",
+          "name": "contractTeam",
+          "placeholder": "12",
+          "validations": {
+            "required": true,
+            "min": 1,
+            "max": 36
+          }
+        }
+      ]
+    },
+    {
+      "title": "Support Services",
+      "class": "grid grid-cols-1 md:grid-cols-2 gap-4",
+      "fields": [
+        {
+          "type": "select",
+          "label": "Support Level",
+          "name": "supportLevel",
+          "placeholder": "Select support tier",
+          "options": [
+            {"label": "Basic (9-5 M-F)", "value": "basic"},
+            {"label": "Priority (24/5)", "value": "priority"},
+            {"label": "Enterprise (24/7)", "value": "enterprise"}
+          ]
+        },
+        {
+          "type": "number",
+          "label": "Training Hours Included",
+          "name": "trainingHours",
+          "placeholder": "0",
+          "validations": {
+            "min": 0
+          }
+        }
+      ]
+    }
+  ]
+}

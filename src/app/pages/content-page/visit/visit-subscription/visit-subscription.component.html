@@ -1,0 +1,115 @@
+<ng-container *ngIf="!this.isLoading;else loading">
+
+  <div class="block" *ngIf="currentStep !== 0">
+    <button nz-button nzType="default" class="mb-4 rounded-[1.5rem]" (click)="goToPrevious()">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+  </div>
+  <div *ngIf="!isPlanSelected" class="subscription-plan-container">
+    <h2 class="mb-2 text-primary uppercase font-bold">
+      Products
+    </h2>
+
+    <button class="filters-btns m-0 h-8" (click)="this.showFilters = !this.showFilters;">
+      <i class="fa-solid fa-sliders mr-1"></i>
+      Filters
+      <i class="fa-solid fa-chevron-down ml-1 text-xs transition-transform duration-200"
+        [class.rotate-180]="showFilters"></i>
+    </button>
+
+    <div *ngIf="showFilters" class="mt-2 p-2 rounded-lg bg-primary-50 border border-primary-100 dark:bg-gray-800 dark:border-gray-700 grid grid-cols-3 items-center gap-4">
+      <div>
+        <label class="label-C-F">Name:</label>
+        <input nz-input type="text" class="input-C" placeholder="Search by name" [(ngModel)]="filters.name"
+          (input)="applyFilters()" />
+      </div>
+      <div>
+        <label class="label-C-F">Category:</label>
+        <nz-select class="w-full mt-1" nzPlaceHolder="Select Category" [(ngModel)]="selectedCategory"
+          (ngModelChange)="loadDrugs()" nzShowSearch>
+          <nz-option *ngFor="let category of categoryList" [nzValue]="category.categoryId"
+            [nzLabel]="category.categoryName">
+          </nz-option>
+        </nz-select>
+      </div>
+    </div>
+
+    <nz-radio-group [(ngModel)]="selectedPlan" class="onVisit-radio w-full mt-2">
+      <ng-container *ngIf="filteredDrugData.length > 0; else noDrugFound">
+        <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-1 border-t border-b dark:border-gray-700 py-2 pt-4">
+          <label nz-radio *ngFor="let option of filteredDrugData" [nzValue]="option"
+            class="flex items-center gap-3 mb-2 border border-gray-300 px-3 py-3 rounded-xl transition hover:border-primary hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700"
+            [ngClass]="{ 'border-danger-500 bg-danger-50': showREror }">
+            <img loading="lazy" class="h-8 w-8 object-contain rounded"
+              [src]="option.regularImageURL || 'assets/img/no_image_placeholder.png'" />
+            <div class="flex flex-col justify-center">
+              <h3 class="text-sm font-medium dark:text-gray-200">{{ option.productName }}</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                {{ option.price | currency }} / {{ option.quantity }} {{ option.quantityUnit }}
+              </p>
+            </div>
+          </label>
+        </div>
+      </ng-container>
+
+      <ng-template #noDrugFound>
+        <div class="h-60 my-4 py-2 border-t border-b dark:border-gray-700 flex flex-col justify-center items-center">
+          <i class="fa-solid fa-inbox text-muted text-5xl text-primary"></i>
+          <p class="text-muted font-semibold text-base mt-2 dark:text-gray-200">No Data Found</p>
+        </div>
+      </ng-template>
+
+    </nz-radio-group>
+
+    <div class="py-5 w-full bg-transparent dark:bg-gray-900">
+      <button nz-button nzType="primary" class="rounded-lg h-8 float-right" (click)="savePlan()" [disabled]="!selectedPlan">Save and continue</button>
+    </div>
+
+  </div>
+
+  <div *ngIf="isPlanSelected" class="subscription-confirm-container">
+    <h2 class="mb-6 text-primary uppercase font-bold">Selected Product</h2>
+
+    <div class="p-5 border border-gray-200 rounded-[1.5rem] mb-8 dark:bg-gray-800 dark:border-gray-700">
+      <div class="flex flex-col gap-4 md:flex-row mb-6">
+        <span class="mx-auto flex h-64 w-64 shrink-0 items-center justify-center rounded-[1rem] md:mx-0 bg-[#f1f3f7] ">
+          <img [alt]="selectedPlan?.productName" loading="lazy" width="96" height="96" decoding="async" data-nimg="1"
+            class="h-60 w-60 object-contain rounded-md"
+            [src]="selectedPlan?.regularImageURL || 'assets/img/no_image_placeholder.png'">
+        </span>
+        <div class="w-full">
+          <h3 class="font-semibold text-xl dark:text-gray-200">{{ selectedPlan?.productName }}</h3>
+          <div class="text-base mb-2">
+            <span class="text-gray-500 dark:text-gray-400">Billed and shipped quarterly for:</span>
+            <span class="font-semibold text-primary float-right">{{ selectedPlan?.price | currency }}</span>
+          </div>
+          <p class="text-sm font-medium mb-2 dark:text-gray-400">
+            <strong class="dark:text-gray-400 mr-2">Quantity:</strong>
+            <span class="border rounded-xl text-gray-500 bg-gray-50 px-2">{{ selectedPlan?.quantity }} {{ selectedPlan?.quantityUnit }}</span>
+          </p>
+          <p class="text-sm font-medium dark:text-gray-400">
+            <strong class="dark:text-gray-400 mr-2">Type:</strong>
+            <span class="border rounded-xl text-gray-500 bg-gray-50 px-2">{{ selectedPlan?.drugType }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-4 py-5 w-full bg-white dark:bg-gray-900">
+      <button class="filters-btns m-0 h-8" (click)="modifyPlan()">
+        <i class="fa-solid fa-arrow-left mr-2"></i>
+        Modify
+      </button>
+      <button nz-button nzType="primary" class="px-6 block rounded-lg h-8" (click)="continue()"
+        [disabled]="!selectedPlan">Next</button>
+    </div>
+
+  </div>
+
+</ng-container>
+
+<ng-template #loading>
+  <div class="text-center text-primary text-5xl py-[6rem]">
+    <i class="fa-solid fa-arrows-spin animate-spin"></i>
+  </div>
+</ng-template>

@@ -1,0 +1,124 @@
+<div
+    class="grid mb-4 grid-cols-1 sm:max-lg:grid-cols-2 lg:grid-cols-4 gap-4 my-2 p-4 bg-gray-100 rounded-xl dark:bg-gray-800">
+    <div class="col-span-full mt-[-2rem] mb-[-2rem]">
+        <a nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu" nzPlacement="bottomRight"
+            class="main-btn hover:bg-gray-900 hover:border-gray-950 dark:hover:bg-gray-700 dark:hover:border-primary flex items-center">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+        </a>
+        <nz-dropdown-menu #menu="nzDropdownMenu">
+            <ul nz-menu>
+                <li nz-menu-item>
+                    <i class="fas fa-print mr-2"></i>
+                    Print Invoice
+                </li>
+            </ul>
+        </nz-dropdown-menu>
+        <button class="main-btn mr-2">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span class="ml-2 hidden md:inline-block">
+                Send Invoice
+            </span>
+        </button>
+        <button class="main-btn mr-2">
+            <i class="fa-solid fa-file-export"></i>
+            <span class="ml-2 hidden md:inline-block">
+                Export
+            </span>
+        </button>
+
+    </div>
+    <div class="lg:col-span-4 md:max-lg:col-span-2 col-span-1">
+        <h4 class="font-semibold text-lg dark:text-gray-300">{{invoiceData.invoiceType}}</h4>
+    </div>
+    <div class="col-span-1">
+        <label class="text-gray-500 dark:text-gray-400 text-sm">Billing Details :</label>
+        <span class="label-C font-semibold mt-1">Rodney Huston</span>
+    </div>
+    <div class="col-span-1">
+        <label class="text-gray-500 dark:text-gray-400 text-sm">Billed to :</label>
+        <span class="label-C font-semibold mt-1">{{invoiceData.email}}</span>
+    </div>
+    <div class="col-span-1">
+        <label class="text-gray-500 dark:text-gray-400 text-sm">Invoice Number :</label>
+        <span class="label-C font-semibold mt-1">{{invoiceData.invoiceNumber}}</span>
+    </div>
+    <div class="col-span-1">
+        <label class="text-gray-500 dark:text-gray-400 text-sm">Subject :</label>
+        <span class="label-C font-semibold mt-1">{{invoiceData.invoiceType}}</span>
+    </div>
+    <div class="col-span-1">
+        <label class="text-gray-500 dark:text-gray-400 text-sm">Currency :</label>
+        <span class="label-C font-semibold mt-1">$ - US Dollar</span>
+    </div>
+    <div class="col-span-1">
+        <label class="text-gray-500 dark:text-gray-400 text-sm">Issued :</label>
+        <span class="label-C font-semibold mt-1">{{invoiceData.createdDate}}</span>
+    </div>
+    <div class="col-span-1">
+        <label class="text-gray-500 dark:text-gray-400 text-sm">Due date :</label>
+        <span class="label-C font-semibold mt-1">10 January 2025</span>
+    </div>
+    <div class="col-span-1">
+  <label class="text-gray-500 dark:text-gray-400 text-sm block">Status:</label>
+  <span class="block mt-1 w-[6vh] bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 text-xs font-medium px-2.5 py-0.5 rounded-full">
+    Paid
+  </span>
+</div>
+</div>
+
+<nz-table #basicTable [nzData]="orderDetail" [nzFrontPagination]="false" [nzShowPagination]="false"
+    [nzFooter]="orderDeatilFooter">
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th nzRight nzWidth="150px" class="text-center">Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let data of basicTable.data">
+            <td>{{ data.item }}</td>
+            <td nzRight class="text-right">{{ data.ammount | currency }}</td>
+        </tr>
+    </tbody>
+</nz-table>
+
+<ng-template #orderDeatilFooter>
+    <div class="flex justify-end">
+        <div class="max-w-1/3 grid grid-cols-6 gap-x-14 gap-y-2">
+            <h4
+                class="!no-underline transition-colors duration-1000 delay-100 text-sm dark:text-gray-200 col-span-4 text-right font-extrabold">
+                Subtotal:
+            </h4>
+            <p
+                class="!no-underline transition-colors duration-1000 delay-100 text-sm text-primary col-span-2 inline text-right font-extrabold">
+                $245.00
+            </p>
+            <h4
+                class="!no-underline transition-colors duration-1000 delay-100 text-sm dark:text-gray-200 col-span-4 text-right font-semibold">
+                Discount (10%)
+            </h4>
+            <p
+                class="!no-underline transition-colors duration-1000 delay-100 text-sm dark:text-gray-200 col-span-2 inline text-right font-extrabold">
+                $24.50
+            </p>
+            <h4
+                class="!no-underline transition-colors duration-1000 delay-100 text-sm dark:text-gray-200 col-span-4 text-right font-extrabold">
+                Total:
+            </h4>
+            <p
+                class="!no-underline transition-colors duration-1000 delay-100 text-sm col-span-2 dark:text-gray-200 inline text-right font-extrabold">
+                $220.50
+            </p>
+            <h4
+                class="!no-underline transition-colors duration-1000 delay-100 text-sm dark:text-gray-200 col-span-4 text-right font-extrabold">
+                Amount Due:
+            </h4>
+            <p
+                class="!no-underline transition-colors duration-1000 delay-100 text-sm text-primary col-span-2 inline text-right font-extrabold">
+                $220.50
+            </p>
+        </div>
+    </div>
+</ng-template>
+
+<app-comman-form-modal #commanModel [apiUrl]="this.modalApiUrl"></app-comman-form-modal>

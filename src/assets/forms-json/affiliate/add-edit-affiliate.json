@@ -1,0 +1,105 @@
+{
+    "title": "Affiliate Form",
+    "primaryId": "id",
+    "rows": [
+        {
+            "class": "grid grid-cols-1 gap-2 mb-2 pb-2",
+            "title": "Basic Information",
+            "fields": [
+                {
+                    "type": "text",
+                    "label": "Name",
+                    "name": "name",
+                    "placeholder": "Enter a Name",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "text",
+                    "name": "slug",
+                    "label": "Slug",
+                    "placeholder": "Enter a Slug",
+                    "class": "col-span-1",
+                    "iconText":"This will be used in the affiliate link",
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        },
+        {
+            "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2 pb-2",
+            "title": "Commission",
+            "fields": [
+                {
+                    "type": "select",
+                    "label": "Commission type",
+                    "name": "commissionType",
+                    "placeholder": "Choose one type",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    },
+                    "options": [
+                        {
+                            "label": "Percentage",
+                            "value": "Percentage"
+                        },
+                        {
+                            "label": "Fixed",
+                            "value": "Fixed"
+                        }
+                    ]
+                },
+                {
+                    "type": "number",
+                    "name": "commissionValue",
+                    "label": "Commission Value",
+                    "placeholder": "Enter a Slug",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        },
+        {
+            "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2 pb-2",
+            "title": "Discount",
+            "fields": [
+                {
+                    "type": "select",
+                    "label": "Discount type",
+                    "name": "discountType",
+                    "placeholder": "Choose one type",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    },
+                    "options": [
+                        {
+                            "label": "Percentage",
+                            "value": "Percentage"
+                        },
+                        {
+                            "label": "Flat",
+                            "value": "Flat"
+                        }
+                    ]
+                },
+                {
+                    "type": "number",
+                    "name": "discountValue",
+                    "label": "Discount Value",
+                    "placeholder": "Enter a value",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        }
+    ]
+}

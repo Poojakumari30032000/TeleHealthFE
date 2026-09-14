@@ -1,0 +1,107 @@
+<nz-modal *ngIf="isVisible" [(nzVisible)]="isVisible" [nzTitle]="modelTitle" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()" [nzOkLoading]="isFormSubmitting" [nzOkDisabled]="isFormSubmitting" nzWidth="800px" [nzMaskClosable]="false">
+    <ng-container *nzModalContent>
+        <form [formGroup]="availabilityForm">
+            <div *ngIf="providerScheduleId === 0" class="availability-warning-banner">
+              @if(userRole == 'Provider'){
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                    <strong>Please review carefully.</strong>
+                    Availability cannot be edited once added. Verify date, time, duration, and recurrence settings before saving.
+                </div>
+              }
+              @else{
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  <div>
+                    <strong>Please review carefully.</strong>
+                    Availability cannot be edited once added. Verify provider, date, time, duration, and recurrence settings before saving.
+                  </div>
+              }
+            </div>
+
+            <div class="mb-4">
+                <label class="label-C">Title
+                    <span class="text-danger">*</span>
+                </label>
+                <input appValidationErrors class="input-C" nz-input formControlName="title" placeholder="Enter Title">
+            </div>
+
+            <div class="mb-4" *ngIf="this.userRole !== 'Provider'">
+                <label class="label-C">Provider
+                    <span class="text-danger">*</span>
+                </label>
+                <nz-select appValidationErrors formControlName="providerId" nzPlaceHolder="Select Provider"
+                    class="w-full onForm-Select mt-1" nzShowSearch [nzLoading]="loadingProvider"
+                    [nzDisabled]="loadingProvider" (ngModelChange)="onProviderChange($event)">
+                    <nz-option *ngFor="let provider of providers; trackBy: trackByProvider" [nzValue]="provider.providerId"
+                        [nzLabel]="provider.name"></nz-option>
+                </nz-select>
+            </div>
+            <div class="grid gap-4 mb-4 md:grid-cols-2 sm:grid-cols-1">
+                <div>
+                    <label class="label-C">Start Date
+                        <span class="text-danger">*</span>
+                    </label>
+                    <nz-date-picker appValidationErrors class="datepicker-C" [nzFormat]="'MM/dd/YYYY'" formControlName="slotDate" [nzDisabledDate]="disabledDate"></nz-date-picker>
+                </div>
+                <div>
+                    <label class="label-C">Start Time
+                        <span class="text-danger">*</span>
+                    </label>
+                    <nz-select appValidationErrors formControlName="startTime" nzPlaceHolder="Select Start Time" (ngModelChange)="updateEndTimeOptions()" class="w-full onForm-Select mt-1" nzShowSearch>
+                        <nz-option *ngFor="let time of timeOptions; trackBy: trackByTime" [nzValue]="time.value"
+                            [nzLabel]="time.label"></nz-option>
+                    </nz-select>
+                </div>
+                <div>
+                    <label class="label-C">End Time
+                        <span class="text-danger">*</span>
+                    </label>
+                    <nz-select appValidationErrors formControlName="endTime" nzPlaceHolder="Select End Time" (ngModelChange)="updateEndTimeOptions()" class="w-full onForm-Select mt-1" [nzDisabled]="!availabilityForm.value.startTime" nzShowSearch>
+                        <nz-option *ngFor="let time of filteredEndTimeOptions; trackBy: trackByTime"
+                            [nzValue]="time.value" [nzLabel]="time.label"></nz-option>
+                    </nz-select>
+                </div>
+                <div>
+                    <label class="label-C">Duration
+                        <span class="text-danger">*</span>
+                    </label>
+                    <nz-select formControlName="duration" nzPlaceHolder="Select Duration"
+                        [nzDisabled]="!availabilityForm.value.endTime" (ngModelChange)="updateEndTimeOptions()"
+                        class="w-full onForm-Select mt-1">
+                        <nz-option *ngFor="let d of filteredDurations" [nzValue]="d" [nzLabel]="d + ' mins'">
+                        </nz-option>
+                    </nz-select>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label nz-checkbox formControlName="isRecurrence" class="mb-2 label-C-R"
+                    (ngModelChange)="updateRepeatValidation($event)">Repeat</label>
+
+                <div *ngIf="availabilityForm.get('isRecurrence')?.value" class="space-y-4">
+                    <div class="grid gap-4 mb-4 grid-cols-1">
+                        <div>
+                            <label class="label-C">Select Days
+                                <span class="text-danger">*</span>
+                            </label>
+                            <nz-select appValidationErrors formControlName="recurrenceDays" nzMode="multiple"
+                                nzPlaceHolder="Select Days" class="w-full onForm-Select mt-1" nzShowSearch
+                                (ngModelChange)="onRecurrenceDaysChange($event)">
+                                <nz-option [nzValue]="selectAllDaysValue" nzLabel="Select All"></nz-option>
+                                <nz-option *ngFor="let day of daysOfWeek; trackBy: trackByDay" [nzValue]="day.label"
+                                    [nzLabel]="day.label"></nz-option>
+                            </nz-select>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="label-C">Ends On Date
+                            <span class="text-danger">*</span>
+                        </label>
+                        <nz-date-picker appValidationErrors class="datepicker-C" [nzFormat]="'MM/dd/YYYY'"
+                            formControlName="recurrenceEndDate" [nzDisabledDate]="disabledEndDate"></nz-date-picker>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </ng-container>
+</nz-modal>

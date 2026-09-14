@@ -1,0 +1,130 @@
+<div class="questionnaire-workspace-shell">
+  <section class="questionnaire-filter-shell">
+    <div class="questionnaire-filter-toolbar">
+      <div class="questionnaire-filter-toolbar-left">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="questionnaire-filter-toggle"
+          (click)="showFilters = !showFilters"
+          [attr.aria-expanded]="showFilters"
+          type="button"
+        >
+          <i class="fa-solid fa-sliders"></i>
+          <span>Filters</span>
+          <span *ngIf="visibleFiltersCount > 0" class="questionnaire-filter-count-pill">
+            {{ visibleFiltersCount }}
+          </span>
+          <i class="fa-solid fa-chevron-down questionnaire-filter-chevron" [class.rotate-180]="showFilters"></i>
+        </button>
+
+        <span *ngIf="!showFilters && visibleFiltersCount > 0" class="questionnaire-filter-summary">
+          {{ visibleFiltersCount }} active filters
+        </span>
+      </div>
+
+      <div class="questionnaire-filter-toolbar-right">
+        <button
+          *ngIf="visibleFiltersCount > 0"
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="questionnaire-filter-clear"
+          (click)="clearFilters()"
+          type="button"
+        >
+          Reset
+        </button>
+
+        @if (userRole === 'Global Admin') {
+          <button
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="questionnaire-add-btn"
+            (click)="AddEditQuestionnaire()"
+            *appHasAnyPermission="['questionnaier_add']"
+          >
+            <i class="fa-solid fa-plus"></i>
+            <span class="ml-2 hidden md:inline-block">Add Form</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div *ngIf="visibleFiltersCount > 0 && !showFilters" class="questionnaire-filter-chip-row">
+      @for (filter of appliedFilters; track trackByFilterName($index, filter)) {
+        @if (!shouldHideAppliedFilter(filter.name)) {
+          <button class="questionnaire-filter-chip" type="button" (click)="removeFilter(filter.name)">
+            <span>{{ getFilterDisplayName(filter.name) }}: {{ getFilterDisplayValue(filter) }}</span>
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        }
+      }
+    </div>
+
+    <div *ngIf="showFilters" class="questionnaire-filter-grid">
+      @if (userRole === 'Global Admin') {
+
+      }
+
+      <div>
+        <label class="label-C-F questionnaire-filter-label">Title:</label>
+        <input
+          nz-input
+          placeholder="Search by name"
+          title="Search by name"
+          id="search"
+          class="input-C questionnaire-filter-input"
+          [(ngModel)]="searchQuery"
+          (input)="searchTermChanged()"
+        />
+      </div>
+
+      <div>
+        <label class="label-C-F questionnaire-filter-label">Date:</label>
+        <nz-range-picker
+          nzFormat="MM/dd/yyyy"
+          class="w-full questionnaire-filter-date"
+          [(ngModel)]="selectedDateRange"
+          (ngModelChange)="applyFilter()"
+        ></nz-range-picker>
+      </div>
+
+      <div>
+        <label class="label-C-F questionnaire-filter-label">Status:</label>
+        <nz-select
+          class="w-full questionnaire-filter-select"
+          nzPlaceHolder="Select Status"
+          nzShowSearch
+          nzAllowClear
+          [nzShowArrow]="true"
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="applyFilter()"
+        >
+          <nz-option *ngFor="let option of questionnaireStatus" [nzValue]="option" [nzLabel]="option"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+  </section>
+
+  <section class="questionnaire-table-shell">
+    <app-dynamic-table
+      apiEndpoint="Questionnaires/getAllQuestionnaires"
+      [columns]="columns"
+      [filters]="appliedFilters"
+      [showActions]="true"
+      [actionDisplay]="'inline'"
+      [actionColumnWidth]="'190px'"
+      [actions]="[
+        { label: 'View', icon: 'fa-solid fa-eye', callback: questionnaireView },
+        { label: 'Edit', icon: 'fa-regular fa-pen-to-square', callback: AddEditQuestionnaire, permissionKeys: ['questionnaier_list_edit'] },
+        { label: 'Duplicate', icon: 'fa-solid fa-copy', callback: questionnaireDuplicate, permissionKeys: ['questionnaier_list_edit'] },
+      ]"
+    >
+    </app-dynamic-table>
+  </section>
+</div>
+
+<app-comman-form-modal #commanModel [apiUrl]="modalApiUrl" (formClosed)="onRefresh()"></app-comman-form-modal>

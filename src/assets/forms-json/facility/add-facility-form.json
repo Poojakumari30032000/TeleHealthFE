@@ -1,0 +1,246 @@
+{
+  "title": "Clinic Form",
+  "primaryId": "facilityId",
+  "rows": [
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Name ( Long )",
+          "name": "titleLong",
+          "placeholder": "Enter Clinic Name ( Long )",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "text",
+          "label": "Name ( Short )",
+          "name": "titleShort",
+          "placeholder": "Enter Name ( Short )",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "email",
+          "label": "Clinic Email",
+          "name": "email",
+          "placeholder": "Enter Your Email",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "tel",
+          "label": "Phone Number",
+          "name": "phone",
+          "placeholder": "Enter Phone No",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "tel",
+          "label": "Fax",
+          "name": "fax",
+          "placeholder": "Enter Fax",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "select",
+          "label": "Billing Address",
+          "name": "billingAddressType",
+          "placeholder": "Select Billing Address",
+          "class": "col-span-1",
+          "options": [
+            {
+              "label": "Same as Clinic",
+              "value": "Same as Clinic"
+            },
+            {
+              "label": "Other Address",
+              "value": "Other Address"
+            }
+          ],
+          "validations": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-1 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Address",
+          "name": "address",
+          "placeholder": "Enter Address",
+          "class": "col-span-1",
+          "validations": { "required": true }
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "select",
+          "label": "State",
+          "name": "stateId",
+          "placeholder": "Select State",
+          "class": "col-span-1",
+          "labelKey": ["name"],
+          "valueKey": "id",
+          "fetchUrl": "DropDowns/GetAllStateOfUSA",
+          "validations": { "required": true }
+        },
+        {
+          "type": "select",
+          "label": "City",
+          "name": "cityId",
+          "placeholder": "Select City",
+          "class": "col-span-1",
+          "dependsOn": ["stateId"],
+          "labelKey": ["name"],
+          "valueKey": "id",
+          "fetchUrl": "DropDowns/GetCitiesByStateId?Id={stateId}",
+          "validations": { "required": true }
+        },
+        {
+          "type": "tel",
+          "label": "Zip Code",
+          "name": "zipCode",
+          "placeholder": "Enter zip code",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "visibilityCondition": { "name": "billingAddressType", "value": "Other Address" },
+      "class": "grid grid-cols-1 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Other Address",
+          "name": "otherAddress",
+          "placeholder": "Enter Address",
+          "class": "col-span-1",
+          "validations": { "required": true }
+        }
+      ]
+    },
+    {
+      "visibilityCondition": { "name": "billingAddressType", "value": "Other Address" },
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "select",
+          "label": "Other State",
+          "name": "otherStateId",
+          "placeholder": "Select State",
+          "class": "col-span-1",
+          "labelKey": ["name"],
+          "valueKey": "id",
+          "fetchUrl": "DropDowns/GetAllStateOfUSA",
+          "validations": { "required": true }
+        },
+        {
+          "type": "select",
+          "label": "Other City",
+          "name": "otherCityId",
+          "placeholder": "Select City",
+          "class": "col-span-1",
+          "dependsOn": ["otherStateId"],
+          "labelKey": ["name"],
+          "valueKey": "id",
+          "fetchUrl": "DropDowns/GetCitiesByStateId?Id={otherStateId}",
+          "validations": { "required": true }
+        },
+        {
+          "type": "tel",
+          "label": "Other Zip Code",
+          "name": "otherZipCode",
+          "placeholder": "Enter zip code",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Federal Tax Id",
+          "name": "fedearlTaxId",
+          "placeholder": "Enter Federal Tax Id",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "text",
+          "label": "NPI",
+          "name": "npi",
+          "placeholder": "Enter NPI",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "title": "Clinic Contact Details:",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Name",
+          "name": "facilityContactName",
+          "placeholder": "Enter Name",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "email",
+          "label": "Email",
+          "name": "facilityContactEmail",
+          "placeholder": "Enter Your Email",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "tel",
+          "label": "Phone Number",
+          "name": "facilityContactPhone",
+          "placeholder": "Enter Phone No",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        }
+      ]
+    }
+  ]
+}

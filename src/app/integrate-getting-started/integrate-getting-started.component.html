@@ -1,0 +1,380 @@
+<div class="integration-page">
+
+  <div class="igc-selector-bar">
+    <button
+      *ngFor="let item of menuItems"
+      class="igc-selector-pill"
+      [class.igc-selector-pill--active]="selectedMenuItem === item.label"
+      [disabled]="loadingPaymentMode"
+      (click)="onMenuItemClick(item)"
+      type="button"
+    >
+      <span
+        class="igc-selector-pill-icon"
+        [class.igc-selector-pill-icon--stripe]="item.label === 'Stripe'"
+        [class.igc-selector-pill-icon--square]="item.label === 'Square'"
+        [class.igc-selector-pill-icon--fullscript]="item.label === 'Fullscript'"
+        [class.igc-selector-pill-icon--wordpress]="item.label === 'WordPress'"
+      ></span>
+      {{ item.label }}
+    </button>
+    <i *ngIf="loadingPaymentMode" class="fa-solid fa-spinner fa-spin ml-3 text-slate-400"></i>
+  </div>
+
+  @if (selectedMenuItem === 'WordPress') {
+    <div class="igc-panel">
+      <div class="igc-panel__header">
+        <div class="igc-panel__brand">
+          <span class="igc-panel__brand-icon igc-panel__brand-icon--wordpress">
+            <i class="fa-brands fa-wordpress"></i>
+          </span>
+          <div>
+            <div class="igc-panel__brand-name">WordPress</div>
+            <div class="igc-panel__brand-desc">Embed your patient portal on your WordPress site using one of the snippets below.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="igc-panel__body">
+        <div class="igc-snippet-block">
+          <div class="igc-snippet-block__label">Getting Started Snippet</div>
+          <div class="igc-snippet-block__desc">Paste this snippet on your WordPress site to embed the patient portal getting-started flow.</div>
+          <div class="igc-snippet-actions">
+            <button
+              nz-button
+              nzType="primary"
+              (click)="copyCode(codeSnippet)"
+            >
+              <i class="fa-regular fa-copy mr-2"></i>Copy Code
+            </button>
+            <button
+              nz-button
+              nzType="default"
+              (click)="codeExpanded = !codeExpanded"
+            >
+              <i class="fa-regular mr-2" [class.fa-eye]="!codeExpanded" [class.fa-eye-slash]="codeExpanded"></i>
+              {{ codeExpanded ? 'Hide Code' : 'View Code' }}
+            </button>
+          </div>
+        </div>
+
+        @if (codeExpanded) {
+          <div class="igc-code-viewer">
+            <pre class="igc-code-block"><code>{{ codeSnippet }}</code></pre>
+          </div>
+        }
+
+        <div class="igc-divider"></div>
+
+      </div>
+    </div>
+  }
+
+  @if (selectedMenuItem === 'Square') {
+    <div class="igc-panel">
+      <div class="igc-panel__header">
+        <div class="igc-panel__brand">
+          <span class="igc-panel__brand-icon igc-panel__brand-icon--square">
+            <img src="assets/img/payment/square-logo.svg" alt="Square" width="26" height="26" />
+          </span>
+          <div>
+            <div class="igc-panel__brand-name">Square</div>
+            <div class="igc-panel__brand-desc">Connect your facility's Square account so patients can pay you. Authorize once via Square OAuth — no manual keys stored.</div>
+          </div>
+        </div>
+
+        <div class="igc-panel__header-right">
+
+          <ng-container *ngIf="!loadingSquareStatus; else sqLoadingPill">
+            <span
+              class="igc-status-pill"
+              [class.igc-status-pill--connected]="squareConnected"
+              [class.igc-status-pill--disconnected]="!squareConnected"
+            >
+              <i class="fa-solid" [class.fa-circle-check]="squareConnected" [class.fa-circle-xmark]="!squareConnected"></i>
+              {{ squareConnected ? 'Connected' : 'Not Connected' }}
+            </span>
+          </ng-container>
+          <ng-template #sqLoadingPill>
+            <span class="igc-status-pill igc-status-pill--loading">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+              Checking...
+            </span>
+          </ng-template>
+
+          <div class="flex gap-2">
+            @if (!squareConnected) {
+              <button
+                nz-button
+                nzType="primary"
+                type="button"
+                [disabled]="loadingSquareStatus"
+                (click)="connectSquare()"
+              >
+                <i class="fa-solid fa-plug mr-2"></i>Connect with Square
+              </button>
+            }
+            @if (squareConnected) {
+              <button
+                nz-button
+                nzType="default"
+                type="button"
+                (click)="disconnectSquare()"
+              >
+                <i class="fa-solid fa-unlink mr-2"></i>Disconnect
+              </button>
+              <button
+                nz-button
+                nzType="default"
+                type="button"
+                (click)="getSquareStatus()"
+              >
+                <i class="fa-solid fa-rotate mr-2"></i>Refresh
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="igc-divider"></div>
+      <p class="igc-footer-note">You will be redirected to Square to sign in and authorize this app.</p>
+    </div>
+  }
+
+  @if (selectedMenuItem === 'Stripe') {
+    <div class="igc-panel">
+      <div class="igc-panel__header">
+        <div class="igc-panel__brand">
+          <span class="igc-panel__brand-icon igc-panel__brand-icon--stripe">
+            <i class="fa-brands fa-stripe-s"></i>
+          </span>
+          <div>
+            <div class="igc-panel__brand-name">Stripe Connect</div>
+            <div class="igc-panel__brand-desc">Connect your clinic facility to Stripe so patients can pay you. Onboarding opens as an embedded flow inside this page.</div>
+          </div>
+        </div>
+
+        <div class="igc-panel__header-right">
+
+          <ng-container *ngIf="!loadingStripeStatus; else stripeLoadingPill">
+            <span
+              class="igc-status-pill"
+              [class.igc-status-pill--connected]="stripeStatusLabel === 'Connected'"
+              [class.igc-status-pill--pending]="stripeStatusLabel === 'Pending'"
+              [class.igc-status-pill--disconnected]="stripeStatusLabel === 'Not Connected'"
+            >
+              <i class="fa-solid"
+                [class.fa-circle-check]="stripeStatusLabel === 'Connected'"
+                [class.fa-circle-half-stroke]="stripeStatusLabel === 'Pending'"
+                [class.fa-circle-xmark]="stripeStatusLabel === 'Not Connected'"
+              ></i>
+              {{ stripeStatusLabel }}
+            </span>
+          </ng-container>
+          <ng-template #stripeLoadingPill>
+            <span class="igc-status-pill igc-status-pill--loading">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+              Checking...
+            </span>
+          </ng-template>
+
+          <div class="igc-tag-row">
+            <nz-tag nzColor="green" *ngIf="stripeChargesEnabled">Charges Enabled</nz-tag>
+            <nz-tag nzColor="blue" *ngIf="stripePayoutsEnabled">Payouts Enabled</nz-tag>
+            <nz-tag nzColor="gold" *ngIf="!stripeChargesEnabled || !stripePayoutsEnabled">Action Required</nz-tag>
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              *ngIf="stripeStatusLabel !== 'Connected'"
+              nz-button
+              nzType="primary"
+              type="button"
+              [disabled]="loadingStripeStatus || startingStripeOnboarding"
+              [nzLoading]="startingStripeOnboarding"
+              (click)="startStripeOnboarding()"
+            >
+              <i class="fa-solid fa-plug mr-2"></i>Start / Continue Onboarding
+            </button>
+            <button
+              nz-button
+              nzType="default"
+              type="button"
+              [disabled]="loadingStripeStatus"
+              (click)="getStripeStatus()"
+            >
+              <i class="fa-solid fa-rotate mr-2"></i>Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="igc-panel__body">
+
+        <div *ngIf="stripeRequirementsDue.length > 0" class="igc-requirements igc-requirements--warning">
+          <div class="igc-requirements__title">
+            <i class="fa-solid fa-triangle-exclamation mr-2"></i>Requirements Due
+          </div>
+          <ul class="igc-requirements__list">
+            <li *ngFor="let req of stripeRequirementsDue">{{ req }}</li>
+          </ul>
+        </div>
+
+        <div *ngIf="stripeRequirementsPastDue.length > 0" class="igc-requirements igc-requirements--danger">
+          <div class="igc-requirements__title">
+            <i class="fa-solid fa-circle-exclamation mr-2"></i>Past Due
+          </div>
+          <ul class="igc-requirements__list">
+            <li *ngFor="let req of stripeRequirementsPastDue">{{ req }}</li>
+          </ul>
+        </div>
+
+        <div *ngIf="stripeDetailsSubmitted || stripeStatusLabel === 'Connected' || stripeStatusLabel === 'Pending'" class="igc-ga-billing">
+          <div class="igc-ga-billing__header">
+            <div>
+              <div class="igc-ga-billing__title">
+                <i class="fa-solid fa-building-columns mr-2"></i>Clinic-to-Platform Billing
+              </div>
+              <div class="igc-ga-billing__desc">Add a payment method so your clinic can pay its monthly platform invoice via Stripe.</div>
+            </div>
+            <div class="igc-ga-billing__status">
+              @if (gaBillingStatusLoading) {
+                <span class="igc-ga-billing__loading">
+                  <i class="fa-solid fa-spinner fa-spin"></i>Checking...
+                </span>
+              } @else if (gaBillingHasPaymentMethod) {
+                <span class="igc-ga-billing__ok">
+                  <i class="fa-solid fa-circle-check"></i>Payment method set up
+                </span>
+              }
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2 mt-3">
+            @if (gaBillingHasPaymentMethod) {
+              <button
+                nz-button
+                nzType="default"
+                nzSize="small"
+                type="button"
+                [nzLoading]="gaBillingSetupLoading"
+                [disabled]="gaBillingSetupLoading"
+                (click)="addGaBillingPaymentMethod()"
+              >
+                <i class="fa-solid fa-credit-card mr-2"></i>Update payment method
+              </button>
+            } @else if (!gaBillingStatusLoading) {
+              <button
+                nz-button
+                nzType="default"
+                type="button"
+                [nzLoading]="gaBillingSetupLoading"
+                [disabled]="gaBillingSetupLoading"
+                (click)="addGaBillingPaymentMethod()"
+              >
+                <i class="fa-solid fa-credit-card mr-2"></i>Add payment method for clinic billing
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="igc-onboarding-box">
+          <div class="igc-onboarding-box__accent"></div>
+          <div class="igc-onboarding-box__inner">
+            <div class="igc-onboarding-box__title">
+              <i class="fa-brands fa-stripe mr-2"></i>Stripe Connect — Account Onboarding
+            </div>
+            <p class="igc-onboarding-box__subtitle">Complete verification without leaving the app.</p>
+
+            <div *ngIf="stripeEmbeddedOnboardingLoading" class="igc-onboarding-box__loading">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+              <span>Loading embedded onboarding...</span>
+            </div>
+
+            <div *ngIf="stripeEmbeddedOnboardingError" class="igc-onboarding-box__error">
+              {{ stripeEmbeddedOnboardingError }}
+            </div>
+
+            <div *ngIf="stripeEmbeddedOnboardingVisible" class="igc-onboarding-box__frame">
+              <div
+                #stripeOnboardingContainer
+                id="stripe-onboarding-container"
+                class="min-h-[460px]"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="igc-divider"></div>
+      @if(StripeChargeMode != 'Destination'){
+      <p class="igc-footer-note">Clinic pays Stripe fees and dispute losses.</p>
+        }
+    </div>
+  }
+
+  @if (selectedMenuItem === 'Fullscript') {
+    <div class="igc-panel">
+      <div class="igc-panel__header">
+        <div class="igc-panel__brand">
+          <span class="igc-panel__brand-icon igc-panel__brand-icon--fullscript">
+            <i class="fa-solid fa-leaf"></i>
+          </span>
+          <div>
+            <div class="igc-panel__brand-name">Fullscript</div>
+            <div class="igc-panel__brand-desc">Connect your Fullscript account to build treatment plans and supplement recommendations inside patient charts.</div>
+          </div>
+        </div>
+
+        <div class="igc-panel__header-right">
+
+          <ng-container *ngIf="!loadingFullscriptStatus; else fsLoadingPill">
+            <span
+              class="igc-status-pill"
+              [class.igc-status-pill--connected]="fullscriptConnected"
+              [class.igc-status-pill--disconnected]="!fullscriptConnected"
+            >
+              <i class="fa-solid"
+                [class.fa-circle-check]="fullscriptConnected"
+                [class.fa-circle-xmark]="!fullscriptConnected"
+              ></i>
+              {{ fullscriptConnected ? 'Connected' : 'Not Connected' }}
+            </span>
+          </ng-container>
+          <ng-template #fsLoadingPill>
+            <span class="igc-status-pill igc-status-pill--loading">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+              Checking...
+            </span>
+          </ng-template>
+
+          <div class="flex gap-2">
+            <button
+              *ngIf="!fullscriptConnected"
+              nz-button
+              nzType="primary"
+              type="button"
+              [disabled]="loadingFullscriptStatus"
+              (click)="connectFullscript()"
+            >
+              <i class="fa-solid fa-plug mr-2"></i>Connect Fullscript
+            </button>
+            <button
+              *ngIf="fullscriptConnected"
+              nz-button
+              nzType="default"
+              type="button"
+              (click)="getFullscriptStatus()"
+            >
+              <i class="fa-solid fa-rotate mr-2"></i>Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="igc-divider"></div>
+      <p class="igc-footer-note">If you reconnect, you may be asked to sign in to Fullscript again.</p>
+    </div>
+  }
+
+</div>

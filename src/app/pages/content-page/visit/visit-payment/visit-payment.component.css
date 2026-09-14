@@ -1,0 +1,17 @@
+.visit-card ::ng-deep .ant-card-body{
+    padding: 1rem 0.25rem 0.25rem 0.25rem !important;
+}
+.visit-card ::ng-deep .ant-card-meta-title{
+    text-wrap: wrap !important;
+}
+
+.onVisit-Select ::ng-deep .ant-select-selector{
+    height: 35px !important;
+    align-items: center;
+    border-radius: 1rem;
+}
+
+.onVisit-Select.in-valid ::ng-deep .ant-select-selector{
+    background-color: rgb(254 242 242 / 1);
+    border-color: rgb(239 68 68 / 1)
+}

@@ -1,0 +1,394 @@
+<div class="manage-hours-shell">
+  <header class="manage-hours-header">
+    <div class="manage-hours-header-left">
+      <h2 class="manage-hours-title">Manage Your Hours</h2>
+
+    </div>
+
+    <div class="manage-hours-header-right" *ngIf="userRole !== 'Provider'">
+      <label class="label-C-F manage-hours-provider-label">Provider:</label>
+      <nz-select
+        class="manage-hours-provider-select"
+        nzPlaceHolder="Select Provider"
+        nzShowSearch
+        nzAllowClear
+        [nzShowArrow]="true"
+        [nzLoading]="loadingProvider"
+        [nzDisabled]="loadingProvider"
+        [(ngModel)]="selectedProvider"
+        (ngModelChange)="onProviderChange()"
+      >
+        <nz-option
+          *ngFor="let option of providerList; trackBy: trackByProvider"
+          [nzValue]="option.providerId"
+          [nzLabel]="option.name"
+        ></nz-option>
+      </nz-select>
+    </div>
+  </header>
+
+  <section class="manage-hours-weeknav">
+    <button nz-button nzType="default" nzShape="round" class="manage-hours-nav-btn" (click)="previousWeek()" type="button">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <div class="manage-hours-week-label">
+      <i class="fa-regular fa-calendar"></i>
+      <span>{{ weekRangeLabel }}</span>
+    </div>
+    <button nz-button nzType="default" nzShape="round" class="manage-hours-nav-btn" (click)="nextWeek()" type="button">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <button nz-button nzType="default" nzShape="round" class="manage-hours-today-btn" (click)="goToCurrentWeek()" type="button">
+      Today
+    </button>
+
+    <button
+      *ngIf="selectedProvider > 0"
+      nz-button
+      nzType="primary"
+      nzShape="round"
+      class="manage-hours-alt-btn"
+      (click)="openOverrideModal()"
+      type="button"
+      title="Set custom hours for a specific date (e.g. holiday, vacation, special hours)"
+    >
+      <i class="fa-solid fa-plus"></i>
+      <span>Add Alternative Hours</span>
+    </button>
+  </section>
+
+  <section class="manage-hours-body">
+    <div class="manage-hours-loading" *ngIf="loading">
+      <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+    </div>
+
+    <div class="manage-hours-empty" *ngIf="!loading && !week && selectedProvider === 0">
+      <i class="fa-regular fa-circle-info"></i>
+      <span>Select a provider above to manage their weekly hours.</span>
+    </div>
+
+    <div class="manage-hours-list" *ngIf="!loading && week">
+
+      <div class="manage-hours-col-header">
+        <span class="mhr-col-cap mhr-col-cap--day">Day</span>
+        <span class="mhr-col-cap mhr-col-cap--hours">Working Hours</span>
+        <span class="mhr-col-cap mhr-col-cap--status">Status</span>
+      </div>
+
+      <article
+        *ngFor="let day of week.days; trackBy: trackByDay"
+        class="manage-hours-day-row"
+        [class.is-closed]="day.isClosed"
+        [class.is-override]="day.isOverride"
+      >
+
+        <div class="mhr-day-name">
+          <span class="mhr-day-label">{{ day.label }}</span>
+          <span class="mhr-day-date">{{ day.date | date: 'MMM d' }}</span>
+          <div class="mhr-day-badges" *ngIf="day.isOverride || day.bookedSlotCount > 0">
+            <span *ngIf="day.isOverride" class="ui-status-badge ui-status-badge--neutral">
+              Override
+            </span>
+            <span *ngIf="day.bookedSlotCount > 0" class="ui-status-badge ui-status-badge--success">
+              {{ day.bookedSlotCount }} booked
+            </span>
+          </div>
+          <div class="mhr-day-note" *ngIf="day.isOverride && day.note">
+            <i class="fa-regular fa-note-sticky"></i>
+            <span>{{ day.note }}</span>
+          </div>
+        </div>
+
+        <div class="mhr-day-ranges" *ngIf="!day.isClosed">
+          <div
+            *ngFor="let range of day.timeRanges; let i = index; trackBy: trackByRangeIndex"
+            class="mhr-range-line"
+          >
+            <div class="manage-hours-range-row">
+              <nz-select
+                class="manage-hours-time-select"
+                [(ngModel)]="range.startTime"
+                (ngModelChange)="onRangeChange(day)"
+                nzShowSearch
+                [nzDisabled]="range.hasBookings"
+                nzPlaceHolder="Start"
+              >
+                <nz-option
+                  *ngFor="let opt of timeOptions"
+                  [nzValue]="opt.value"
+                  [nzLabel]="opt.label"
+                ></nz-option>
+              </nz-select>
+
+              <span class="manage-hours-range-sep">to</span>
+
+              <nz-select
+                class="manage-hours-time-select"
+                [(ngModel)]="range.endTime"
+                (ngModelChange)="onRangeChange(day)"
+                nzShowSearch
+                [nzDisabled]="range.hasBookings"
+                nzPlaceHolder="End"
+              >
+                <nz-option
+                  *ngFor="let opt of timeOptions"
+                  [nzValue]="opt.value"
+                  [nzLabel]="opt.label"
+                ></nz-option>
+              </nz-select>
+
+              <button
+                *ngIf="range.hasBookings"
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                class="manage-hours-range-action manage-hours-range-locked"
+                nz-tooltip
+                nzTooltipTitle="A booking exists in this range. Cancel the booking first to edit or delete."
+                type="button"
+                disabled
+              >
+                <i class="fa-solid fa-lock"></i>
+              </button>
+
+              <button
+                *ngIf="!range.hasBookings"
+                nz-button
+                nzType="default"
+                nzShape="circle"
+                class="manage-hours-range-action manage-hours-range-delete"
+                (click)="removeRange(day, i)"
+                type="button"
+                title="Remove time range"
+              >
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+
+            <button
+              *ngIf="i === 0"
+              nz-button
+              nzType="default"
+              nzShape="circle"
+              class="manage-hours-add-range-icon"
+              (click)="addRange(day)"
+              type="button"
+              nz-tooltip
+              nzTooltipTitle="Add time range"
+            >
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+
+          <button
+            *ngIf="day.timeRanges.length === 0"
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="manage-hours-add-range"
+            (click)="addRange(day)"
+            type="button"
+          >
+            <i class="fa-solid fa-plus"></i>
+            <span>Add time range</span>
+          </button>
+        </div>
+
+        <div class="mhr-day-ranges" *ngIf="day.isClosed">
+          <span class="mhr-day-closed-pill">
+            <i class="fa-solid fa-moon"></i>
+            Closed all day
+          </span>
+        </div>
+
+        <div class="mhr-day-actions">
+          <label
+            nz-checkbox
+            [(ngModel)]="day.isClosed"
+            (ngModelChange)="onClosedChange(day)"
+            class="manage-hours-closed-toggle"
+          >
+            Closed
+          </label>
+
+          <div class="mhr-day-buttons">
+            <button
+              *ngIf="day.isOverride"
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="manage-hours-copy-btn"
+              (click)="openOverrideModal(day)"
+              type="button"
+              title="Edit the alternative hours for this date"
+            >
+              <i class="fa-regular fa-pen-to-square"></i>
+              <span>Edit alt</span>
+            </button>
+
+            <button
+              *ngIf="day.isOverride"
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="manage-hours-reset-btn"
+              (click)="resetDayToTemplate(day)"
+              [disabled]="day.bookedSlotCount > 0"
+              type="button"
+              [title]="day.bookedSlotCount > 0
+                ? 'Cannot reset — booked slots exist on this date. Cancel them first.'
+                : 'Revert this date back to the weekly template hours'"
+            >
+              <i class="fa-solid fa-rotate-left"></i>
+              <span>Reset</span>
+            </button>
+
+            <button
+              *ngIf="!day.isOverride"
+              nz-button
+              nzType="primary"
+              nzShape="round"
+              class="manage-hours-save-btn"
+              [nzLoading]="day.saving"
+              [disabled]="!day.dirty || (isSavingAny && !day.saving)"
+              (click)="saveDay(day)"
+              type="button"
+            >
+              <i class="fa-solid fa-check" *ngIf="!day.saving"></i>
+              <span>Save</span>
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+</div>
+
+<nz-modal
+  [(nzVisible)]="overrideModalVisible"
+  nzTitle="Alternative Hours"
+  nzWidth="560px"
+  (nzOnCancel)="closeOverrideModal()"
+  [nzFooter]="overrideFooter"
+>
+  <ng-container *nzModalContent>
+    <div class="manage-hours-modal-body">
+      <div class="manage-hours-modal-row">
+        <label class="label-C-F">Date:</label>
+        <nz-date-picker
+          nzFormat="MM/dd/yyyy"
+          class="datepicker-C w-full"
+          [(ngModel)]="overrideDate"
+          [nzDisabled]="overrideEditingFromDay"
+        ></nz-date-picker>
+        <small class="manage-hours-modal-help" *ngIf="overrideEditingFromDay">
+          Date is fixed when editing an existing override. To move the override to a different date,
+          reset this day to the weekly template, then create a new override.
+        </small>
+      </div>
+
+      <div class="manage-hours-modal-row">
+        <label
+          nz-checkbox
+          [(ngModel)]="overrideIsClosed"
+          (ngModelChange)="onOverrideClosedChange()"
+        >
+          Closed (block off this date entirely)
+        </label>
+      </div>
+
+      <div class="manage-hours-modal-row" *ngIf="!overrideIsClosed">
+        <label class="label-C-F">Custom hours for this date:</label>
+        <div
+          *ngFor="let range of overrideRanges; let i = index; trackBy: trackByRangeIndex"
+          class="manage-hours-range-row"
+        >
+          <nz-select
+            class="manage-hours-time-select"
+            [(ngModel)]="range.startTime"
+            nzShowSearch
+            [nzDisabled]="range.hasBookings"
+            nzPlaceHolder="Start"
+          >
+            <nz-option *ngFor="let opt of timeOptions" [nzValue]="opt.value" [nzLabel]="opt.label"></nz-option>
+          </nz-select>
+
+          <span class="manage-hours-range-sep">to</span>
+
+          <nz-select
+            class="manage-hours-time-select"
+            [(ngModel)]="range.endTime"
+            nzShowSearch
+            [nzDisabled]="range.hasBookings"
+            nzPlaceHolder="End"
+          >
+            <nz-option *ngFor="let opt of timeOptions" [nzValue]="opt.value" [nzLabel]="opt.label"></nz-option>
+          </nz-select>
+
+          <button
+            *ngIf="range.hasBookings"
+            nz-button
+            nzType="default"
+            nzShape="circle"
+            class="manage-hours-range-action manage-hours-range-locked"
+            nz-tooltip
+            nzTooltipTitle="A booking exists in this range. Cancel the booking first to edit or delete."
+            type="button"
+            disabled
+          >
+            <i class="fa-solid fa-lock"></i>
+          </button>
+          <button
+            *ngIf="!range.hasBookings"
+            nz-button
+            nzType="default"
+            nzShape="circle"
+            class="manage-hours-range-action manage-hours-range-delete"
+            (click)="removeOverrideRange(i)"
+            type="button"
+            title="Remove time range"
+          >
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="manage-hours-add-range"
+          (click)="addOverrideRange()"
+          type="button"
+        >
+          <i class="fa-solid fa-plus"></i>
+          <span>Add time range</span>
+        </button>
+      </div>
+
+      <div class="manage-hours-modal-row">
+        <label class="label-C-F">Note (optional):</label>
+        <input
+          nz-input
+          class="input-C"
+          placeholder="e.g. Holiday, vacation, conference"
+          [(ngModel)]="overrideNote"
+          maxlength="500"
+        />
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #overrideFooter>
+    <button nz-button nzType="default" (click)="closeOverrideModal()" type="button">Cancel</button>
+    <button
+      nz-button
+      nzType="primary"
+      [nzLoading]="overrideSaving"
+      [disabled]="!overrideDate || (!overrideIsClosed && overrideRanges.length === 0)"
+      (click)="saveOverride()"
+      type="button"
+    >
+      Save Alternative Hours
+    </button>
+  </ng-template>
+</nz-modal>

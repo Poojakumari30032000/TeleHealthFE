@@ -1,0 +1,56 @@
+{
+    "title": "Affiliate Form",
+    "primaryId": "id",
+    "rows": [
+        {
+            "class": "grid grid-cols-1 gap-2 mb-2 pb-2",
+            "fields": [
+                {
+                    "type": "text",
+                    "label": "Cardholder Name",
+                    "name": "name",
+                    "placeholder": "Enter Your Name",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "number",
+                    "name": "Card Number",
+                    "label": "card",
+                    "placeholder": "Enter Your Card Number",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        },
+        {
+            "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2 pb-2",
+            "fields": [
+                {
+                    "type": "date",
+                    "label": "Expiration Date",
+                    "name": "expType",
+                    "placeholder": "Select Date",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "number",
+                    "name": "cvv",
+                    "label": "CVV",
+                    "placeholder": "Enter Your CVV",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        }
+    ]
+}

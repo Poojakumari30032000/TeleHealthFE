@@ -1,0 +1,196 @@
+:host {
+  display: block;
+}
+
+:host ::ng-deep .user-management-tabs > .ant-tabs-nav {
+  margin-bottom: 12px;
+}
+
+:host ::ng-deep .user-management-tabs > .ant-tabs-nav .ant-tabs-nav-wrap {
+  background: #f8fafc;
+  border: 1px solid #e5eaf3;
+  border-radius: 10px;
+  padding: 4px;
+}
+
+:host ::ng-deep .user-management-tabs.ant-tabs-card .ant-tabs-tab {
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  color: var(--primary-color);
+  font-weight: 600;
+  padding: 7px 12px !important;
+  margin: 0 4px 0 0 !important;
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .user-management-tabs.ant-tabs-card .ant-tabs-tab:hover {
+  background: #eef3ff !important;
+  color: var(--primary-color);
+}
+
+:host ::ng-deep .user-management-tabs.ant-tabs-card .ant-tabs-tab-active {
+  background: #ffffff !important;
+  color: var(--primary-color) !important;
+  border-color: #d3dcf0 !important;
+  box-shadow: 0 1px 3px rgba(21, 34, 66, 0.1);
+}
+
+:host
+  ::ng-deep
+  .user-management-tabs.ant-tabs-card
+  .ant-tabs-tab
+  .ant-tabs-tab-btn {
+  color: inherit !important;
+}
+
+:host
+  ::ng-deep
+  .user-management-tabs.ant-tabs-card
+  .ant-tabs-tab
+  .ant-tabs-tab-remove {
+  margin-left: 6px;
+  color: #7c8ead;
+  font-size: 11px;
+  transition: color 0.2s ease;
+}
+
+:host
+  ::ng-deep
+  .user-management-tabs.ant-tabs-card
+  .ant-tabs-tab:hover
+  .ant-tabs-tab-remove,
+:host
+  ::ng-deep
+  .user-management-tabs.ant-tabs-card
+  .ant-tabs-tab-active
+  .ant-tabs-tab-remove {
+  color: #4a669f;
+}
+
+:host ::ng-deep .user-management-tabs > .ant-tabs-content-holder {
+  border-top: 1px solid #e6ebf4;
+  padding-top: 4px;
+}
+
+.um-filter-grid {
+  border-color: #d9e5f4 !important;
+  background: linear-gradient(180deg, #f8fbff 0%, #f5f8ff 100%) !important;
+}
+
+.um-filter-grid .label-C-F {
+  color: var(--primary-color) !important;
+}
+
+.um-filter-action {
+  font-weight: 600;
+}
+
+.um-add-btn {
+  margin: 0 !important;
+}
+
+:host ::ng-deep .um-filter-grid .ant-select-selector,
+:host ::ng-deep .um-filter-grid .input-C {
+  min-height: 34px !important;
+  height: 34px !important;
+  border-radius: 10px !important;
+}
+
+:host ::ng-deep .user-management-table {
+  border: 1px solid #d8e3f3;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+:host ::ng-deep .user-management-table .ant-table {
+  background: transparent;
+}
+
+:host ::ng-deep .user-management-table .ant-table-thead > tr > th {
+  background: #f4f8ff;
+  color: #31538a;
+  font-size: 12px;
+  font-weight: 700;
+  border-bottom: 1px solid #d9e6f7;
+}
+
+:host ::ng-deep .user-management-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #edf2fa;
+}
+
+:host ::ng-deep .user-management-table .ant-table-tbody > tr:hover > td {
+  background: #f7fbff;
+}
+
+.action-icon-btn {
+  cursor: pointer !important;
+}
+
+:host-context(.dark) ::ng-deep .user-management-tabs > .ant-tabs-nav .ant-tabs-nav-wrap {
+  background: #1f2a3b;
+  border-color: #32445f;
+}
+
+:host-context(.dark) ::ng-deep .user-management-tabs.ant-tabs-card .ant-tabs-tab {
+  color: var(--primary-color);
+}
+
+:host-context(.dark) ::ng-deep .user-management-tabs.ant-tabs-card .ant-tabs-tab:hover {
+  background: #2a3850 !important;
+}
+
+:host-context(.dark) ::ng-deep .user-management-tabs.ant-tabs-card .ant-tabs-tab-active {
+  background: #27344a !important;
+  color: var(--primary-color) !important;
+  border-color: #3f5476 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+:host-context(.dark) ::ng-deep .user-management-tabs > .ant-tabs-content-holder {
+  border-top-color: #31445f;
+}
+
+:host-context(.dark) .um-filter-grid {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+}
+
+:host-context(.dark) .um-filter-grid .label-C-F {
+  color: var(--primary-color) !important;
+}
+
+:host-context(.dark) ::ng-deep .um-filter-grid .ant-select-selector,
+:host-context(.dark) ::ng-deep .um-filter-grid .input-C {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: rgba(100, 116, 139, 0.6) !important;
+  color: #dbeafe !important;
+}
+
+:host-context(.dark) ::ng-deep .um-filter-grid .ant-select-selection-item,
+:host-context(.dark) ::ng-deep .um-filter-grid .ant-select-selection-placeholder,
+:host-context(.dark) ::ng-deep .um-filter-grid .input-C::placeholder {
+  color: #8ea3c7 !important;
+}
+
+:host-context(.dark) ::ng-deep .user-management-table {
+  border-color: rgba(148, 163, 184, 0.24);
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: none;
+}
+
+:host-context(.dark) ::ng-deep .user-management-table .ant-table-thead > tr > th {
+  background: rgba(30, 41, 59, 0.86);
+  border-bottom-color: rgba(148, 163, 184, 0.24);
+  color: #d2e0fb;
+}
+
+:host-context(.dark) ::ng-deep .user-management-table .ant-table-tbody > tr > td {
+  border-bottom-color: rgba(148, 163, 184, 0.18);
+}
+
+:host-context(.dark) ::ng-deep .user-management-table .ant-table-tbody > tr:hover > td {
+  background: rgba(37, 99, 235, 0.1);
+}

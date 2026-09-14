@@ -1,0 +1,329 @@
+{
+    "title": "Affiliate Form",
+    "primaryId": "id",
+    "rows": [
+        {
+            "class": "grid grid-cols-1 gap-2 mb-2 pb-2",
+            "title": "Account ID: acct_1O3Nz1PmmQOwBLyY",
+            "fields": [
+                {
+                    "type": "checkbox",
+                    "label": "Visa",
+                    "name": "visa",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "checkbox",
+                    "label": "Mastercard",
+                    "name": "mastercard",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "checkbox",
+                    "label": "American Express",
+                    "name": "americanexpress",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "checkbox",
+                    "label": "Discover",
+                    "name": "discover",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "checkbox",
+                    "label": "Diners Club",
+                    "name": "dinnersclub",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "checkbox",
+                    "label": "Apple Pay",
+                    "name": "applepay",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "checkbox",
+                    "label": "Google Pay",
+                    "name": "googlepay",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "checkbox",
+                    "label": "Meta Pay",
+                    "name": "metapay",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        },
+        {
+            "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2 pb-2",
+            "title": "Payout Details",
+            "des": "Your earnings are deposited into this bank account. Choose the frequency of your payouts and edit the way they're described on your bank statements.",
+            "fields": [
+                {
+                    "type": "text",
+                    "label": "Payout Statement Description",
+                    "name": "payoutstdec",
+                    "placeholder": "Dudemeds",
+                    "class": "col-span-2",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "radio",
+                    "label": "Payout Schedule",
+                    "name": "payoutschedule",
+                    "placeholder": "",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    },
+                    "options": [
+                        {
+                            "label": "Every Buisness Day",
+                            "value": "everybuisnessday"
+                        },
+                        {
+                            "label": "Every Week",
+                            "value": "everyweek"
+                        },
+                        {
+                            "label": "Every Month",
+                            "value": "everymonth"
+                        }
+                    ]
+                },
+                {
+                    "visibilityCondition": {
+                        "name": "payoutschedule",
+                        "value": "everymonth"
+                    },
+                    "type": "select",
+                    "label": "Select Week",
+                    "name": "selectweek",
+                    "placeholder": "Choose a day",
+                    "class": "[col-span-1",
+                    "validations": {
+                        "required": true
+                    },
+                    "options": [
+                        {
+                            "label": "On 1st",
+                            "value": "on1st"
+                        },
+                        {
+                            "label": "On 2nd",
+                            "value": "on2nd"
+                        },
+                        {
+                            "label": "On 3rd",
+                            "value": "on3rd"
+                        },
+                        {
+                            "label": "On 4th",
+                            "value": "on4th"
+                        },
+                        {
+                            "label": "On 5th",
+                            "value": "on5th"
+                        },
+                        {
+                            "label": "On 6th",
+                            "value": "on6th"
+                        },
+                        {
+                            "label": "On 7th",
+                            "value": "on7th"
+                        },
+                        {
+                            "label": "On 8th",
+                            "value": "on8th"
+                        },
+                        {
+                            "label": "On 9th",
+                            "value": "on9th"
+                        },
+                        {
+                            "label": "On 10th",
+                            "value": "on10th"
+                        },
+                        {
+                            "label": "On 11th",
+                            "value": "on11th"
+                        },
+                        {
+                            "label": "On 12th",
+                            "value": "on12th"
+                        },
+                        {
+                            "label": "On 13th",
+                            "value": "on13th"
+                        },
+                        {
+                            "label": "On 14th",
+                            "value": "on14th"
+                        },
+                        {
+                            "label": "On 15th",
+                            "value": "on15th"
+                        },
+                        {
+                            "label": "On 16th",
+                            "value": "on16th"
+                        },
+                        {
+                            "label": "On 17th",
+                            "value": "on17th"
+                        },
+                        {
+                            "label": "On 18th",
+                            "value": "on18th"
+                        },
+                        {
+                            "label": "On 19th",
+                            "value": "on19th"
+                        },
+                        {
+                            "label": "On 20th",
+                            "value": "on20th"
+                        },
+                        {
+                            "label": "On 21st",
+                            "value": "on21st"
+                        },
+                        {
+                            "label": "On 22nd",
+                            "value": "on22nd"
+                        },
+                        {
+                            "label": "On 23rd",
+                            "value": "on23rd"
+                        },
+                        {
+                            "label": "On 24th",
+                            "value": "on24th"
+                        },
+                        {
+                            "label": "On 25th",
+                            "value": "on25th"
+                        },
+                        {
+                            "label": "On 26th",
+                            "value": "on26th"
+                        },
+                        {
+                            "label": "On 27th",
+                            "value": "on27th"
+                        },
+                        {
+                            "label": "On 28th",
+                            "value": "on28th"
+                        },
+                        {
+                            "label": "On 29th",
+                            "value": "on29th"
+                        },
+                        {
+                            "label": "On 30th",
+                            "value": "on30th"
+                        },
+                        {
+                            "label": "On 31st",
+                            "value": "on31st"
+                        }
+                    ]
+                },
+                {
+                    "visibilityCondition": {
+                        "name": "payoutschedule",
+                        "value": "everyweek"
+                    },
+                    "type": "select",
+                    "label": "Select Week",
+                    "name": "selectweek",
+                    "placeholder": "Choose a day",
+                    "class": "[col-span-1",
+                    "validations": {
+                        "required": true
+                    },
+                    "options": [
+                        {
+                            "label": "On Monday",
+                            "value": "onmon"
+                        },
+                        {
+                            "label": "On Tuesday",
+                            "value": "ontue"
+                        },
+                        {
+                            "label": "On Wednesday",
+                            "value": "onwed"
+                        },
+                        {
+                            "label": "On Thursday",
+                            "value": "onthu"
+                        },
+                        {
+                            "label": "On Friday",
+                            "value": "onfri"
+                        },
+                        {
+                            "label": "On Saturday",
+                            "value": "onsat"
+                        },
+                        {
+                            "label": "On Sunday",
+                            "value": "onsun"
+                        }
+                    ]
+                },
+                {
+                    "type": "text",
+                    "label": "Statement Description",
+                    "name": "statedec",
+                    "placeholder": "Dudemeds",
+                    "class": "col-span-2",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "text",
+                    "label": "Short Description",
+                    "name": "shortdec",
+                    "placeholder": "Dudemeds",
+                    "class": "col-span-2",
+                    "validations": {
+                        "required": true
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,91 @@
+.sig-pad-draw-shell {
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.sig-pad-draw-shell.error {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.sig-pad-canvas {
+  display: block;
+  width: 100%;
+  height: 140px;
+  touch-action: none;
+  cursor: crosshair;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sig-pad-hint {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  text-align: center;
+  margin: 4px 0 6px;
+}
+
+.sig-pad-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 0 10px 10px;
+  flex-wrap: wrap;
+}
+
+.sig-pad-saved {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sig-pad-preview-shell {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  padding: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sig-pad-preview-img {
+  max-height: 80px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.sig-pad-saved-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sig-pad-remove-btn {
+  color: #ef4444 !important;
+  border-color: #fca5a5 !important;
+}
+
+:host-context(.dark) .sig-pad-draw-shell {
+  border-color: #374151;
+  background: #1e293b;
+}
+
+:host-context(.dark) .sig-pad-draw-shell.error {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+:host-context(.dark) .sig-pad-canvas {
+  border-bottom-color: #374151;
+}
+
+:host-context(.dark) .sig-pad-hint {
+  color: #6b7280;
+}
+
+:host-context(.dark) .sig-pad-preview-shell {
+  border-color: #374151;
+  background: #1e293b;
+}

@@ -1,0 +1,521 @@
+:host {
+  display: block;
+}
+
+:host ::ng-deep .invoice-tabs > .ant-tabs-nav {
+  margin-bottom: 12px;
+}
+
+:host ::ng-deep .invoice-tabs > .ant-tabs-nav .ant-tabs-nav-wrap {
+  background: #f8fafc;
+  border: 1px solid #e5eaf3;
+  border-radius: 10px;
+  padding: 4px;
+}
+
+:host ::ng-deep .invoice-tabs.ant-tabs-card .ant-tabs-tab {
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  color: var(--primary-color);
+  font-weight: 600;
+  padding: 7px 12px !important;
+  margin: 0 4px 0 0 !important;
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .invoice-tabs.ant-tabs-card .ant-tabs-tab:hover {
+  background: #eef3ff !important;
+  color: var(--primary-color);
+}
+
+:host ::ng-deep .invoice-tabs.ant-tabs-card .ant-tabs-tab-active {
+  background: #ffffff !important;
+  color: var(--primary-color) !important;
+  border-color: #d3dcf0 !important;
+  box-shadow: 0 1px 3px rgba(21, 34, 66, 0.1);
+}
+
+:host
+  ::ng-deep
+  .invoice-tabs.ant-tabs-card
+  .ant-tabs-tab
+  .ant-tabs-tab-btn {
+  color: inherit !important;
+}
+
+:host
+  ::ng-deep
+  .invoice-tabs.ant-tabs-card
+  .ant-tabs-tab
+  .ant-tabs-tab-remove {
+  margin-left: 6px;
+  color: #7c8ead;
+  font-size: 11px;
+  transition: color 0.2s ease;
+}
+
+:host
+  ::ng-deep
+  .invoice-tabs.ant-tabs-card
+  .ant-tabs-tab:hover
+  .ant-tabs-tab-remove,
+:host
+  ::ng-deep
+  .invoice-tabs.ant-tabs-card
+  .ant-tabs-tab-active
+  .ant-tabs-tab-remove {
+  color: #4a669f;
+}
+
+:host ::ng-deep .invoice-tabs > .ant-tabs-content-holder {
+  border-top: 1px solid #e6ebf4;
+  padding-top: 4px;
+}
+
+.invoice-workspace-shell {
+  padding: 0.2rem 0.2rem 0.4rem;
+  border-radius: 16px;
+}
+
+.invoice-filter-shell,
+.invoice-table-shell {
+  position: relative;
+}
+
+.invoice-filter-shell {
+  margin-bottom: 0.75rem;
+  border: 1px solid #d9e5f4;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+  padding: 0.75rem;
+}
+
+.invoice-filter-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.invoice-filter-toolbar-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.62rem;
+}
+
+.invoice-filter-toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.invoice-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.invoice-filter-count-pill {
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.35rem;
+  background: #2f5fcc;
+  color: #ffffff;
+  font-size: 0.72rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.invoice-filter-chevron {
+  font-size: 0.68rem;
+  transition: transform 0.2s ease;
+}
+
+.invoice-filter-summary {
+  color: #627796;
+  font-size: 0.85rem;
+}
+
+.invoice-filter-clear {
+  font-weight: 600;
+}
+
+.invoice-create-btn {
+  font-weight: 600;
+}
+
+.invoice-filter-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+}
+
+.invoice-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid #cddbf1;
+  border-radius: 999px;
+  background: #f4f8ff;
+  color: #365c9f;
+  height: 29px;
+  padding: 0 0.65rem;
+  font-size: 0.79rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.invoice-filter-chip:hover {
+  background: #ebf2ff;
+  border-color: #b7caea;
+}
+
+.invoice-filter-grid {
+  margin-top: 0.72rem;
+  padding: 0.82rem;
+  border: 1px solid #dde8f6;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f8fbff 0%, #f5f8ff 100%);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.82rem;
+}
+
+.invoice-filter-label {
+  color: var(--primary-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.28rem;
+}
+
+.invoice-filter-grid .invoice-filter-select,
+.invoice-filter-grid .invoice-filter-date {
+  margin-top: 0 !important;
+}
+
+:host ::ng-deep .invoice-filter-grid .ant-select,
+:host ::ng-deep .invoice-filter-grid .ant-picker {
+  margin-top: 0 !important;
+}
+
+:host
+  ::ng-deep
+  .invoice-filter-grid
+  .ant-select:not(.ant-select-customize-input)
+  .ant-select-selector,
+:host ::ng-deep .invoice-filter-grid .ant-picker {
+  border-color: #d3def0 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  min-height: 34px !important;
+  height: 34px !important;
+}
+
+:host
+  ::ng-deep
+  .invoice-filter-grid
+  .ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
+  padding: 0 9px !important;
+}
+
+:host ::ng-deep .invoice-filter-grid .ant-select-selection-item,
+:host ::ng-deep .invoice-filter-grid .ant-select-selection-placeholder,
+:host ::ng-deep .invoice-filter-grid .ant-picker-input > input {
+  line-height: 32px !important;
+}
+
+:host ::ng-deep .invoice-filter-grid .ant-select-selector:hover,
+:host ::ng-deep .invoice-filter-grid .ant-picker:hover {
+  border-color: #aac0e6 !important;
+}
+
+:host ::ng-deep .invoice-filter-grid .ant-select-focused .ant-select-selector,
+:host ::ng-deep .invoice-filter-grid .ant-picker-focused {
+  border-color: #5f8fdd !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12) !important;
+}
+
+.invoice-filter-apply {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.invoice-apply-btn {
+  margin: 0 !important;
+}
+
+.invoice-table-shell {
+  border: 1px solid #d8e3f3;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+:host ::ng-deep .invoice-table .ant-table {
+  background: transparent;
+}
+
+:host ::ng-deep .invoice-table .ant-table-thead > tr > th {
+  background: #f4f8ff;
+  color: #31538a;
+  font-size: 12px;
+  font-weight: 700;
+  border-bottom: 1px solid #d9e6f7;
+}
+
+:host ::ng-deep .invoice-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #edf2fa;
+}
+
+:host ::ng-deep .invoice-table .ant-table-tbody > tr.invoice-row:hover > td {
+  background: #f7fbff;
+}
+
+.invoice-row {
+  cursor: pointer;
+}
+
+.invoice-row:focus-visible {
+  outline: 2px solid #8cb4ff;
+  outline-offset: -2px;
+}
+
+.action-icon-btn {
+  cursor: pointer !important;
+}
+
+.invoice-pay-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-color: #bcd1ee !important;
+  color: #2b539f !important;
+  background: #f4f8ff !important;
+}
+
+.invoice-pay-btn:hover:not([disabled]) {
+  border-color: #a6c2ec !important;
+  background: #e9f1ff !important;
+}
+
+.invoice-id-link {
+  border: 0;
+  background: transparent;
+  color: #2a4f9b;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.invoice-pdf-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.invoice-pdf-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.invoice-pdf-frame {
+  width: 100%;
+  min-height: calc(100vh - 260px);
+  border: 1px solid #d6e3f5;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+:host-context(.dark) ::ng-deep .invoice-tabs > .ant-tabs-nav .ant-tabs-nav-wrap {
+  background: #1f2a3b;
+  border-color: #32445f;
+}
+
+:host-context(.dark) .invoice-filter-shell,
+:host-context(.dark) .invoice-table-shell {
+  border-color: rgba(148, 163, 184, 0.24);
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: none;
+}
+
+:host-context(.dark) ::ng-deep .invoice-tabs.ant-tabs-card .ant-tabs-tab {
+  color: var(--primary-color);
+}
+
+:host-context(.dark) ::ng-deep .invoice-tabs.ant-tabs-card .ant-tabs-tab:hover {
+  background: #2a3850 !important;
+  color: var(--primary-color);
+}
+
+:host-context(.dark) ::ng-deep .invoice-tabs.ant-tabs-card .ant-tabs-tab-active {
+  background: #27344a !important;
+  color: var(--primary-color) !important;
+  border-color: #3f5476 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+:host-context(.dark) ::ng-deep .invoice-tabs > .ant-tabs-content-holder {
+  border-top-color: #31445f;
+}
+
+:host-context(.dark) .invoice-filter-toggle,
+:host-context(.dark) .invoice-filter-clear {
+  color: #d2e2ff !important;
+}
+
+:host-context(.dark) .invoice-filter-summary {
+  color: #94a3b8;
+}
+
+:host-context(.dark) .invoice-filter-label {
+  color: var(--primary-color);
+}
+
+:host-context(.dark) .invoice-filter-chip {
+  border-color: rgba(96, 165, 250, 0.35);
+  background: rgba(37, 99, 235, 0.14);
+  color: #bfdbfe;
+}
+
+:host-context(.dark) .invoice-filter-grid {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+:host-context(.dark) ::ng-deep .invoice-filter-grid .ant-select-selector,
+:host-context(.dark) ::ng-deep .invoice-filter-grid .ant-picker {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: rgba(100, 116, 139, 0.6) !important;
+  color: #dbeafe !important;
+}
+
+:host-context(.dark)
+  ::ng-deep
+  .invoice-filter-grid
+  .invoice-filter-select.ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: rgba(100, 116, 139, 0.6) !important;
+  color: #dbeafe !important;
+}
+
+:host-context(.dark) ::ng-deep .invoice-filter-grid .ant-select-selection-item,
+:host-context(.dark) ::ng-deep .invoice-filter-grid .ant-picker-input > input {
+  color: #dbeafe !important;
+}
+
+:host-context(.dark)
+  ::ng-deep
+  .invoice-filter-grid
+  .invoice-filter-select.ant-select
+  .ant-select-selection-search-input {
+  background: transparent !important;
+  color: #dbeafe !important;
+  -webkit-text-fill-color: #dbeafe;
+}
+
+:host-context(.dark) ::ng-deep .invoice-filter-grid .ant-select-selection-placeholder,
+:host-context(.dark) ::ng-deep .invoice-filter-grid .ant-picker-input > input::placeholder {
+  color: #8ea3c7 !important;
+}
+
+:host-context(.dark) ::ng-deep .invoice-filter-grid .ant-select-arrow,
+:host-context(.dark) ::ng-deep .invoice-filter-grid .ant-picker-suffix,
+:host-context(.dark) ::ng-deep .invoice-filter-grid .ant-picker-separator {
+  color: #9fb4d9 !important;
+}
+
+:host-context(.dark) ::ng-deep .invoice-table .ant-table-thead > tr > th {
+  background: rgba(30, 41, 59, 0.86);
+  border-bottom-color: rgba(148, 163, 184, 0.24);
+  color: #d2e0fb;
+}
+
+:host-context(.dark) ::ng-deep .invoice-table .ant-table-tbody > tr > td {
+  border-bottom-color: rgba(148, 163, 184, 0.18);
+}
+
+:host-context(.dark) ::ng-deep .invoice-table .ant-table-tbody > tr.invoice-row:hover > td {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+:host-context(.dark) .invoice-pay-btn {
+  border-color: rgba(96, 165, 250, 0.42) !important;
+  background: rgba(30, 58, 138, 0.36) !important;
+  color: #bfdbfe !important;
+}
+
+:host-context(.dark) .invoice-id-link {
+  color: #bfdbfe;
+}
+
+:host-context(.dark) .invoice-pdf-frame {
+  border-color: rgba(100, 116, 139, 0.58);
+  background: rgba(15, 23, 42, 0.86);
+}
+
+@media (max-width: 1200px) {
+  .invoice-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  :host ::ng-deep .invoice-tabs > .ant-tabs-content-holder {
+    padding: 0.55rem;
+  }
+
+  .invoice-workspace-shell {
+    padding: 0.15rem;
+  }
+
+  .invoice-filter-shell {
+    padding: 0.62rem;
+  }
+
+  .invoice-filter-grid {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0.7rem;
+  }
+
+  .invoice-filter-toolbar,
+  .invoice-filter-toolbar-left {
+    align-items: stretch;
+  }
+
+  .invoice-filter-toggle,
+  .invoice-filter-clear,
+  .invoice-apply-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .invoice-filter-apply {
+    justify-content: stretch;
+  }
+
+  .invoice-pdf-frame {
+    min-height: 70vh;
+  }
+}

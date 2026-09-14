@@ -1,0 +1,227 @@
+<div *ngIf="errorMsg" class="manual-alert manual-alert-error">
+  {{ errorMsg }}
+</div>
+
+<div class="manual-ehr-shell">
+  <section class="manual-hero">
+    <div class="manual-hero-identity">
+      <div class="manual-avatar">GA</div>
+      <div>
+        <div class="manual-hero-title">Create Manual Clinic Invoice</div>
+        <div class="manual-hero-meta">
+          <span>Select clinic and add custom line items</span>
+          <span>Invoice Date {{ invoiceDate | date:'MM/dd/yyyy' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="manual-kpi-grid">
+      <div class="manual-kpi-card">
+        <div class="manual-kpi-label">Line Items</div>
+        <div class="manual-kpi-value">{{ lineItems.length }}</div>
+      </div>
+      <div class="manual-kpi-card">
+        <div class="manual-kpi-label">Quantity</div>
+        <div class="manual-kpi-value">{{ totalQty }}</div>
+      </div>
+      <div class="manual-kpi-card">
+        <div class="manual-kpi-label">Subtotal</div>
+        <div class="manual-kpi-value">{{ subtotal | currency:'USD':'symbol' }}</div>
+      </div>
+      <div class="manual-kpi-card">
+        <div class="manual-kpi-label">Amount Due</div>
+        <div class="manual-kpi-value">{{ amountDue | currency:'USD':'symbol' }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="manual-info-card">
+    <div class="manual-info-head">
+      <h4 class="manual-info-title">
+        <i class="fa-solid fa-building mr-2 text-primary"></i>Invoice Setup
+      </h4>
+    </div>
+
+    <div class="manual-info-grid">
+      <div>
+        <label>Clinic</label>
+        <nz-select
+          class="w-full manual-control"
+          nzShowSearch
+          nzAllowClear
+          nzPlaceHolder="Select clinic"
+          [nzLoading]="loadingFacilities"
+          [ngModel]="selectedFacilityId"
+          (ngModelChange)="onFacilityChange($event)"
+        >
+          <nz-option
+            *ngFor="let facility of facilities; trackBy: trackByFacilityId"
+            [nzValue]="facility.facilityId"
+            [nzLabel]="facility.titlelong"
+          ></nz-option>
+        </nz-select>
+        <p *ngIf="facilities.length === 0 && !loadingFacilities" class="manual-help-text">
+          No facilities found.
+        </p>
+      </div>
+
+      <div>
+        <label>Invoice Date</label>
+        <span class="manual-value-text">{{ invoiceDate | date:'MMM d, y' }}</span>
+      </div>
+      <div>
+        <label>Clinic Name</label>
+        <span class="manual-value-text">{{ facilityName || '-' }}</span>
+      </div>
+      <div>
+        <label>Clinic Email</label>
+        <span class="manual-value-text">{{ facilityEmail || '-' }}</span>
+      </div>
+      <div>
+        <label>Clinic Phone</label>
+        <span class="manual-value-text">{{ facilityPhone || '-' }}</span>
+      </div>
+      <div>
+        <label>Clinic Status</label>
+        <span class="manual-value-text">{{ facilityStatus || '-' }}</span>
+      </div>
+      <div class="col-span-2">
+        <label>Clinic Address</label>
+        <span class="manual-value-text">{{ facilityAddress || '-' }}</span>
+      </div>
+    </div>
+  </section>
+
+  <div *ngIf="loadingFacilityDetail" class="manual-inline-loading">
+    Loading clinic details...
+  </div>
+
+  <section class="manual-workspace-card">
+    <div class="manual-workspace-head">
+      <h3 class="manual-workspace-title">
+        <i class="fa-solid fa-file-lines mr-2 text-primary"></i>Line Items
+        <span class="manual-workspace-count">({{ lineItems.length }})</span>
+      </h3>
+
+      <button
+        nz-button
+        nzType="default"
+        class="manual-add-line-btn"
+        (click)="addLineItem()"
+        aria-label="Add line item"
+      >
+        <i class="fa-solid fa-plus"></i>
+        <span>Add Line</span>
+      </button>
+    </div>
+
+    <nz-table
+      [nzData]="lineItems"
+      [nzFrontPagination]="false"
+      [nzShowPagination]="false"
+      [nzScroll]="{ x: '1140px' }"
+      nzTableLayout="fixed"
+      nzSize="small"
+      class="manual-lines-table manual-clinic-lines-table"
+    >
+      <thead>
+      <tr>
+        <th nzWidth="560px">Detail</th>
+        <th class="text-center" nzWidth="110px">Qty</th>
+        <th class="text-right" nzWidth="180px">Unit Price</th>
+        <th class="text-right" nzWidth="190px">Line Total</th>
+        <th class="text-center" nzWidth="100px"></th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr *ngFor="let line of lineItems; let i = index; trackBy: trackByIdx">
+        <td class="manual-product-col">
+          <input
+            nz-input
+            class="manual-cell-input manual-line-description"
+            placeholder="Enter line item detail"
+            [(ngModel)]="line.productLineItemName"
+            type="text"
+          />
+        </td>
+
+        <td class="text-center">
+          <input
+            nz-input
+            type="text"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="3"
+            class="manual-cell-input text-center"
+            [value]="line.qty || 0"
+            (input)="onQtyInput(i, $event)"
+          />
+        </td>
+
+        <td class="text-right">
+          <input
+            nz-input
+            type="number"
+            min="0.01"
+            step="0.01"
+            class="manual-cell-input manual-price-input"
+            [ngModel]="line.unitPrice || 0"
+            (ngModelChange)="onUnitPriceChange(i, $event)"
+          />
+        </td>
+
+        <td class="text-right font-semibold">
+          {{ ((line.qty || 0) * (line.unitPrice || 0)) | currency:'USD':'symbol' }}
+        </td>
+
+        <td class="text-center">
+          <button
+            nz-button
+            nzType="default"
+            nzShape="circle"
+            class="manual-remove-btn"
+            (click)="removeLineItem(i)"
+            [disabled]="lineItems.length <= 1"
+            aria-label="Remove line item"
+          >
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+
+      <tr *ngIf="lineItems.length === 0">
+        <td colspan="5" class="text-center py-6 text-gray-500 dark:text-gray-400">
+          No line items added yet.
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </section>
+
+  <section class="manual-footer-bar">
+    <div class="manual-total-list">
+      <div class="manual-total-row">
+        <label>Subtotal</label>
+        <span>{{ subtotal | currency:'USD':'symbol' }}</span>
+      </div>
+      <div class="manual-total-row manual-total-row-highlight">
+        <label>Amount Due</label>
+        <span>{{ amountDue | currency:'USD':'symbol' }}</span>
+      </div>
+    </div>
+
+    <button
+      nz-button
+      nzType="primary"
+      class="manual-create-btn"
+      (click)="createInvoice()"
+      [disabled]="selectedFacilityId == null || savingInvoice"
+      [nzLoading]="savingInvoice"
+      aria-label="Create invoice"
+    >
+      <i class="fa-solid fa-file-invoice-dollar"></i>
+      <span class="ml-2">Create Invoice</span>
+    </button>
+  </section>
+</div>

@@ -1,0 +1,34 @@
+.onBoarding-radio ::ng-deep .ant-radio-wrapper-checked:not(:is(.dark *)) , .onBoarding-checkBox.ant-checkbox-wrapper-checked:not(:is(.dark *)){
+    border-color: var(--primary-color);
+    background-color: var(--lightP-color);
+}
+.onBoarding-radio ::ng-deep .ant-radio-wrapper-checked:is(.dark *) , .onBoarding-checkBox.ant-checkbox-wrapper-checked:is(.dark *){
+    border-color: var(--primary-color) !important;
+    background-color: theme('colors.gray.700') !important;
+}
+
+.onBoarding-File ::ng-deep nz-upload-list{
+    display: none;
+}
+
+.onBoarding-File ::ng-deep .ant-upload.ant-upload-drag{
+    border-radius: 1rem;
+}
+
+.onBoarding-File ::ng-deep .ant-upload.ant-upload-drag:is(.dark *){
+    background: theme('colors.gray.800') !important;
+}
+
+.onBoarding-Select ::ng-deep .ant-select-selector{
+    height: 40px !important;
+    align-items: center;
+    border-radius: 1.5rem;
+}
+
+.onBoarding-Select.in-valid ::ng-deep .ant-select-selector:not(:is(.dark *)){
+    background-color: theme('colors.danger.50') !important;
+    border-color: theme('colors.danger.500') !important;
+}
+.onBoarding-Select.in-valid ::ng-deep .ant-select-selector:is(.dark *){
+    border-color: theme('colors.danger.500') !important;
+}

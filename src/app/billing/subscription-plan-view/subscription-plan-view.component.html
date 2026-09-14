@@ -1,0 +1,44 @@
+<div>
+  <button *appHasAnyPermission="['subscription_plan_add']" class="main-btn" (click)="AddEditSubscription()">
+    <i class="fa-solid fa-plus"></i>
+    <span class="ml-2 hidden md:inline-block">
+      Add Plan
+    </span>
+  </button>
+</div>
+
+<div class="py-2 rounded-lg">
+  <app-dynamic-table
+    apiEndpoint="Subscriptions/getAllSubscriptions"
+    width="100dvw"
+    [columns]="[
+        { key: 'planName', title: 'Plan Name', width: '180px' },
+        { key: 'monthlyPrice', title: 'Monthly', type: 'number', width: '100px' },
+        { key: 'annualPrice', title: 'Annual', type: 'number', width: '100px' },
+        { key: 'setupFee', title: 'Setup Fee', type: 'number', width: '100px' },
+        { key: 'maxUsers', title: 'Users', width: '80px' },
+        { key: 'maxProviders', title: 'Providers', width: '90px' },
+        { key: 'maxPatients', title: 'Patients', width: '90px' },
+        { key: 'storage', title: 'Storage (GB)', width: '110px' },
+        { key: 'supportLevel', title: 'Support Level', width: '120px' },
+        { key: 'trainingHours', title: 'Training Hours', width: '120px' },
+        { key: 'status', title: 'Status', type: 'badge', width: '90px',
+          badgeMapping: {
+            Active: { class: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300', label: 'Active' },
+            InActive: { class: 'bg-danger-100 text-danger-800 dark:bg-danger-900 dark:text-danger-300', label: 'In-Active' },
+          }
+        },
+        { key: 'createdDate', title: 'Created At', type: 'date', width: '100px' },
+        { key: 'modifiedDate', title: 'Updated At', type: 'date', width: '100px' }
+    ]"
+    [filters]="appliedFilters"
+    [showActions]="true"
+    [actions]="[
+        { label: 'View', icon: 'fa fa-eye', callback: navigateToViewSubscription },
+        { label: 'Edit', icon: 'fa-regular fa-pen-to-square', callback: AddEditSubscription, permissionKeys: ['subscription_plan_edit'] },
+        { label: 'Delete', icon: 'fa fa-trash', type: 'danger', callback: onDelete, permissionKeys: ['subscription_plan_delete'] }
+    ]">
+  </app-dynamic-table>
+</div>
+
+<app-comman-form-modal #commanModel [apiUrl]="this.modalApiUrl" (formClosed)="refreshTable()"></app-comman-form-modal>

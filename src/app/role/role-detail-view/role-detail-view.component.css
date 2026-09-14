@@ -1,0 +1,147 @@
+.role-detail {
+  max-width: 1040px;
+}
+
+.role-detail__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.role-detail__title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.role-detail__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  border: 1px solid var(--primary-200, #bae0ff);
+  background: var(--primary-50, #eff8ff);
+  font-size: 13px;
+}
+
+.role-detail__fields {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.role-detail__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 280px;
+  flex: 1 1 280px;
+}
+
+.role-detail__field--inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.role-detail__field label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.role-detail__required {
+  color: #cf1322;
+}
+
+.role-detail__error {
+  margin: 0;
+  font-size: 12px;
+  color: #cf1322;
+}
+
+.role-detail__input--error {
+  border-color: #cf1322;
+}
+
+.role-detail__hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted-text-color, #6b7280);
+}
+
+.role-detail__permissions-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.role-detail__permissions-head h3 {
+  margin: 0 0 2px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.role-detail__bulk {
+  display: flex;
+  gap: 8px;
+}
+
+/* Modules fill the row rather than stretching: content sets the height. */
+.role-detail__modules {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.role-detail__module {
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+
+.role-detail__module-head {
+  display: block;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color, #f0f1f3);
+}
+
+.role-detail__module-name {
+  font-weight: 600;
+}
+
+.role-detail__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ng-zorro gives sibling checkboxes a left margin; the column gap handles spacing. */
+.role-detail__action {
+  margin-left: 0;
+}
+
+.role-detail__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+@media (max-width: 640px) {
+  .role-detail__modules {
+    grid-template-columns: 1fr;
+  }
+}

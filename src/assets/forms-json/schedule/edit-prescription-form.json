@@ -1,0 +1,44 @@
+{
+    "title": "Prescription",
+    "primaryId": "id",
+    "rows": [
+      {
+        "class": "grid grid-cols-2 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "select",
+            "label": "Dosage",
+            "name": "dosage",
+            "placeholder": "Select Dosage",
+            "class": "col-span-1",
+            "options": [
+              { "label": "15 mg", "value": 15 },
+              { "label": "30 mg", "value": 30 },
+              { "label": "45 mg", "value": 45 },
+              { "label": "60 mg", "value": 60 },
+              { "label": "250 mg", "value": 250 },
+              { "label": "500 mg", "value": 500 }
+            ],
+            "validations": { "required": true }
+          },
+          {
+            "type": "number",
+            "label": "Quantity",
+            "name": "quantity",
+            "placeholder": "Enter Quantity",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          },
+          {
+            "type": "number",
+            "label": "Refill Quantity",
+            "name": "refillQuantity",
+            "placeholder": "Enter Refill Quantity",
+            "class": "col-span-1",
+            "validations": { "required": true }
+          }
+        ]
+      }
+    ]
+  }
+  

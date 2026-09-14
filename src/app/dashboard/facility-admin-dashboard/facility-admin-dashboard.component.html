@@ -1,0 +1,195 @@
+<div class="fa-dashboard-shell">
+  <section class="fa-kpi-grid">
+    <article
+      class="fa-kpi-card fa-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open providers"
+      (click)="openProviders()"
+      (keydown.enter)="openProviders()"
+      (keydown.space)="openProviders(); $event.preventDefault()"
+    >
+      <div class="fa-kpi-head">
+        <h3>Total Providers</h3>
+        <span class="fa-kpi-icon"><i class="fas fa-user-doctor"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="fa-kpi-value">{{ totalProviders }}</div>
+      </ng-container>
+
+    </article>
+
+    <article
+      class="fa-kpi-card fa-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open patients"
+      (click)="openPatients()"
+      (keydown.enter)="openPatients()"
+      (keydown.space)="openPatients(); $event.preventDefault()"
+    >
+      <div class="fa-kpi-head">
+        <h3>Active Patients</h3>
+        <span class="fa-kpi-icon"><i class="fas fa-user-injured"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="fa-kpi-value">{{ totalPatients }}</div>
+      </ng-container>
+
+    </article>
+
+    <article
+      class="fa-kpi-card fa-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open drugs catalog"
+      (click)="openDrugs()"
+      (keydown.enter)="openDrugs()"
+      (keydown.space)="openDrugs(); $event.preventDefault()"
+    >
+      <div class="fa-kpi-head">
+        <h3>Drugs Sold</h3>
+        <span class="fa-kpi-icon"><i class="fas fa-pills"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="fa-kpi-value">{{ drugsSold }}</div>
+      </ng-container>
+
+    </article>
+
+    <article
+      class="fa-kpi-card fa-kpi-card-clickable"
+      role="button"
+      tabindex="0"
+      title="Open packages"
+      (click)="openPackages()"
+      (keydown.enter)="openPackages()"
+      (keydown.space)="openPackages(); $event.preventDefault()"
+    >
+      <div class="fa-kpi-head">
+        <h3>Packages Sold</h3>
+        <span class="fa-kpi-icon"><i class="fas fa-layer-group"></i></span>
+      </div>
+      <ng-container *ngIf="!tilesLoading; else kpiLoading">
+        <div class="fa-kpi-value">{{ packagesSold }}</div>
+      </ng-container>
+
+    </article>
+  </section>
+
+  <section class="fa-panel-grid">
+    <article class="fa-panel fa-panel-wide">
+      <div class="fa-panel-head">
+        <h4><i class="fa-solid fa-chart-column text-primary mr-2"></i>Earnings</h4>
+        <div class="fa-panel-actions">
+          <nz-range-picker
+            class="fa-range"
+            [(ngModel)]="earningsDateRange"
+            (ngModelChange)="fetchEarnings()"
+            [nzDisabledDate]="disabledDate"
+            nzFormat="yyyy-MM-dd"
+          >
+          </nz-range-picker>
+          <button nz-button nzType="default" nzShape="round" (click)="openClinicInvoices()">Open Invoices</button>
+        </div>
+      </div>
+      <div class="fa-panel-body">
+        <div *ngIf="!earningsChartLoading; else chartLoading" echarts [options]="totalEarningChart" class="fa-chart-lg"></div>
+      </div>
+    </article>
+
+    <article class="fa-panel">
+      <div class="fa-panel-head">
+        <h4><i class="fa-solid fa-calendar-days text-primary mr-2"></i>Appointments</h4>
+        <div class="fa-panel-actions">
+          <nz-range-picker
+            class="fa-range"
+            [(ngModel)]="appointmentsDateRange"
+            (ngModelChange)="fetchAppointments()"
+            nzFormat="yyyy-MM-dd"
+            [nzDisabledDate]="disabledDate"
+          >
+          </nz-range-picker>
+          <button nz-button nzType="default" nzShape="round" (click)="openAppointments()">Open Appointments</button>
+        </div>
+      </div>
+      <div class="fa-panel-body">
+        <div *ngIf="!appointmentChartLoading; else chartLoading" echarts [options]="appointmentChart" class="fa-chart-md"></div>
+      </div>
+    </article>
+
+    <article class="fa-panel fa-panel-wide">
+      <div class="fa-panel-head">
+        <h4><i class="fa-solid fa-file-prescription text-primary mr-2"></i>Pending Prescriptions</h4>
+        <div class="fa-panel-actions">
+          <button nz-button nzType="default" nzShape="round" (click)="openPrescriptions()">Open Prescriptions</button>
+        </div>
+      </div>
+      <div class="fa-panel-body">
+        <div *ngIf="!prescriptionsLoading; else listLoading" class="fa-records-list">
+          <ng-container *ngIf="pendingPrescriptions.length > 0; else noPrescriptions">
+            <article
+              *ngFor="let prescription of pendingPrescriptions"
+              class="fa-record-row"
+              role="button"
+              tabindex="0"
+              title="Open prescription detail"
+              (click)="openSelectedPrescription(prescription.id)"
+              (keydown.enter)="openSelectedPrescription(prescription.id)"
+              (keydown.space)="openSelectedPrescription(prescription.id); $event.preventDefault()"
+            >
+              <div class="fa-record-main">
+                <div class="fa-record-title">Prescription #{{ prescription.id || '--' }}</div>
+                <div class="fa-record-subtitle">{{ prescription.name || '--' }}</div>
+              </div>
+              <div class="fa-record-facts">
+                <div class="fa-record-fact">
+                  <label>Patient</label>
+                  <span>{{ prescription.patient || '--' }}</span>
+                </div>
+                <div class="fa-record-fact">
+                  <label>Date</label>
+                  <span>{{ prescription.date || '--' }}</span>
+                </div>
+                <div class="fa-record-fact">
+                  <label>Status</label>
+                  <span class="ui-status-badge ui-status-badge--pending">{{ prescription.status || '--' }}</span>
+                </div>
+              </div>
+              <button nz-button nzType="default" nzShape="circle" class="action-icon-btn">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </article>
+          </ng-container>
+          <ng-template #noPrescriptions>
+            <div class="fa-empty-state">
+              <i class="fa-regular fa-folder-open"></i>
+              <span>No pending prescriptions found.</span>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </article>
+  </section>
+</div>
+
+<ng-template #kpiLoading>
+  <div class="fa-kpi-loading">
+    <div class="fa-loading-line lg"></div>
+    <div class="fa-loading-line sm"></div>
+  </div>
+</ng-template>
+
+<ng-template #chartLoading>
+  <div class="fa-chart-loading">
+    <i class="fa-solid fa-arrows-spin animate-spin"></i>
+    <span>Loading chart...</span>
+  </div>
+</ng-template>
+
+<ng-template #listLoading>
+  <div class="fa-chart-loading">
+    <i class="fa-solid fa-arrows-spin animate-spin"></i>
+    <span>Loading prescriptions...</span>
+  </div>
+</ng-template>

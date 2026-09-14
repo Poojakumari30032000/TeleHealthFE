@@ -1,0 +1,348 @@
+@if(!hasError){
+  <ng-container *ngIf="!isLoading && orderData; else loadingMain">
+    <div class="ord-workspace-shell">
+      <section class="ord-summary-hero">
+        <div class="ord-summary-identity">
+          <div class="ord-avatar">
+            {{ (orderData.firstName || 'P')[0] }}{{ (orderData.lastName || 'O')[0] }}
+          </div>
+          <div>
+            <div class="ord-summary-name">{{ patientDisplayName }}</div>
+            <div class="ord-summary-meta">
+              <span>Order #{{ orderId || '--' }}</span>
+              <span>MRN #{{ orderData?.mrm || '--' }}</span>
+              <span>{{ orderData?.email || '--' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ord-kpi-grid">
+          <div class="ord-kpi-card">
+            <div class="ord-kpi-label">Treatment #</div>
+            <div class="ord-kpi-value ord-kpi-link"
+                 [class.ord-kpi-link-disabled]="!orderData?.treatmentId"
+                 (click)="orderData?.treatmentId ? navigate('treatment/detail/', orderData.treatmentId.toString()) : null">
+              {{ orderData?.treatmentId || '--' }}
+            </div>
+          </div>
+
+          <div class="ord-kpi-card">
+            <div class="ord-kpi-label">Prescription #</div>
+            <div class="ord-kpi-value ord-kpi-link"
+                 [class.ord-kpi-link-disabled]="!orderData?.prescriptionId"
+                 (click)="orderData?.prescriptionId ? navigate('prescription/detail/', orderData.prescriptionId.toString()) : null">
+              {{ orderData?.prescriptionId || '--' }}
+            </div>
+          </div>
+
+          <div class="ord-kpi-card">
+            <div class="ord-kpi-label">Drugs</div>
+            <div class="ord-kpi-value">{{ listOfDrugs.length }}</div>
+          </div>
+
+          <div class="ord-kpi-card">
+            <div class="ord-kpi-label">Order Status</div>
+            <div>
+              <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(orderData?.orderStatus)">
+                {{ orderData?.orderStatus || '—' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ord-action-row">
+
+        @if (canSendOrder) {
+          <button nz-button nzType="default" nzShape="round" class="ord-cta-btn mb-0" (click)="openSendOrderConfirm()">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span class="ml-2 hidden md:inline-block">Send to Empower</span>
+          </button>
+        }
+
+        @if (canFulfillManually) {
+          <button nz-button nzType="default" nzShape="round" class="ord-cta-btn mb-0" (click)="openFulfillManuallyModal()">
+            <i class="fa-solid fa-truck"></i>
+            <span class="ml-2 hidden md:inline-block">{{ manualTracking ? 'Update Fulfillment' : 'Fulfill Manually' }}</span>
+          </button>
+        }
+      </section>
+
+      <section class="ord-overview-grid">
+
+        <article class="ord-info-panel">
+          <div class="ord-info-head">
+            <h4 class="ord-panel-title">
+              <i class="fa-solid fa-receipt mr-2 text-primary"></i>Order Detail
+            </h4>
+
+          </div>
+
+          <div class="ord-pair-grid">
+            <div>
+              <label>Treatment #</label>
+              <span class="ord-link"
+                    [class.ord-link-disabled]="!orderData?.treatmentId"
+                    (click)="orderData?.treatmentId ? navigate('treatment/detail/', orderData.treatmentId.toString()) : null">
+                {{ orderData?.treatmentId || '--' }}
+              </span>
+            </div>
+            <div>
+              <label>Prescription #</label>
+              <span class="ord-link"
+                    [class.ord-link-disabled]="!orderData?.prescriptionId"
+                    (click)="orderData?.prescriptionId ? navigate('prescription/detail/', orderData.prescriptionId.toString()) : null">
+                {{ orderData?.prescriptionId || '--' }}
+              </span>
+            </div>
+            <div><label>Order Date</label><span>{{ (orderData?.orderDate | date:'MM/dd/yyyy') || '--' }}</span></div>
+            <div><label>Date Shipped</label><span>{{ (orderData?.dateShipped | date:'MM/dd/yyyy') || '--' }}</span></div>
+
+            @if(userRole != 'Patient'){
+              <div><label>Order Total</label><span>{{ (orderData?.orderTotal | currency) || '--' }}</span></div>
+            }
+            <div>
+
+            </div>
+          </div>
+        </article>
+
+        @if (empowerTracking) {
+          <article class="ord-info-panel">
+            <div class="ord-info-head">
+              <h4 class="ord-panel-title">
+                <i class="fa-solid fa-truck-fast mr-2 text-primary"></i>Tracking Info
+              </h4>
+              <span class="ui-status-badge ui-status-badge--neutral">Empower</span>
+            </div>
+
+            <div class="ord-pair-grid">
+              <div><label>Shipment Status</label><span>{{ empowerTracking?.shipmentStatus || '--' }}</span></div>
+              <div><label>Tracking Number</label><span>{{ empowerTracking?.shipmentTrackingNumber || '--' }}</span></div>
+              <div><label>Provider</label><span>{{ empowerTracking?.shipmentProvider || '--' }}</span></div>
+              <div><label>Last Updated</label><span>{{ (empowerTracking?.shipmentStatusLastUpdatedTime | date:'MM/dd/yyyy h:mm a') || '--' }}</span></div>
+              <div class="ord-col-span-2">
+                <label>Tracking URL</label>
+                @if (empowerTracking?.shipmentTrackingUrl) {
+                  <a class="ord-link break-all" [href]="empowerTracking.shipmentTrackingUrl" target="_blank" rel="noopener noreferrer">
+                    {{ empowerTracking.shipmentTrackingUrl }}
+                  </a>
+                } @else {
+                  <span>--</span>
+                }
+              </div>
+            </div>
+          </article>
+        }
+
+        @if (manualTracking) {
+          <article class="ord-info-panel">
+            <div class="ord-info-head">
+              <h4 class="ord-panel-title">
+                <i class="fa-solid fa-truck-fast mr-2 text-primary"></i>Tracking Info
+              </h4>
+              <span class="ui-status-badge ui-status-badge--pending">Manual</span>
+            </div>
+
+            <div class="ord-pair-grid">
+              <div><label>Order Number</label><span>{{ manualTracking?.orderNumber || '--' }}</span></div>
+              <div><label>Tracking Number</label><span>{{ manualTracking?.trackingNumber || '--' }}</span></div>
+              <div><label>Provider</label><span>{{ manualTracking?.shippingProvider || '--' }}</span></div>
+              <div><label>Date Shipped</label><span>{{ (manualTracking?.dateShipped | date:'MM/dd/yyyy') || '--' }}</span></div>
+              <div><label>Fulfilled By</label><span>{{ manualTracking?.fulfilledBy || '--' }}</span></div>
+              <div><label>Fulfilled At</label><span>{{ (manualTracking?.fulfilledAt | date:'MM/dd/yyyy h:mm a') || '--' }}</span></div>
+              <div class="ord-col-span-2">
+                <label>Tracking URL</label>
+                @if (manualTracking?.trackingUrl) {
+                  <a class="ord-link break-all" [href]="manualTracking.trackingUrl" target="_blank" rel="noopener noreferrer">
+                    {{ manualTracking.trackingUrl }}
+                  </a>
+                } @else {
+                  <span>--</span>
+                }
+              </div>
+              @if (manualTracking?.notes) {
+                <div class="ord-col-span-2">
+                  <label>Notes</label>
+                  <span>{{ manualTracking.notes }}</span>
+                </div>
+              }
+            </div>
+          </article>
+        }
+
+      </section>
+
+      <section class="ord-workflow-shell">
+        <div class="ord-workflow-title">
+          <i class="fa-solid fa-capsules mr-2 text-primary"></i>Medication Workspace
+        </div>
+
+        @if (listOfDrugs.length === 0) {
+          <div class="ord-empty-state">
+            <i class="fa-solid fa-pills"></i>
+            <span>No drug items found for this order.</span>
+          </div>
+        } @else {
+          <div class="ord-records-list">
+            @for (drug of listOfDrugs; track $index) {
+              <article class="ord-drug-row">
+                <div class="ord-drug-top">
+                  <div class="ord-record-main">
+                    <div class="ord-record-title">{{ drug.medicineName || '--' }}</div>
+                    <div class="ord-record-subtitle">
+                      {{ (drug.strenght || drug.strength || '--') + ' • ' + (drug.dosageForm || '--') + ' • ' + (drug.packageSize || '--') }}
+                    </div>
+                  </div>
+
+                  <div class="ord-record-end">
+                    <span [class]="controlledSubstanceClass(drug)">
+                      {{ controlledSubstanceValue(drug) }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="ord-record-facts">
+                  <div class="ord-fact"><label>Courier</label><span>{{ drug.courierMethod || '--' }}</span></div>
+                  <div class="ord-fact"><label>Qty</label><span>{{ drug.drugQuantity ?? drug.quantity ?? '--' }}</span></div>
+                  <div class="ord-fact"><label>D/S</label><span>{{ drug.daysSupplies ?? '--' }}</span></div>
+                </div>
+
+                <div class="ord-note-grid">
+                  <div class="ord-note-item">
+                    <label>Direction</label>
+                    <span>{{ drug.direction || '--' }}</span>
+                  </div>
+                  <div class="ord-note-item">
+                    <label>Instructions</label>
+                    <span>{{ drug.instruction || '--' }}</span>
+                  </div>
+                </div>
+
+                <div class="ord-supplies-block">
+                  <label>Supplies</label>
+                  @if (getDrugSupplies(drug).length === 0) {
+                    <span class="ord-empty-inline">--</span>
+                  } @else {
+                    <div class="ord-supplies-list">
+                      @for (s of getDrugSupplies(drug); track $index) {
+                        <span class="ord-supply-chip">{{ (s.name || '--') + ' • Qty ' + (s.supplyQuantity || '--') }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  </ng-container>
+} @else {
+  <div class="ord-state-panel ord-state-panel-error">
+    <div class="text-center">
+      <i class="fas fa-exclamation-triangle text-4xl mb-4 text-red-500"></i>
+      <p class="text-lg font-medium text-red-500">An error occurred while loading the order data.</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Please try again later or contact support.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <button nz-button nzType="default" nzShape="round" class="w-full sm:w-auto ord-cta-btn" (click)="getOrderData()">
+          <i class="fa-solid fa-rotate-right mr-2"></i>Reload
+        </button>
+        <button nz-button nzType="default" nzShape="round" class="w-full sm:w-auto ord-cta-btn" (click)="moveBack()">
+          <i class="fa-solid fa-arrow-left mr-2"></i>Go Back
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<ng-template #loadingMain>
+  <div class="ord-state-panel">
+    <div class="text-center">
+      <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Order Data...</p>
+    </div>
+  </div>
+</ng-template>
+
+<app-comman-form-modal #commanModel [apiUrl]="modalApiUrl" (formClosed)="refreshData($event)"></app-comman-form-modal>
+
+<nz-modal
+  [(nzVisible)]="isFulfillManuallyModalVisible"
+  [nzTitle]="manualTracking ? 'Update Manual Fulfillment' : 'Fulfill Manually'"
+  [nzMaskClosable]="false"
+  (nzOnCancel)="closeFulfillManuallyModal()"
+  [nzFooter]="fulfillModalFooter"
+  [nzWidth]="'96vw'"
+  [nzStyle]="{ 'max-width.px': 660 }"
+  [nzBodyStyle]="{ 'max-height': 'calc(100vh - 180px)', 'overflow': 'auto', 'padding': '16px' }"
+>
+  <div *nzModalContent>
+    <form [formGroup]="fulfillForm" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+      <div>
+        <label class="label-C">Order Number</label>
+        <input nz-input class="input-C mt-1" placeholder="External pharmacy order number" formControlName="orderNumber" />
+      </div>
+
+      <div>
+        <label class="label-C">Order Status <span class="text-red-600">*</span></label>
+        <nz-select class="w-full mt-1" nzPlaceHolder="Select status" formControlName="orderStatus" [nzShowArrow]="true">
+          <nz-option *ngFor="let s of fulfillmentStatusOptions" [nzValue]="s" [nzLabel]="s"></nz-option>
+        </nz-select>
+        <div class="text-red-600 text-xs mt-1" *ngIf="fulfillForm.get('orderStatus')?.touched && fulfillForm.get('orderStatus')?.invalid">
+          Order Status is required.
+        </div>
+      </div>
+
+      <div>
+        <label class="label-C">Tracking Number</label>
+        <input nz-input class="input-C mt-1" placeholder="e.g. 1Z999AA10123456784" formControlName="trackingNumber" />
+      </div>
+
+      <div>
+        <label class="label-C">Shipping Provider</label>
+        <nz-select class="w-full mt-1" nzPlaceHolder="Select provider" nzAllowClear formControlName="shippingProvider" [nzShowArrow]="true">
+          <nz-option *ngFor="let p of shippingProviderOptions" [nzValue]="p" [nzLabel]="p"></nz-option>
+        </nz-select>
+      </div>
+
+      <div>
+        <label class="label-C">Date Shipped</label>
+        <nz-date-picker
+          class="datepicker-C w-full mt-1"
+          nzFormat="MM/dd/yyyy"
+          formControlName="dateShipped"
+          [nzShowTime]="false"
+        ></nz-date-picker>
+      </div>
+
+      <div class="sm:col-span-2">
+        <label class="label-C">Tracking URL</label>
+        <input nz-input class="input-C mt-1" placeholder="https://www.ups.com/track?tracknum=..." formControlName="trackingUrl" />
+        <div class="text-red-600 text-xs mt-1" *ngIf="fulfillForm.get('trackingUrl')?.touched && fulfillForm.get('trackingUrl')?.invalid">
+          Please enter a valid URL (must start with http:// or https://).
+        </div>
+      </div>
+
+      <div class="sm:col-span-2">
+        <label class="label-C">Notes</label>
+        <textarea nz-input class="input-C mt-1" rows="3" placeholder="Optional notes about this shipment..." formControlName="notes" maxlength="500"></textarea>
+      </div>
+
+    </form>
+  </div>
+
+  <ng-template #fulfillModalFooter>
+    <button nz-button (click)="closeFulfillManuallyModal()" [disabled]="isSubmittingManualFulfillment">Cancel</button>
+    <button
+      nz-button
+      nzType="primary"
+      [disabled]="fulfillForm.invalid || isSubmittingManualFulfillment"
+      [nzLoading]="isSubmittingManualFulfillment"
+      (click)="submitManualFulfillment()"
+    >
+      {{ manualTracking ? 'Update' : 'Submit' }}
+    </button>
+  </ng-template>
+</nz-modal>

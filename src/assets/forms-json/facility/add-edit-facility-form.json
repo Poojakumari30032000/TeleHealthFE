@@ -1,0 +1,309 @@
+{
+  "title": "Clinic Form",
+  "primaryId": "facilityId",
+  "rows": [
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Name ( Long )",
+          "name": "titleLong",
+          "placeholder": "Enter Clinic Name ( Long )",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "text",
+          "label": "Name ( Short )",
+          "name": "titleShort",
+          "placeholder": "Enter Name ( Short )",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "text",
+          "label": "Clinic Admin First Name",
+          "name": "clinicAdminFirstName",
+          "placeholder": "Enter First Name",
+          "class": "col-span-1",
+          "hideOnEdit": true,
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "text",
+          "label": "Clinic Admin Last Name",
+          "name": "clinicAdminLastName",
+          "placeholder": "Enter Last Name",
+          "class": "col-span-1",
+          "hideOnEdit": true,
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "email",
+          "label": "Clinic Admin Email",
+          "name": "email",
+          "placeholder": "Enter Clinic Admin Email",
+          "class": "col-span-1",
+          "hideOnEdit": true,
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "tel",
+          "label": "Clinic Admin Phone No.",
+          "name": "phone",
+          "placeholder": "Enter Clinic Admin Phone No.",
+          "class": "col-span-1",
+          "hideOnEdit": true,
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "text",
+          "label": "NPI",
+          "name": "npi",
+          "placeholder": "Enter NPI",
+          "class": "col-span-1"
+        },
+        {
+          "type": "tel",
+          "label": "Fax",
+          "name": "fax",
+          "placeholder": "Enter Fax",
+          "class": "col-span-1"
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Federal Tax Id",
+          "name": "fedearlTaxId",
+          "placeholder": "Enter Federal Tax Id",
+          "class": "col-span-1"
+        },
+        {
+          "type": "select",
+          "label": "Billing",
+          "name": "isBillable",
+          "placeholder": "Select billing",
+          "class": "col-span-1",
+          "hideOnEdit": true,
+          "options": [
+            { "label": "Billable", "value": true },
+            { "label": "Free", "value": false }
+          ],
+          "validations": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-1 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Address",
+          "name": "address",
+          "placeholder": "Enter Address",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-1 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "payment-mode-cards",
+          "label": "Payment Mode",
+          "name": "paymentModeId",
+          "class": "col-span-1",
+          "disableOnEdit": true,
+          "visibleForRoleIds": [2],
+          "validations": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "select",
+          "label": "State",
+          "name": "stateId",
+          "placeholder": "Select State",
+          "class": "col-span-1",
+          "labelKey": ["name"],
+          "valueKey": "id",
+          "fetchUrl": "DropDowns/GetAllStateOfUSA",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "select",
+          "label": "City",
+          "name": "cityId",
+          "placeholder": "Select City",
+          "class": "col-span-1",
+          "dependsOn": ["stateId"],
+          "labelKey": ["name"],
+          "valueKey": "id",
+          "fetchUrl": "DropDowns/GetCitiesByStateId?Id={stateId}",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "tel",
+          "label": "Zip Code",
+          "name": "zipCode",
+          "placeholder": "Enter zip code",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "select",
+          "label": "Billing Address",
+          "name": "billingAddressType",
+          "placeholder": "Select Billing Address",
+          "class": "col-span-1",
+          "options": [
+            {
+              "label": "Same as Clinic",
+              "value": "Same as Clinic"
+            },
+            {
+              "label": "Other Address",
+              "value": "Other Address"
+            }
+          ],
+          "validations": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "visibilityCondition": {
+        "name": "billingAddressType",
+        "value": "Other Address"
+      },
+      "class": "grid grid-cols-1 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Billing Address",
+          "name": "billingAddress",
+          "placeholder": "Enter Address",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "visibilityCondition": {
+        "name": "billingAddressType",
+        "value": "Other Address"
+      },
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "select",
+          "label": "Billing State",
+          "name": "billingStateId",
+          "placeholder": "Select State",
+          "class": "col-span-1",
+          "labelKey": ["name"],
+          "valueKey": "id",
+          "fetchUrl": "DropDowns/GetAllStateOfUSA",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "select",
+          "label": "Billing City",
+          "name": "billingCityId",
+          "placeholder": "Select City",
+          "class": "col-span-1",
+          "dependsOn": ["billingStateId"],
+          "labelKey": ["name"],
+          "valueKey": "id",
+          "fetchUrl": "DropDowns/GetCitiesByStateId?Id={billingStateId}",
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "type": "tel",
+          "label": "Billing Zip Code",
+          "name": "billingZipCode",
+          "placeholder": "Enter zip code",
+          "class": "col-span-1",
+          "validations": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "checkbox",
+          "label": "Can View Channels (View Only Access)",
+          "name": "canViewChannels",
+          "class": "col-span-1",
+          "hiddenForRoleIds": [3],
+          "description": "When enabled, all clinic admins in this facility will be able to see the Channels tab in the chat interface."
+        },
+        {
+          "type": "checkbox",
+          "label": "Can send messages",
+          "name": "canSendMessages",
+          "class": "col-span-1",
+          "hiddenForRoleIds": [3],
+          "enabledWhen": { "name": "canViewChannels", "value": true },
+          "description": "When enabled, clinic admins in this facility can send messages in channels (not just view). Requires 'Can View Channels'."
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "checkbox",
+          "label": "Can View Pharmacy Name",
+          "name": "canViewPharmacyName",
+          "class": "col-span-1",
+          "hiddenForRoleIds": [3],
+          "description": "When enabled, this clinic sees the Pharmacy Name column in its drug list."
+        }
+      ]
+    }
+  ]
+}

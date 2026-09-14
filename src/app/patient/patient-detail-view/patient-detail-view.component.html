@@ -1,0 +1,844 @@
+@if(!hasError){
+  <ng-container *ngIf="!isLoading && patientData; else loading">
+    <div class="pd-workspace-shell">
+      <section class="pd-summary-hero">
+        <div class="pd-summary-identity">
+          <div class="pd-avatar">
+            {{ (patientData.firstName || 'P')[0] }}{{ (patientData.lastName || 'D')[0] }}
+          </div>
+          <div>
+            <div class="pd-summary-name">
+              {{ patientData.firstName && patientData.lastName ? patientData.firstName + ' ' + patientData.lastName : (patientData.firstName || patientData.lastName || '--') }}
+            </div>
+            <div class="pd-summary-meta">
+              <span>Patient #{{ patientData.patientId || '--' }}</span>
+              <span>MRN # {{ patientData.mrn || '--' }}</span>
+              <span>{{ patientData.email || '--' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pd-kpi-grid">
+          <div class="pd-kpi-card">
+            <div class="pd-kpi-label">Treatments</div>
+            <div class="pd-kpi-value">{{ patientData.treatments ?? '--' }}</div>
+          </div>
+          <div class="pd-kpi-card">
+            <div class="pd-kpi-label">Orders</div>
+            <div class="pd-kpi-value">{{ patientData.numberOfOrders ?? '--' }}</div>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="pd-history-shell">
+        <nz-tabset
+          nzType="editable-card"
+          nzSize="small"
+          class="pd-history-tabs"
+          [nzHideAdd]="true"
+          [nzSelectedIndex]="selectedRelatedTabIndex"
+          (nzSelectedIndexChange)="onRelatedTabIndexChange($event)"
+          (nzClose)="onRelatedTabClose($event)"
+        >
+          <nz-tab nzTitle="Patient Detail" [nzClosable]="false">
+            <nz-tabset nzType="line" nzSize="small" class="pd-history-tabs pd-history-tabs--inner"
+              (nzSelectedIndexChange)="onInnerTabChange($event)">
+              <nz-tab [nzTitle]="'Profile'">
+                <div class="pd-history-pane">
+                  <section class="pd-overview-grid">
+                    <article class="pd-info-panel">
+                      <div class="pd-info-head">
+                        <h4 class="pd-panel-title">
+                          <i class="fa-solid fa-user mr-2 text-primary"></i>Patient Snapshot
+                        </h4>
+                        @if (userRole != 'Clinic Admin') {
+                          <div class="flex items-center gap-2">
+                            <button
+                              nz-button
+                              nzType="default"
+                              nzShape="round"
+                              class="pd-cta-btn mb-0"
+                              (click)="AddEditPatient()"
+                            >
+                              <i class="fa-solid fa-pen-to-square"></i>
+                              <span class="ml-2 hidden md:inline-block">
+                                {{ userRole === 'Patient' ? 'Edit Profile' : 'Edit Patient' }}
+                              </span>
+                            </button>
+                            @if (userRole === 'Global Admin') {
+                              <button
+                                nz-button
+                                nzType="default"
+                                nzShape="round"
+                                class="pd-cta-btn mb-0"
+                                (click)="openMovePatientModal()"
+                                title="Move this patient to a different facility"
+                              >
+                                <i class="fa-solid fa-right-left"></i>
+                                <span class="ml-2 hidden md:inline-block">Move to Facility</span>
+                              </button>
+                            }
+                          </div>
+                        }
+                      </div>
+
+                      <div class="pd-pair-grid">
+                        <div><label>Patient Name</label><span>{{ patientData.firstName && patientData.lastName ? patientData.firstName + ' ' + patientData.lastName : (patientData.firstName || patientData.lastName || '--') }}</span></div>
+                        <div><label>MRN #</label><span>{{ patientData.mrn || '--' }}</span></div>
+                        <div><label>Clinic</label><span>{{ patientData.facilityName || '--' }}</span></div>
+                        <div><label>Email</label><span>{{ patientData.email || '--' }}</span></div>
+                        <div><label>Phone</label><span>{{ patientData.phoneNumber || '--' }}</span></div>
+                        <div><label>Date Of Birth</label><span>{{ patientData.dateOfBirth ? (patientData.dateOfBirth | date : 'MM/dd/yyyy') : '--' }}</span></div>
+                        <div><label>Gender</label><span>{{ patientData.gender || '--' }}</span></div>
+                        <div class="pd-col-span-2"><label>Address</label><span>{{ patientData.address || '--' }}</span></div>
+                      </div>
+                    </article>
+                  </section>
+
+                  <section class="pd-media-shell">
+                    <div class="pd-info-head">
+                      <h4 class="pd-panel-title">
+                        <i class="fa-regular fa-images mr-2 text-primary"></i>Patient Photos
+                      </h4>
+                    </div>
+                    <div class="pd-media-grid">
+                      <article class="pd-media-card">
+                        <label class="pd-media-label">Patient Headshot</label>
+                        <ng-container *ngIf="patientData?.patientPicture && !patientPictureLoadError; else patientPicNA">
+                          <a class="mt-2 block" [href]="patientData.patientPicture" target="_blank" rel="noopener noreferrer" title="Open in new tab">
+                            <div class="pd-image-frame">
+                              <img
+                                class="pd-image"
+                                [src]="patientData.patientPicture"
+                                alt="Patient Headshot"
+                                loading="lazy"
+                                (error)="onImageError('patient')"
+                              />
+                            </div>
+                          </a>
+                        </ng-container>
+                        <ng-template #patientPicNA>
+                          <div class="pd-image-empty">
+                            <div>
+                              <i class="fa-regular fa-image text-2xl text-gray-400 dark:text-gray-500"></i>
+                              <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Image not available</p>
+                            </div>
+                          </div>
+                        </ng-template>
+                      </article>
+
+                      <article class="pd-media-card">
+                        <label class="pd-media-label">Photo ID</label>
+                        <ng-container *ngIf="patientData?.idPicture && !idPictureLoadError; else idPicNA">
+                          <a class="mt-2 block" [href]="patientData.idPicture" target="_blank" rel="noopener noreferrer" title="Open in new tab">
+                            <div class="pd-image-frame">
+                              <img
+                                class="pd-image"
+                                [src]="patientData.idPicture"
+                                alt="Photo ID"
+                                loading="lazy"
+                                (error)="onImageError('id')"
+                              />
+                            </div>
+                          </a>
+                        </ng-container>
+                        <ng-template #idPicNA>
+                          <div class="pd-image-empty">
+                            <div>
+                              <i class="fa-regular fa-image text-2xl text-gray-400 dark:text-gray-500"></i>
+                              <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Image not available</p>
+                            </div>
+                          </div>
+                        </ng-template>
+                      </article>
+                    </div>
+                  </section>
+                </div>
+              </nz-tab>
+
+              <nz-tab [nzTitle]="'Treatments (' + historyTreatments.length + ')'">
+                <div class="pd-history-pane">
+                  @if (historyLoadingTreatments) {
+                    <div class="pd-empty-state">
+                      <i class="fa-solid fa-arrows-spin animate-spin"></i>
+                      <span>Loading treatments...</span>
+                    </div>
+                  } @else if (historyTreatments.length === 0) {
+                    <div class="pd-empty-state">
+                      <i class="fa-regular fa-folder-open"></i>
+                      <span>No treatment history found.</span>
+                    </div>
+                  } @else {
+                    <div class="pd-records-list">
+                      @for (treatment of historyTreatments; track treatment.patientTreatmentId; let i = $index) {
+                        <article
+                          class="pd-record-row pd-record-row-clickable"
+                          role="button"
+                          tabindex="0"
+                          (click)="navigateToViewTreatment(treatment)"
+                          (keydown.enter)="navigateToViewTreatment(treatment)"
+                          (keydown.space)="navigateToViewTreatment(treatment); $event.preventDefault()"
+                        >
+                          <div class="pd-record-main">
+                            <div class="pd-record-title">
+                              Treatment #{{ treatment.patientTreatmentId || '--' }}
+                            </div>
+                            <div class="pd-record-subtitle">
+                              {{ treatment.bundleName || treatment.name || 'No package assigned' }}
+                            </div>
+                          </div>
+
+                          <div class="pd-record-facts">
+                            <div class="pd-fact">
+                              <label>Start Date</label>
+                              <span>{{ treatment.startDate ? (treatment.startDate | date: 'MMM d, y') : '--' }}</span>
+                            </div>
+                            <div class="pd-fact">
+                              <label>Category</label>
+                              <span>{{ treatment.name || '--' }}</span>
+                            </div>
+                            <div class="pd-fact">
+                              <label>Frequency</label>
+                              <span>{{ treatment.frequency || '--' }}</span>
+                            </div>
+                            <div class="pd-fact">
+                              <label>Package</label>
+                              <span>{{ treatment.price ? (treatment.price | currency) : '--' }}</span>
+                            </div>
+                            <div class="pd-fact">
+                              <label>Prescriptions</label>
+                              <span>{{ treatment.prescriptionsCount ?? '--' }}</span>
+                            </div>
+                            <div class="pd-fact">
+                              <label>Orders</label>
+                              <span>{{ treatment.orderCount ?? '--' }}</span>
+                            </div>
+                          </div>
+
+                          <div class="pd-record-end">
+                            <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(treatment.status)">
+                              {{ treatment.status || '--' }}
+                            </span>
+                            @if (treatment.refillStatus) {
+                              <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(treatment.refillStatus)">
+                                {{ treatment.refillStatus }}
+                              </span>
+                            }
+                            <button
+                              nz-button
+                              nzType="default"
+                              nzShape="circle"
+                              (click)="$event.stopPropagation(); navigateToViewTreatment(treatment)"
+                              title="View Treatment"
+                            >
+                              <i class="fa-solid fa-eye"></i>
+                            </button>
+                            @if (userRole === 'Global Admin') {
+                            <button
+                              nz-button
+                              nzType="default"
+                              nzShape="circle"
+                              (click)="$event.stopPropagation(); sendIntakeFormReminder(treatment)"
+                              [disabled]="treatment.status !== 'Active' || sendingReminderIds.has(treatment.patientTreatmentId)"
+                              [nzLoading]="sendingReminderIds.has(treatment.patientTreatmentId)"
+                              title="Resend Intake Form"
+                            >
+                              <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                            }
+                          </div>
+                        </article>
+                      }
+                    </div>
+                  }
+                </div>
+              </nz-tab>
+
+              <nz-tab [nzTitle]="'Invoices (' + historyInvoices.length + ')'">
+                <div class="pd-history-pane">
+                  @if (historyLoadingInvoices) {
+                    <div class="pd-empty-state">
+                      <i class="fa-solid fa-arrows-spin animate-spin"></i>
+                      <span>Loading invoices...</span>
+                    </div>
+                  } @else if (historyInvoices.length === 0) {
+                    <div class="pd-empty-state">
+                      <i class="fa-regular fa-folder-open"></i>
+                      <span>No invoices found.</span>
+                    </div>
+                  } @else {
+                    <div class="pd-records-list">
+                      @for (invoice of historyInvoices; track invoice.paymentId; let i = $index) {
+                        <article
+                          class="pd-record-row pd-record-row-clickable"
+                          role="button"
+                          tabindex="0"
+                          (click)="navigateToOrder(invoice)"
+                          (keydown.enter)="navigateToOrder(invoice)"
+                          (keydown.space)="navigateToOrder(invoice); $event.preventDefault()"
+                        >
+                          <div class="pd-record-main">
+                            <div class="pd-record-title">
+                              Invoice #{{ invoice.invoiceId || invoice.id || invoice.paymentId || '--' }}
+                            </div>
+                            <div class="pd-record-subtitle">
+                              {{ invoice.date ? (invoice.date | date: 'MMM d, y') : '--' }}
+                            </div>
+                          </div>
+
+                          <div class="pd-record-facts">
+                            <div class="pd-fact">
+                              <label>Invoice Total</label>
+                              <span>{{ invoice.totalPrice ? (invoice.totalPrice | currency) : '--' }}</span>
+                            </div>
+
+                          </div>
+
+                          <div class="pd-record-end">
+                            <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(invoice.paymentStatus)">
+                              {{ invoice.paymentStatus || '--' }}
+                            </span>
+                            <button
+                              nz-button
+                              nzType="default"
+                              nzShape="circle"
+                              (click)="$event.stopPropagation(); navigateToOrder(invoice)"
+                              title="View Invoice"
+                            >
+                              <i class="fa-solid fa-eye"></i>
+                            </button>
+                            @if (userRole === 'Global Admin') {
+                            <button
+                              nz-button
+                              nzType="default"
+                              nzShape="circle"
+                              (click)="$event.stopPropagation(); sendInvoiceReminder(invoice)"
+                              [disabled]="invoice.paymentStatus === 'Paid' || sendingInvoiceReminderIds.has(+(invoice.invoiceId || invoice.id || invoice.paymentId || 0))"
+                              [nzLoading]="sendingInvoiceReminderIds.has(+(invoice.invoiceId || invoice.id || invoice.paymentId || 0))"
+                              title="Send Reminder"
+                            >
+                              <i class="fa-solid fa-bell"></i>
+                            </button>
+                            }
+
+                          </div>
+                        </article>
+                      }
+                    </div>
+                  }
+                </div>
+              </nz-tab>
+
+              <nz-tab [nzTitle]="'Documents (' + documents.length + ')'">
+                <div class="pd-history-pane">
+                  <div class="pd-document-toolbar">
+                    <button
+                      nz-button
+                      nzType="default"
+                      nzShape="round"
+                      class="pd-cta-btn"
+                      (click)="uploadDocument()"
+                    >
+                      + Upload Document
+                    </button>
+                  </div>
+
+                  @if (documents.length === 0) {
+                    <div class="pd-empty-state">
+                      <i class="fa-regular fa-folder-open"></i>
+                      <span>No documents uploaded yet.</span>
+                    </div>
+                  } @else {
+                    <div class="pd-records-list">
+                      @for (document of documents; track document.patientDocumentId || document.documentUrl || $index) {
+                        <article
+                          class="pd-record-row pd-record-row-clickable"
+                          role="button"
+                          tabindex="0"
+                          (click)="viewDocument(document)"
+                          (keydown.enter)="viewDocument(document)"
+                          (keydown.space)="viewDocument(document); $event.preventDefault()"
+                        >
+                          <div class="pd-document-row-main">
+                            <div class="pd-document-thumb">
+                              @if (document.documentUrl && isImageDocument(document.documentUrl)) {
+                                <img [src]="document.documentUrl" alt="Document thumbnail" />
+                              } @else {
+                                <i class="fa-regular fa-file-lines"></i>
+                              }
+                            </div>
+                            <div class="pd-record-main">
+                              <div class="pd-record-title">{{ document.documentName || 'Untitled Document' }}</div>
+                              <div class="pd-record-subtitle">{{ document.description || 'No description provided.' }}</div>
+                              <div class="pd-record-subtitle">{{ document.createdByName || 'System'}}</div>
+                              <div class="pd-record-subtitle">{{ document.createdDate | date:'MMM d, y, h:mm a' || 'N/A'}}</div>
+                            </div>
+                          </div>
+
+                          <div class="pd-record-end">
+                            <button
+                              nz-button
+                              nzType="default"
+                              nzShape="circle"
+                              (click)="$event.stopPropagation(); viewDocument(document)"
+                              title="View Document"
+                            >
+                              <i class="fa-solid fa-eye"></i>
+                            </button>
+                          </div>
+                        </article>
+                      }
+                    </div>
+                  }
+                </div>
+              </nz-tab>
+
+              @if (userRole != 'Patient'){
+              <nz-tab [nzTitle]="'Notes (' + profileNotes.length + ')'">
+                <div class="pd-history-pane">
+                  <section class="pd-notes-shell">
+
+                    @if (canManageNotes && !editingNoteId) {
+                      <article class="pd-note-composer">
+                        <div class="pd-note-composer-head">
+                          <h4 class="pd-note-composer-title">
+                            <i class="fa-regular fa-note-sticky mr-2 text-primary"></i>
+                            Add Note
+                          </h4>
+                        </div>
+
+                        <textarea
+                          nz-input
+                          rows="4"
+                          maxlength="4000"
+                          class="pd-note-input"
+                          [(ngModel)]="noteDraft"
+                          placeholder="Document clinical context, care decisions, and follow-up details..."
+                        ></textarea>
+
+                        <div class="pd-note-toolbar">
+                          <span class="pd-note-counter">{{ noteDraftLength }} / 4000</span>
+                          <div class="pd-note-actions">
+                            <button
+                              nz-button
+                              nzType="default"
+                              nzShape="round"
+                              class="pd-cta-btn mb-0"
+                              [disabled]="notesSaving || !(noteDraft || '').trim()"
+                              [nzLoading]="notesSaving"
+                              (click)="savePatientNote()"
+                              type="button"
+                            >
+                              <i class="fa-solid fa-plus"></i>
+                              <span class="ml-2 hidden md:inline-block">Add Note</span>
+                            </button>
+                          </div>
+                        </div>
+                      </article>
+                    }
+
+                    @if (notesLoading) {
+                      <div class="pd-empty-state">
+                        <i class="fa-solid fa-arrows-spin animate-spin"></i>
+                        <span>Loading notes...</span>
+                      </div>
+                    } @else if (profileNotes.length === 0) {
+                      <div class="pd-empty-state">
+                        <i class="fa-regular fa-note-sticky"></i>
+                        <span>No profile notes available.</span>
+                      </div>
+                    } @else {
+                      <div class="pd-note-list">
+                        @for (note of profileNotes; track note.patientProfileNoteId) {
+                          <article class="pd-note-card">
+                            <div class="pd-note-head">
+                              <div class="pd-note-author-block">
+                                <span class="pd-note-avatar">{{ getInitials(note.createdByName) }}</span>
+                                <div>
+                                  <div class="pd-note-author">{{ note.createdByName || 'System' }}</div>
+                                  <div class="pd-note-meta">
+                                    Created {{ note.createdDate ? (note.createdDate | date:'MMM d, y, h:mm a') : '--' }}
+                                  </div>
+                                  @if (note.modifiedDate) {
+                                    <div class="pd-note-meta pd-note-meta-secondary">
+                                      Updated {{ note.modifiedDate | date:'MMM d, y, h:mm a' }} by {{ note.modifiedByName || 'System' }}
+                                    </div>
+                                  }
+                                </div>
+                              </div>
+
+                              @if (canManageNotes && editingNoteId !== note.patientProfileNoteId) {
+                                <div class="pd-note-actions">
+                                  <button
+                                    nz-button
+                                    nzType="default"
+                                    nzShape="circle"
+                                    class="pd-note-icon-btn"
+                                    title="Edit Note"
+                                    [disabled]="notesSaving || !!editingNoteId || deletingNoteId === note.patientProfileNoteId || noteFetchingId === note.patientProfileNoteId"
+                                    [nzLoading]="noteFetchingId === note.patientProfileNoteId"
+                                    (click)="startEditPatientNote(note)"
+                                    type="button"
+                                  >
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                  </button>
+                                  <button
+                                    nz-button
+                                    nzType="default"
+                                    nzShape="circle"
+                                    class="pd-note-icon-btn"
+                                    title="Delete Note"
+                                    [disabled]="notesSaving || !!editingNoteId || deletingNoteId === note.patientProfileNoteId"
+                                    [nzLoading]="deletingNoteId === note.patientProfileNoteId"
+                                    (click)="deletePatientNote(note)"
+                                    type="button"
+                                  >
+                                    <i class="fa-regular fa-trash-can"></i>
+                                  </button>
+                                </div>
+                              }
+                            </div>
+
+                            @if (editingNoteId !== note.patientProfileNoteId) {
+                              <div class="pd-note-body">{{ note.noteText || '--' }}</div>
+                            }
+
+                            @if (editingNoteId === note.patientProfileNoteId) {
+                              <div class="pd-note-inline-editor">
+                                <textarea
+                                  nz-input
+                                  rows="4"
+                                  maxlength="4000"
+                                  class="pd-note-input"
+                                  [(ngModel)]="noteDraft"
+                                  placeholder="Edit note..."
+                                  [disabled]="notesSaving"
+                                ></textarea>
+                                <div class="pd-note-toolbar">
+                                  <span class="pd-note-counter">{{ noteDraftLength }} / 4000</span>
+                                  <div class="pd-note-actions">
+                                    <button
+                                      nz-button
+                                      nzType="default"
+                                      nzShape="round"
+                                      [disabled]="notesSaving"
+                                      (click)="cancelPatientNoteEdit()"
+                                      type="button"
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      nz-button
+                                      nzType="default"
+                                      nzShape="round"
+                                      class="pd-cta-btn mb-0"
+                                      [disabled]="notesSaving || !(noteDraft || '').trim()"
+                                      [nzLoading]="notesSaving"
+                                      (click)="savePatientNote()"
+                                      type="button"
+                                    >
+                                      <i class="fa-solid fa-floppy-disk"></i>
+                                      <span class="ml-2 hidden md:inline-block">Update Note</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            }
+
+                          </article>
+                        }
+                      </div>
+                    }
+                  </section>
+                </div>
+              </nz-tab>
+              }
+
+              @if (userRole === 'Global Admin') {
+              <nz-tab [nzTitle]="'Activity Logs'">
+                <div class="pd-history-pane">
+                  <div class="pd-tl-shell">
+
+                    @if (activityLogsLoading && activityLogs.length === 0) {
+                      <div class="pd-empty-state">
+                        <i class="fa-solid fa-arrows-spin animate-spin"></i>
+                        <span>Loading activity logs...</span>
+                      </div>
+                    } @else if (activityLogsLoaded && activityLogGroups.length === 0) {
+                      <div class="pd-empty-state">
+                        <i class="fa-regular fa-clock-rotate-left"></i>
+                        <span>No activity logs found for this patient.</span>
+                      </div>
+                    } @else {
+
+                      @for (group of activityLogGroups; track group.label) {
+                        <div class="pd-tl-group">
+                          <div class="pd-tl-date-label">{{ group.label }}</div>
+
+                          @for (log of group.logs; track log.auditLogId) {
+                            <div class="pd-tl-entry">
+                              <div class="pd-tl-spine">
+                                <div class="pd-tl-dot" [style.background]="getActionDotColor(log.action)"></div>
+                              </div>
+
+                              <article class="pd-tl-card pd-note-card">
+
+                                <div class="pd-tl-card-head">
+                                  <div class="pd-tl-badges">
+                                    <span class="pd-tl-badge pd-tl-badge--module">
+                                      <i class="fa-solid {{ getModuleIcon(log.module) }} mr-1"></i>{{ log.module }}
+                                    </span>
+                                    <span class="pd-tl-badge"
+                                      [ngClass]="{
+                                        'pd-tl-badge--create': log.action === 'Create',
+                                        'pd-tl-badge--update': log.action === 'Update',
+                                        'pd-tl-badge--delete': log.action === 'Delete',
+                                        'pd-tl-badge--other': log.action !== 'Create' && log.action !== 'Update' && log.action !== 'Delete'
+                                      }">{{ log.action }}</span>
+                                  </div>
+                                  <div class="pd-tl-meta">
+                                    <span class="pd-tl-time" [title]="log.createdDate | date:'medium'">
+                                      {{ getRelativeTime(log.createdDate) }}
+                                    </span>
+                                    <span class="pd-tl-badge"
+                                      [ngClass]="log.status === 'Failed' ? 'pd-tl-badge--failed' : 'pd-tl-badge--success'">
+                                      {{ log.status }}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <p class="pd-tl-description">{{ log.description }}</p>
+
+                                <div class="pd-tl-card-foot">
+                                  <span class="pd-note-meta">
+                                    <i class="fa-regular fa-user mr-1"></i>{{ log.userName }}
+                                  </span>
+                                  @if (hasDiff(log)) {
+                                    <button class="pd-tl-expand-btn" type="button"
+                                      (click)="toggleLogExpand(log.auditLogId)"
+                                      [attr.aria-expanded]="expandedLogIds.has(log.auditLogId)">
+                                      <i class="fa-solid fa-chevron-down pd-tl-chevron"
+                                        [class.pd-tl-chevron--open]="expandedLogIds.has(log.auditLogId)"></i>
+                                      {{ expandedLogIds.has(log.auditLogId) ? 'Hide changes' : 'Show changes' }}
+                                    </button>
+                                  }
+                                </div>
+
+                                @if (hasDiff(log) && expandedLogIds.has(log.auditLogId)) {
+                                  <div class="pd-tl-expand">
+                                    <table class="pd-tl-diff-table">
+                                      <thead><tr><th>Field</th><th>Before</th><th>After</th></tr></thead>
+                                      <tbody>
+                                        @for (key of getDiffKeys(log); track key) {
+                                          <tr [class.pd-tl-diff-row--changed]="log.oldValues?.[key] !== log.newValues?.[key]">
+                                            <td class="pd-tl-diff-field">{{ key }}</td>
+                                            <td class="pd-tl-diff-old">{{ log.oldValues?.[key] ?? '—' }}</td>
+                                            <td class="pd-tl-diff-new">{{ log.newValues?.[key] ?? '—' }}</td>
+                                          </tr>
+                                        }
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                }
+                              </article>
+                            </div>
+                          }
+                        </div>
+                      }
+
+                      @if (activityLogsPage < activityLogsTotalPages) {
+                        <div class="pd-tl-load-more">
+                          <button nz-button nzType="default" nzShape="round"
+                            [nzLoading]="activityLogsLoading" [disabled]="activityLogsLoading"
+                            (click)="loadMoreActivityLogs()">
+                            <i class="fa-solid fa-arrow-down mr-2"></i>Load More
+                          </button>
+                        </div>
+                      }
+                    }
+
+                  </div>
+                </div>
+              </nz-tab>
+              }
+
+              @if (canMessagePatient) {
+                <nz-tab [nzTitle]="'Message'">
+                  <div class="pd-history-pane">
+                    @if (patientData.patientId) {
+                      <app-chat [embeddedInView]="true" [initialPatientId]="patientData.patientId"></app-chat>
+                    } @else {
+                      <div class="pd-empty-state">
+                        <i class="fa-solid fa-comments text-primary"></i>
+                        <span>No channel is linked to this patient yet.</span>
+                      </div>
+                    }
+                  </div>
+                </nz-tab>
+              }
+            </nz-tabset>
+          </nz-tab>
+
+          <nz-tab
+            *ngFor="let tab of relatedTabs; trackBy: trackByRelatedTabKey"
+            [nzTitle]="tab.title"
+            [nzClosable]="true"
+          >
+            <div class="pd-history-pane">
+              <div class="pd-document-preview-card">
+                <div class="pd-document-preview-meta">
+                  <div>
+                    <label>Document Name</label>
+                    <div>{{ tab.data.documentName || '--' }}</div>
+                  </div>
+                  <div>
+                    <label>Description</label>
+                    <div>{{ tab.data.description || '--' }}</div>
+                  </div>
+                  <div>
+                    <label>Uploaded By</label>
+                    <div>{{ tab.data.createdByName || '--' }}</div>
+                  </div>
+                  <div>
+                    <label>Date Uploaded</label>
+                    <div>{{ tab.data.createdDate | date:'MMM d, y, h:mm a' || '--' }}</div>
+                  </div>
+                </div>
+
+                @if (tab.data.documentUrl && isImageDocument(tab.data.documentUrl)) {
+                  <img
+                    class="pd-document-preview-image"
+                    [src]="tab.data.documentUrl"
+                    alt="Document preview"
+                  />
+                } @else if (tab.data.documentUrl) {
+                  <iframe
+                    class="pd-document-preview-frame"
+                    [src]="tab.safeUrl"
+                    title="Document preview"
+                  ></iframe>
+                } @else {
+                  <div class="pd-empty-state">
+                    <i class="fa-regular fa-file-lines"></i>
+                    <span>Document preview not available.</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </nz-tab>
+        </nz-tabset>
+      </section>
+    </div>
+  </ng-container>
+} @else {
+  <div class="pd-state-panel">
+    <div class="text-center">
+      <i class="fas fa-exclamation-triangle text-4xl mb-4 text-red-500"></i>
+      <p class="text-lg font-medium text-red-500">An error occurred while loading patient data.</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Please try again later or contact support.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <button nz-button nzType="default" nzShape="round" (click)="getPatientDetails()">
+          <i class="fa-solid fa-rotate-right mr-2"></i>
+          Reload
+        </button>
+        <button nz-button nzType="default" nzShape="round" (click)="moveBack()">
+          <i class="fa-solid fa-arrow-left mr-2"></i>
+          Go Back
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<ng-template #loading>
+  <div class="pd-state-panel">
+    <div class="text-center">
+      <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading patient data...</p>
+    </div>
+  </div>
+</ng-template>
+
+<nz-modal
+  [(nzVisible)]="moveFacilityModalVisible"
+  nzTitle="Move Patient to Another Facility"
+  [nzMaskClosable]="!movingPatient"
+  [nzClosable]="!movingPatient"
+  (nzOnCancel)="closeMovePatientModal()"
+  [nzFooter]="moveFacilityFooter"
+  nzCentered
+  nzWidth="520px"
+>
+  <ng-container *nzModalContent>
+    <div class="space-y-3">
+      <p class="text-sm">
+        Move
+        <strong>
+          {{ patientData?.firstName }} {{ patientData?.lastName }}
+        </strong>
+        from
+        <strong>{{ patientData?.facilityName || '—' }}</strong>
+        to a new facility.
+      </p>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Destination Facility</label>
+        <nz-select
+          class="w-full"
+          nzPlaceHolder="Select a facility"
+          nzShowSearch
+          [nzShowArrow]="true"
+          [(ngModel)]="moveFacilitySelectedId"
+          [nzLoading]="moveFacilityListLoading"
+          [nzDisabled]="moveFacilityListLoading || movingPatient"
+        >
+          <nz-option
+            *ngFor="let f of moveFacilityOptions"
+            [nzValue]="f.facilityId"
+            [nzLabel]="f.titlelong || f.titleshort || ('Facility #' + f.facilityId)"
+          ></nz-option>
+        </nz-select>
+      </div>
+
+      <div class="text-xs text-gray-600 dark:text-gray-400 mt-3 border-l-4 border-amber-400 pl-3 py-2 bg-amber-50 dark:bg-amber-900/20 rounded">
+        <div class="font-semibold text-amber-700 dark:text-amber-300">This will:</div>
+        <ul class="list-disc list-inside mt-1 space-y-0.5">
+          <li>Move the patient to the selected facility.</li>
+          <li>Reactivate the patient (and their login) if they were deactivated.</li>
+          <li>Mark every Active/Paused treatment as <strong>Completed</strong> so the recurring scheduler stops billing for them.</li>
+          <li>Delete the patient's saved cards (they'll re-enter card details on their next purchase).</li>
+        </ul>
+        <div class="mt-2">
+          Existing prescriptions, orders and invoices remain on the previous facility for record-keeping
+          and will still appear on this patient's detail page.
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<ng-template #moveFacilityFooter>
+  <button
+    nz-button
+    nzType="default"
+    nzShape="round"
+    (click)="closeMovePatientModal()"
+    [disabled]="movingPatient"
+  >
+    Cancel
+  </button>
+  <button
+    nz-button
+    nzType="primary"
+    nzShape="round"
+    (click)="confirmMovePatient()"
+    [nzLoading]="movingPatient"
+    [disabled]="!moveFacilitySelectedId || movingPatient"
+  >
+    <i class="fa-solid fa-right-left"></i>
+    <span class="ml-2">Move Patient</span>
+  </button>
+</ng-template>
+
+<app-comman-form-modal #commanModel [apiUrl]="this.modalApiUrl" (formClosed)="refreshData($event)"></app-comman-form-modal>

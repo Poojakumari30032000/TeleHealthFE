@@ -1,0 +1,31 @@
+{
+  "title": "Treatment Status",
+  "primaryId": "id",
+  "rows": [
+    {
+      "class": "grid grid-cols-1 gap-4",
+      "fields": [
+        {
+          "type": "select",
+          "label": "Status",
+          "name": "status",
+          "placeholder": "Select Treatment Status",
+          "options": [
+            {"label": "Active", "value": "Active"},
+            {"label": "Paused", "value": "Paused"},
+            {"label": "Canceled", "value": "Canceled"},
+            {"label": "Completed", "value": "Completed"}
+          ],
+          "validations": {
+            "required": true
+          }
+        },
+        {
+          "label": "Type",
+          "name": "type",
+          "placeholder": ""
+        }
+      ]
+    }
+  ]
+}

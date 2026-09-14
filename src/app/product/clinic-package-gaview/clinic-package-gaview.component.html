@@ -1,0 +1,263 @@
+<div class="clinic-package-workspace-shell">
+  <section class="clinic-selector-shell">
+    <div class="clinic-selector-grid">
+      <div class="clinic-selector-field">
+        <label class="label-C-F clinic-selector-label">Clinic:</label>
+        <nz-select
+          class="w-full clinic-selector-input"
+          nzPlaceHolder="Choose clinic / facility"
+          nzShowSearch
+          nzAllowClear
+          [nzLoading]="facilitiesLoading"
+          [(ngModel)]="selectedFacilityId"
+          (ngModelChange)="onFacilityChange($event)"
+        >
+          <nz-option [nzValue]="null" nzLabel="-- Select Facility --"></nz-option>
+          <nz-option
+            *ngFor="let f of facilities"
+            [nzValue]="f.facilityId"
+            [nzLabel]="f.titlelong || f.titleshort"
+          ></nz-option>
+        </nz-select>
+      </div>
+
+      <div class="clinic-selector-actions">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="clinic-refresh-btn"
+          [disabled]="!selectedFacilityId"
+          (click)="refreshList()"
+          type="button"
+        >
+          <i class="fa-solid fa-rotate"></i>
+          <span class="ml-2">Refresh</span>
+        </button>
+      </div>
+    </div>
+
+    <p class="clinic-selector-hint" *ngIf="!selectedFacilityId">
+      Select a clinic to load package pricing for that clinic.
+    </p>
+  </section>
+
+  <section class="clinic-filter-shell">
+    <div class="clinic-filter-toolbar">
+      <div class="clinic-filter-toolbar-left">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="clinic-filter-toggle"
+          (click)="showFilters = !showFilters"
+          [disabled]="!selectedFacilityId"
+          [attr.aria-expanded]="showFilters"
+          type="button"
+        >
+          <i class="fa-solid fa-sliders"></i>
+          <span>Filters</span>
+          <span *ngIf="appliedFilters.length > 1" class="clinic-filter-count-pill">
+            {{ appliedFilters.length - 1 }}
+          </span>
+          <i class="fa-solid fa-chevron-down clinic-filter-chevron" [class.rotate-180]="showFilters"></i>
+        </button>
+
+        <span *ngIf="!showFilters && appliedFilters.length > 1" class="clinic-filter-summary">
+          {{ appliedFilters.length - 1 }} active filters
+        </span>
+      </div>
+
+      <button
+        *ngIf="appliedFilters.length > 1"
+        nz-button
+        nzType="default"
+        nzShape="round"
+        class="clinic-filter-clear"
+        (click)="clearFilters()"
+        [disabled]="!selectedFacilityId"
+        type="button"
+      >
+        Reset
+      </button>
+    </div>
+
+    <div *ngIf="appliedFilters.length > 1 && !showFilters" class="clinic-filter-chip-row">
+      @for (f of appliedFilters; track f.name) {
+        @if (f.name !== 'ProductType' && f.name !== 'FacilityId') {
+          <button class="clinic-filter-chip" type="button" (click)="removeFilter(f.name)">
+            <span>{{ f.name }}: {{ f.value }}</span>
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        }
+      }
+    </div>
+
+    <div *ngIf="showFilters" class="clinic-filter-grid">
+      <div>
+        <label class="label-C-F clinic-filter-label">Title:</label>
+        <input
+          nz-input
+          placeholder="Search by package name"
+          id="search"
+          class="input-C clinic-filter-input"
+          [(ngModel)]="searchQuery"
+          (input)="searchTermChanged()"
+          [disabled]="!selectedFacilityId"
+        />
+      </div>
+
+      <div>
+        <label class="label-C-F clinic-filter-label">Status:</label>
+        <nz-select
+          class="w-full clinic-filter-select"
+          nzPlaceHolder="Select Status"
+          nzShowSearch
+          nzAllowClear
+          [nzShowArrow]="true"
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="applyFilter()"
+          [disabled]="!selectedFacilityId"
+        >
+          <nz-option
+            *ngFor="let option of productStatusOptions"
+            [nzValue]="option"
+            [nzLabel]="option"
+          ></nz-option>
+        </nz-select>
+      </div>
+    </div>
+  </section>
+
+  <section class="clinic-table-shell">
+    <nz-table
+      [nzData]="bundles"
+      [nzFrontPagination]="false"
+      [nzTotal]="total"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzLoading]="loading"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[5, 10, 20, 50, 100]"
+      [nzScroll]="{ x: '1400px' }"
+      (nzQueryParams)="onQueryParamsChange($event)"
+      class="w-full clinic-package-table"
+    >
+      <thead>
+      <tr>
+        <th nzWidth="140px">Actions</th>
+        <th nzWidth="260px">Name</th>
+        <th nzWidth="280px">Description</th>
+        <th nzWidth="190px">Category</th>
+        <th nzWidth="140px">Price</th>
+        <th nzWidth="160px">Clinic Price</th>
+        <th nzWidth="130px">Recurring</th>
+        <th nzWidth="130px">Duration</th>
+        <th nzWidth="130px">Status</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr
+        *ngFor="let row of bundles; trackBy: trackByBundleId"
+        class="clinic-row-clickable"
+        [class.clinic-row-disabled]="!selectedFacilityId"
+        [attr.role]="selectedFacilityId ? 'button' : null"
+        [attr.tabindex]="selectedFacilityId ? 0 : null"
+        (click)="onRowActivate(row)"
+        (keydown.enter)="onRowActivate(row)"
+        (keydown.space)="onRowActivate(row); $event.preventDefault()"
+      >
+        <td>
+          <button
+            nz-button
+            nzType="default"
+            nzShape="circle"
+            class="action-icon-btn"
+            (click)="$event.stopPropagation(); editClinicSalePrice(row)"
+            title="Edit Clinic Price"
+            [disabled]="!selectedFacilityId"
+          >
+            <i class="fas fa-pencil"></i>
+          </button>
+        </td>
+
+        <td class="font-medium">{{ row?.name || '--' }}</td>
+        <td><span class="line-clamp-2">{{ row?.description || '--' }}</span></td>
+        <td><span class="line-clamp-1">{{ row?.categoryName || '--' }}</span></td>
+        <td>{{ row?.price != null ? (row.price | currency:'USD':'symbol':'1.0-2') : '--' }}</td>
+        <td>{{ row?.clinicPrice != null ? (row.clinicPrice | currency:'USD':'symbol':'1.0-2') : '--' }}</td>
+        <td>
+          <span class="ui-status-badge" [ngClass]="getRecurringBadgeClass(row?.isRecurring)">
+            {{ row?.isRecurring ? 'Yes' : 'No' }}
+          </span>
+        </td>
+        <td>{{ durationLabel(row?.durationMonths) }}</td>
+        <td>
+          <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(row?.status)">
+            {{ row?.status || '--' }}
+          </span>
+        </td>
+      </tr>
+
+      <tr *ngIf="!loading && bundles.length === 0">
+        <td colspan="9" class="text-center py-6 text-gray-500">
+          {{ selectedFacilityId ? 'No records found.' : 'Please select a clinic to load packages.' }}
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </section>
+</div>
+
+<nz-modal
+  [(nzVisible)]="isClinicPricingModalVisible"
+  nzTitle="Clinic Sale Price"
+  [nzMaskClosable]="false"
+  (nzOnCancel)="closeClinicSalePriceModal()"
+  [nzFooter]="clinicSalePricingFooter"
+  [nzWidth]="'96vw'"
+  [nzStyle]="{ 'max-width.px': 550 }"
+  [nzBodyStyle]="{
+    'max-height': 'calc(100vh - 180px)',
+    'overflow': 'auto',
+    'padding': '16px'
+  }"
+>
+  <div *nzModalContent>
+    <div class="col-span-1 mb-3">
+      <label class="label-C">Clinic Sale Price ($)</label>
+      <input
+        nz-input
+        type="number"
+        class="input-C mt-1"
+        placeholder="Enter sale price"
+        [(ngModel)]="clinicSalePrice"
+        step="0.01"
+      />
+    </div>
+
+    <div class="col-span-1">
+      <label class="label-C block mb-1">Recurring</label>
+      <div class="flex items-center gap-3">
+        <nz-switch [(ngModel)]="clinicIsRecurring"></nz-switch>
+        <span class="text-sm text-gray-600 dark:text-gray-300">
+          {{ clinicIsRecurring ? 'On' : 'Off' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #clinicSalePricingFooter>
+    <button nz-button (click)="closeClinicSalePriceModal()">Cancel</button>
+    <button
+      nz-button
+      nzType="primary"
+      [disabled]="saving"
+      [nzLoading]="saving"
+      (click)="submitEditClinicSalePrice()"
+    >
+      Save
+    </button>
+  </ng-template>
+</nz-modal>

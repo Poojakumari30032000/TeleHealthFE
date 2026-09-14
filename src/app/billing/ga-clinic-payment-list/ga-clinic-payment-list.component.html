@@ -1,0 +1,139 @@
+<div class="payment-workspace-shell">
+  <section class="payment-filter-shell">
+    <div class="payment-filter-toolbar">
+      <div class="payment-filter-toolbar-left">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="payment-filter-toggle"
+          (click)="showFilters = !showFilters"
+          [attr.aria-expanded]="showFilters"
+          type="button"
+        >
+          <i class="fa-solid fa-sliders"></i>
+          <span>Filters</span>
+          <span *ngIf="appliedFilters.length > 0" class="payment-filter-count-pill">
+            {{ appliedFilters.length }}
+          </span>
+          <i class="fa-solid fa-chevron-down payment-filter-chevron" [class.rotate-180]="showFilters"></i>
+        </button>
+
+        <span *ngIf="!showFilters && appliedFilters.length > 0" class="payment-filter-summary">
+          {{ appliedFilters.length }} active filters
+        </span>
+      </div>
+
+      <div class="payment-filter-toolbar-right">
+        <button
+          *ngIf="appliedFilters.length > 0"
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="payment-filter-clear"
+          (click)="clearFilters()"
+          type="button"
+        >
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="appliedFilters.length > 0 && !showFilters" class="payment-filter-chip-row">
+      @for (f of appliedFilters; track f.name) {
+        <button class="payment-filter-chip" type="button" (click)="removeFilter(f.name)">
+          <span>{{ f.name }}: {{ f.value }}</span>
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      }
+    </div>
+
+    <div *ngIf="showFilters" class="payment-filter-grid">
+      <div>
+        <label class="label-C-F payment-filter-label">Date Range:</label>
+        <nz-range-picker
+          class="w-full payment-filter-date"
+          [nzAllowClear]="true"
+          [ngModel]="dateRange"
+          (ngModelChange)="onDateRangeChange($event)"
+        ></nz-range-picker>
+      </div>
+
+      <div class="payment-filter-actions">
+        <button nz-button nzType="default" nzShape="round" class="payment-apply-btn" (click)="applyFilters()" type="button">
+
+          Apply Filters
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="payment-table-shell">
+    <nz-table
+      [nzData]="payments"
+      [nzFrontPagination]="false"
+      [nzTotal]="total"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzLoading]="loading"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[5, 10, 20, 50, 100]"
+      (nzQueryParams)="onQueryParamsChange($event)"
+      [nzScroll]="{ x: userRole === 'Global Admin' ? '1600px' : '1400px' }"
+      class="w-full payment-table"
+    >
+      <thead>
+      <tr>
+        <th nzWidth="120px">Payment #</th>
+        <th nzWidth="140px">Invoice #</th>
+        @if (userRole === 'Global Admin') {
+          <th nzWidth="230px">Facility</th>
+        }
+        <th nzWidth="140px">Amount</th>
+        <th nzWidth="140px">Method</th>
+        <th nzWidth="200px">Card</th>
+        <th nzWidth="140px">Status</th>
+        <th nzWidth="220px">Payment Date</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr *ngFor="let row of payments" class="payment-row">
+        <td class="font-medium">#{{ row?.paymentId || '--' }}</td>
+        <td>{{ row?.invoiceId || '--' }}</td>
+
+        @if (userRole === 'Global Admin') {
+          <td>{{ row?.facilityName || '--' }}</td>
+        }
+
+        <td>
+          {{ row?.paymentAmount != null ? (row.paymentAmount | currency:'USD':'symbol':'1.0-2') : '--' }}
+        </td>
+
+        <td>{{ row?.paymentMethod || '--' }}</td>
+
+        <td>
+          <span *ngIf="row?.cardBrand || row?.cardLast4; else noCard">
+            {{ row?.cardBrand || 'Card' }} •••• {{ row?.cardLast4 || '----' }}
+          </span>
+          <ng-template #noCard>--</ng-template>
+        </td>
+
+        <td>
+          <span class="ui-status-badge" [ngClass]="getPaymentStatusTagClass(row?.paymentStatus)">
+            {{ row?.paymentStatus || '--' }}
+          </span>
+        </td>
+
+        <td>{{ row?.paymentDate ? (row.paymentDate | date:'MM/dd/yyyy, h:mm a') : '--' }}</td>
+      </tr>
+
+      <tr *ngIf="!loading && payments.length === 0">
+        <td [attr.colspan]="userRole === 'Global Admin' ? 8 : 7" class="text-center py-6 text-gray-500">
+          No records found.
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </section>
+</div>

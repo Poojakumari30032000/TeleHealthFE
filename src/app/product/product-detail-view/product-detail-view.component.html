@@ -1,0 +1,219 @@
+@if(!hasError){
+
+  <ng-container *ngIf="!isLoading; else loadingMain">
+    <form [formGroup]="drugForm">
+
+      <div class="grid grid-cols-1 md:max-lg:grid-cols-2 lg:grid-cols-4 gap-4 my-2 py-2">
+        <div class="col-span-full bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-xl">
+          <h4 class="font-semibold text-lg dark:text-gray-300">
+            <i class="fas fa-pills text-primary mr-2"></i>General :
+          </h4>
+        </div>
+
+        <div class="md:col-span-2 col-span-1">
+          <label class="label-C">Product Name: <span class="text-danger">*</span></label>
+          <input
+            appValidationErrors
+            class="input-C"
+            nz-input
+            placeholder="Enter Product Name"
+            formControlName="name"
+            (blur)="onBlurTrim($event, true)"
+            [disabled]="isDisabled"
+            [ngClass]="{'disabled': isDisabled}"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:max-lg:grid-cols-2 lg:grid-cols-4 gap-4 my-2 py-2">
+        <div class="col-span-full bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-xl">
+          <h4 class="font-semibold text-lg dark:text-gray-300">
+            <i class="fas fa-clipboard text-primary mr-2"></i>Dosage, Quantity & Weight :
+          </h4>
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Strength: <span class="text-danger">*</span></label>
+          <input
+            appValidationErrors
+            class="input-C"
+            nz-input
+            placeholder="e.g., 10 mg, 2 mg/mL"
+            formControlName="strenght"
+            (blur)="onBlurTrim($event, true)"
+            [disabled]="isDisabled"
+            [ngClass]="{'disabled': isDisabled}"
+          />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Dosage Form: <span class="text-danger">*</span></label>
+          <nz-select
+            appValidationErrors
+            class="w-full onForm-Select mt-1 custom-nz-select"
+            nzShowSearch
+            nzPlaceHolder="Select Dosage Form"
+            formControlName="dosageForm"
+            [nzDisabled]="isDisabled"
+            [ngClass]="{'disabled': isDisabled}">
+            <nz-option [nzValue]="''" [nzLabel]="'-- Select --'" [nzDisabled]="true"></nz-option>
+            <nz-option *ngFor="let opt of dosageFormOptions" [nzValue]="opt" [nzLabel]="opt"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="lg:col-span-2 md:max-lg:col-span-1 col-span-1">
+          <label class="label-C">Controlled Substance: <span class="text-danger">*</span></label>
+          <nz-radio-group class="mt-1 block" formControlName="controlSubstance" [nzDisabled]="isDisabled" [ngClass]="{'disabled': isDisabled}">
+            <label nz-radio [nzValue]="true" class="mr-4">Yes</label>
+            <label nz-radio [nzValue]="false">No</label>
+          </nz-radio-group>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:max-lg:grid-cols-2 lg:grid-cols-4 gap-4 my-2 py-2">
+        <div class="col-span-full bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-xl">
+          <h4 class="font-semibold text-lg dark:text-gray-300">
+            <i class="fas fa-notes-medical text-primary mr-2"></i>Frequency & Pricing :
+          </h4>
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Pharmacy Price $: <span class="text-danger">*</span></label>
+          <input
+            appValidationErrors
+            class="input-C"
+            nz-input
+            type="number"
+            placeholder="Enter Pharmacy Price $"
+            formControlName="price"
+            [disabled]="isDisabled"
+            [ngClass]="{'disabled': isDisabled}"
+          />
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Markup Type: <span class="text-danger">*</span></label>
+          <nz-select
+            class="w-full onForm-Select mt-1 custom-nz-select"
+            nzPlaceHolder="Select Markup Type"
+            formControlName="markupType"
+            [nzDisabled]="isDisabled"
+            [ngClass]="{'disabled': isDisabled}">
+            <nz-option *ngFor="let opt of markupTypeOptions" [nzValue]="opt" [nzLabel]="opt"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">
+            {{ drugForm.get('markupType')?.value === 'Amount' ? 'Markup Amount $:' : 'Markup (%):' }}
+            <span class="text-danger">*</span>
+          </label>
+          <input
+            appValidationErrors
+            class="input-C"
+            nz-input
+            type="number"
+            [placeholder]="drugForm.get('markupType')?.value === 'Amount' ? 'Enter Markup Amount $' : 'Enter Markup %'"
+            formControlName="markup"
+            [disabled]="isDisabled"
+            [ngClass]="{'disabled': isDisabled}"
+          />
+        </div>
+
+        <div class="md:col-span-2 col-span-1">
+          <label class="label-C">Wholesale / Compare Price $:</label>
+          <input
+            appValidationErrors
+            class="input-C"
+            nz-input
+            type="number"
+            placeholder="Auto-calculated"
+            formControlName="comparePrice"
+            [disabled]="true"
+          />
+          <p class="text-xs dark:text-gray-400 mt-1">
+            <ng-container *ngIf="drugForm.get('markupType')?.value === 'Amount'; else detailPercentageFormula">
+              Calculated as <em>Pharmacy Price + Markup Amount</em>.
+            </ng-container>
+            <ng-template #detailPercentageFormula>
+              Calculated as <em>Pharmacy Price × (1 + Markup/100)</em>.
+            </ng-template>
+          </p>
+        </div>
+
+        <div class="md:col-span-2 col-span-1">
+          <label class="label-C">Suggested Retail Price $:</label>
+          <input
+            appValidationErrors
+            class="input-C"
+            nz-input
+            type="number"
+            placeholder="Enter retail price"
+            formControlName="suggestedRetail"
+            [disabled]="isDisabled"
+            [ngClass]="{'disabled': isDisabled}"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:max-lg:grid-cols-2 lg:grid-cols-4 gap-4 my-2 py-2">
+        <div class="col-span-full bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-xl">
+          <h4 class="font-semibold text-lg dark:text-gray-300">
+            <i class="fas fa-notes-medical text-primary mr-2"></i>Packing :
+          </h4>
+        </div>
+
+        <div class="col-span-1">
+          <label class="label-C">Package Size: <span class="text-danger">*</span></label>
+          <input
+            appValidationErrors
+            class="input-C"
+            nz-input
+            placeholder="e.g., 30 count, 5 mL"
+            formControlName="packageSize"
+            (blur)="onBlurTrim($event, true)"
+            [disabled]="isDisabled"
+            [ngClass]="{'disabled': isDisabled}"
+          />
+        </div>
+      </div>
+
+      <div class="mt-2 pt-4 pb-2 sticky bottom-0 h-[60px] backdrop-blur-xl rounded border-t dark:border-gray-700"
+           *appHasAnyPermission="['product_edit']">
+        <button class="main-btn mb-0" (click)="saveDrug()" [disabled]="isSaving" [class.opacity-70]="isSaving">
+          <i class="fa-regular fa-floppy-disk mr-2"></i>{{ isSaving ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+
+} @else {
+
+  <div class="flex flex-col items-center justify-center text-center text-red-500 dark:text-red-400"
+       style="height: calc(100dvh - 10rem);">
+    <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+    <p class="text-lg font-medium">An error occurred while loading the drug data.</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Please try again later or contact support.</p>
+
+    <div class="flex flex-col sm:flex-row gap-4">
+      <button class="main-btn w-full sm:w-auto" (click)="getDrugDetails()">
+        <i class="fa-solid fa-rotate-right mr-2"></i>
+        Reload
+      </button>
+      <button class="main-btn w-full sm:w-auto" (click)="moveBack()">
+        <i class="fa-solid fa-arrow-left mr-2"></i>
+        Go Back
+      </button>
+    </div>
+  </div>
+
+}
+
+<ng-template #loadingMain>
+  <div class="flex items-center justify-center min-h-[88vh] border-t dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl">
+    <div class="text-center">
+      <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Product data...</p>
+    </div>
+  </div>
+</ng-template>

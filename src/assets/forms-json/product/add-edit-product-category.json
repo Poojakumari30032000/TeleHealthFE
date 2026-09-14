@@ -1,0 +1,41 @@
+{
+    "title": "Product Category",
+    "primaryId": "categoryId",
+    "rows": [
+        {
+            "class": "grid grid-cols-1 gap-2 mb-2",
+            "fields": [
+                {
+                    "type": "text",
+                    "label": "Category Name",
+                    "name": "categoryName",
+                    "placeholder": "Enter Name",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "textarea",
+                    "label": "Category Description",
+                    "name": "categoryDescription",
+                    "placeholder": "Enter Description",
+                    "class": "col-span-1",
+                    "validations": {
+                        "required": true
+                    }
+                },
+                {
+                    "type": "file-drag",
+                    "label": "Upload Category Image",
+                    "name": "imageURL",
+                    "placeholder": "",
+                    "class": "col-span-1",
+                    "validations": {
+                      "required": false
+                    }
+                }
+            ]
+        }
+    ]
+}

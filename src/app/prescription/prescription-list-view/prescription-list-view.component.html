@@ -1,0 +1,165 @@
+<div class="prescription-workspace-shell">
+  <section class="prescription-filter-shell">
+    <div class="prescription-filter-toolbar">
+      <div class="prescription-filter-toolbar-left">
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="prescription-filter-toggle"
+          (click)="showFilters = !showFilters"
+          [attr.aria-expanded]="showFilters"
+          type="button"
+        >
+          <i class="fa-solid fa-sliders"></i>
+          <span>Filters</span>
+          <span *ngIf="visibleFiltersCount > 0" class="prescription-filter-count-pill">
+            {{ visibleFiltersCount }}
+          </span>
+          <i
+            class="fa-solid fa-chevron-down prescription-filter-chevron"
+            [class.rotate-180]="showFilters"
+          ></i>
+        </button>
+
+        <span
+          *ngIf="!showFilters && visibleFiltersCount > 0"
+          class="prescription-filter-summary"
+        >
+          {{ visibleFiltersCount }} active filters
+        </span>
+      </div>
+
+      <button
+        *ngIf="visibleFiltersCount > 0"
+        nz-button
+        nzType="default"
+        nzShape="round"
+        class="prescription-filter-clear"
+        (click)="clearFilters()"
+        type="button"
+      >
+        Reset
+      </button>
+    </div>
+
+    <div *ngIf="visibleFiltersCount > 0 && !showFilters" class="prescription-filter-chip-row">
+      @for (filter of appliedFilters; track trackByFilterName($index, filter)) {
+        <button
+          *ngIf="!shouldHideAppliedFilter(filter.name)"
+          class="prescription-filter-chip"
+          type="button"
+          (click)="removeFilter(filter.name)"
+        >
+          <span>{{ getFilterDisplayName(filter.name) }}: {{ getFilterDisplayValue(filter) }}</span>
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      }
+    </div>
+
+    <div *ngIf="showFilters" class="prescription-filter-grid">
+      <div *ngIf="userRole === 'Provider' || userRole === 'Global Admin'">
+        <label class="label-C-F prescription-filter-label">Clinic:</label>
+        <nz-select
+          class="w-full prescription-filter-select"
+          nzPlaceHolder="Select Clinic"
+          nzShowSearch
+          [nzShowArrow]="true"
+          [(ngModel)]="selectedFacility"
+          [nzLoading]="facilitiesLoading"
+          [nzDisabled]="facilitiesLoading"
+          (ngModelChange)="applyFilter(true)"
+        >
+          <nz-option nzValue="" nzLabel="All"></nz-option>
+          <nz-option
+            *ngFor="let option of facilities"
+            [nzValue]="option.facilityId"
+            [nzLabel]="option.titlelong"
+          ></nz-option>
+        </nz-select>
+      </div>
+
+      <div>
+        <label class="label-C-F prescription-filter-label">Title:</label>
+        <input
+          nz-input
+          placeholder="Search by patient name"
+          title="Search by patient name"
+          id="search"
+          class="input-C prescription-filter-input"
+          [(ngModel)]="searchQuery"
+          (input)="searchTermChanged()"
+        />
+      </div>
+
+    </div>
+  </section>
+
+  <section class="prescription-table-shell">
+    <nz-table
+      [nzData]="prescriptions"
+      [nzLoading]="loading"
+      [nzFrontPagination]="false"
+      [nzTotal]="total"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50, 100]"
+      (nzQueryParams)="onQueryParamsChange($event)"
+      [nzScroll]="{ x: '1600px' }"
+      class="w-full prescription-table"
+    >
+      <thead>
+      <tr>
+        <th nzWidth="140px">Actions</th>
+        <th nzWidth="260px">Patient Name</th>
+        <th nzWidth="160px">Prescription #</th>
+        <th nzWidth="150px">Date</th>
+        <th nzWidth="170px">Order Status</th>
+        <th nzWidth="170px">Expiration Date</th>
+
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr
+        *ngFor="let row of prescriptions; trackBy: trackByPrescriptionId"
+        class="prescription-row-clickable"
+        role="button"
+        tabindex="0"
+        (click)="navigateToDetail(row)"
+        (keydown.enter)="navigateToDetail(row)"
+        (keydown.space)="navigateToDetail(row); $event.preventDefault()"
+      >
+        <td>
+          <div class="flex items-center gap-2">
+            <button
+              nz-button
+              nzType="default"
+              nzShape="circle"
+              class="action-icon-btn"
+              (click)="$event.stopPropagation(); navigateToDetail(row)"
+              title="View"
+            >
+              <i class="fa fa-eye"></i>
+            </button>
+
+          </div>
+        </td>
+        <td>{{ row.patientName || '--' }}</td>
+        <td>{{ row.patientPrescriptionId || '--' }}</td>
+        <td>{{ row.date ? (row.date | date: 'MM/dd/yyyy') : '--' }}</td>
+
+                <td>
+                  <span class="ui-status-badge" [ngClass]="getStatusBadgeClass(row.orderStatus)">
+                    {{ row.orderStatus || '--' }}
+                  </span>
+                </td>
+
+        <td>{{ row.expirationDate ? (row.expirationDate | date: 'MM/dd/yyyy') : '--' }}</td>
+
+      </tr>
+      </tbody>
+    </nz-table>
+  </section>
+</div>

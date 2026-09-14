@@ -1,0 +1,134 @@
+{
+  "title": "Drug Pricing Form",
+  "primaryId": "drugId",
+  "rows": [
+    {
+      "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Product Name",
+          "name": "name",
+          "placeholder": "Enter Product Name",
+          "class": "col-span-1",
+          "validations": { "required": true }
+        },
+        {
+          "type": "text",
+          "label": "Strength",
+          "name": "strenght",
+          "placeholder": "e.g., 10 mg, 2 mg/mL",
+          "class": "col-span-1",
+          "validations": { "required": true }
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2",
+      "fields": [
+   {
+  "type": "select",
+  "label": "Dosage Form",
+  "name": "dosageForm",
+  "placeholder": "Select Dosage Form",
+  "class": "col-span-1",
+  "defaultValue": "",                       
+  "validations": {
+    "required": true,
+    "requiredMessage": "Dosage Form is required"
+  },
+  "options": [
+    { "label": "injection vial", "value": "injection vial" },
+    { "label": "Oral Tablet", "value": "Oral Tablet" },
+    { "label": "Injection Pens", "value": "Injection Pens" },
+    { "label": "Capsule", "value": "Capsule" },
+    { "label": "Shampoo and Conditioner", "value": "Shampoo and Conditioner" },
+    { "label": "Cream", "value": "Cream" },
+    { "label": "slow release capsule", "value": "slow release capsule" },
+    { "label": "Nasal Spray", "value": "Nasal Spray" },
+    { "label": "Topical", "value": "Topical" },
+    { "label": "Hair Solution", "value": "Hair Solution" },
+    { "label": "Hair Foam", "value": "Hair Foam" },
+    { "label": "Hair Serum", "value": "Hair Serum" },
+    { "label": "Scalp Solution", "value": "Scalp Solution" },
+    { "label": "Ointment", "value": "Ointment" },
+    { "label": "Foam", "value": "Foam" },
+    { "label": "Serum", "value": "Serum" },
+    { "label": "Injectibles", "value": "Injectibles" },
+    { "label": "ODT", "value": "ODT" },
+    { "label": "Troche", "value": "Troche" },
+    { "label": "Lab Test", "value": "Lab Test" },
+    { "label": "wipes", "value": "wipes" },
+    { "label": "syringes", "value": "syringes" },
+    { "label": "needles", "value": "needles" },
+    { "label": "container", "value": "container" },
+    { "label": "barrel", "value": "barrel" },
+    { "label": "adapter", "value": "adapter" }
+  ]
+}
+,
+        {
+          "type": "text",
+          "label": "Package Size",
+          "name": "packageSize",
+          "placeholder": "e.g., 30 count, 5 mL",
+          "class": "col-span-1",
+          "validations": { "required": true }
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "radio",
+          "label": "Controlled Substance",
+          "name": "controlSubstance",
+          "class": "col-span-1",
+          "validations": { "required": true },
+          "options": [
+            { "label": "Yes", "value": true },
+            { "label": "No", "value": false }
+          ]
+        },
+        {
+          "type": "number",
+          "label": "Wholesale Price ($)",
+          "name": "price",
+          "placeholder": "e.g., 24.99",
+          "class": "col-span-1",
+          "validations": { "required": true, "min": 0 },
+          "step": 0.01
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "number",
+          "label": "Markup (%)",
+          "name": "markup",
+          "placeholder": "e.g., 25",
+          "class": "col-span-1",
+          "validations": { "required": true, "min": 0, "max": 100 },
+          "step": 0.01
+        },
+        {
+          "type": "number",
+          "label": "Suggested Retail Price ($)",
+          "name": "comparePrice",
+          "placeholder": "Auto-calculated",
+          "class": "col-span-1",
+          "disabled": true,
+          "additionalText": "Calculated as Wholesale Price × (1 + Markup/100)",
+          "compute": {
+            "dependsOn": ["wholesalePrice", "markup"],
+            "expression": "wholesalePrice * (1 + markup/100)",
+            "precision": 2
+          }
+        }
+      ]
+    }
+  ]
+}

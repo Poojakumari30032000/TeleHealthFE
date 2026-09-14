@@ -1,0 +1,102 @@
+<h4 class="font-semibold text-base dark:text-gray-300 px-2 mb-2">
+  <i class="fa-solid fa-address-card text-primary mr-2"></i>General Information:
+</h4>
+
+<div class="grid grid-cols-1 sm:max-lg:grid-cols-2 lg:grid-cols-4 gap-4 my-2 p-4 bg-gray-100 rounded-xl dark:bg-gray-800">
+
+  <div class="col-span-full mt-[-2rem]  flex justify-end items-center gap-2" *appHasAnyPermission="['subscription_plan_edit']">
+    <button (click)="AddEditSubscription()"
+      class="main-btn shadow-lg hover:bg-gray-900 hover:border-gray-950 dark:hover:bg-gray-700 dark:hover:border-primary flex items-center">
+      <i class="fa-solid fa-pen-to-square"></i>
+      <span class="ml-2 hidden md:inline-block">Edit</span>
+    </button>
+  </div>
+
+  <div class="md:col-span-2 col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Plan Name:</label>
+    <span class="label-C font-semibold mt-1">{{ subscriptionData?.planName || "--" }}</span>
+  </div>
+
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Monthly Price:</label>
+    <span class="label-C font-semibold mt-1">{{ subscriptionData?.monthlyPrice || "--" }}</span>
+  </div>
+
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Annual Price:</label>
+    <span class="label-C font-semibold mt-1">{{ subscriptionData?.annualPrice || "--" }}</span>
+  </div>
+
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Setup Fee:</label>
+    <span class="label-C font-semibold mt-1">{{ subscriptionData?.setupFee || "--" }}</span>
+  </div>
+
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Storage (GB):</label>
+    <span class="label-C font-semibold mt-1">{{ subscriptionData?.storage || "--" }}</span>
+  </div>
+
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Status:</label>
+    <span class="label-C font-semibold mt-1">{{ subscriptionData?.status || "--" }}</span>
+  </div>
+
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Billing Cycle:</label>
+    <span class="label-C font-semibold mt-1">{{ subscriptionData?.billingCycle || "--" }}</span>
+  </div>
+
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Contract Team:</label>
+    <span class="label-C font-semibold mt-1">{{ subscriptionData?.contractTeam || "--" }}</span>
+  </div>
+
+</div>
+
+<h4 class="font-semibold text-base dark:text-gray-300 px-2 mt-4 mb-2">
+  <i class="fa-solid fa-users-gear text-primary mr-2"></i>Usage Limits:
+</h4>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 my-2 bg-gray-100 rounded-xl dark:bg-gray-800 dark:border-gray-700">
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Users:</label>
+    <span class="label-C font-semibold mt-1">{{ subscriptionData?.maxUsers || "--" }}</span>
+  </div>
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Providers:</label>
+    <span class="label-C font-semibold mt-1">{{ subscriptionData?.maxProviders || "--" }}</span>
+  </div>
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Patients:</label>
+    <span class="label-C font-semibold mt-1">{{ subscriptionData?.maxPatients || "--" }}</span>
+  </div>
+</div>
+
+<h4 class="font-semibold text-base dark:text-gray-300 px-2 mt-4 mb-2">
+  <i class="fa-solid fa-headset text-primary mr-2"></i>Support & Training:
+</h4>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 my-2 bg-gray-100 rounded-xl dark:bg-gray-800 dark:border-gray-700">
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Support Level:</label>
+    <span class="label-C font-semibold mt-1">{{ subscriptionData?.supportLevel || "--" }}</span>
+  </div>
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Training Hours:</label>
+    <span class="label-C font-semibold mt-1">{{ subscriptionData?.trainingHours || "--" }}</span>
+  </div>
+</div>
+
+<h4 class="font-semibold text-base dark:text-gray-300 px-2 mt-4 mb-2">
+  <i class="fa-solid fa-clock text-primary mr-2"></i>Record Details:
+</h4>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 my-2 bg-gray-100 rounded-xl dark:bg-gray-800 dark:border-gray-700">
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Created At:</label>
+    <span class="label-C font-semibold mt-1">--</span>
+  </div>
+  <div class="col-span-1">
+    <label class="text-gray-500 dark:text-gray-400 text-sm">Updated At:</label>
+    <span class="label-C font-semibold mt-1">--</span>
+  </div>
+</div>
+<app-comman-form-modal #commanModel [apiUrl]="modalApiUrl" (formClosed)="refreshDataAfterModal()"></app-comman-form-modal>

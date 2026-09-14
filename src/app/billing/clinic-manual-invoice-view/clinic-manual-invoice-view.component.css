@@ -1,0 +1,11 @@
+@import '../clinic-patient-invoice-detail/clinic-patient-invoice-detail.component.css';
+
+:host ::ng-deep .manual-invoice-products-table .ant-table-content > table {
+  min-width: 1030px;
+}
+
+:host ::ng-deep .manual-invoice-products-table .ant-table-thead > tr > th:nth-child(1),
+:host ::ng-deep .manual-invoice-products-table .ant-table-tbody > tr > td:nth-child(1) {
+  width: 620px !important;
+  min-width: 620px !important;
+}

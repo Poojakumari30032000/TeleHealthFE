@@ -1,0 +1,461 @@
+<ng-container *ngIf="!isLoading; else loadingMain">
+  <div class="sn-workspace-shell">
+    <section class="sn-summary-hero">
+      <div class="sn-summary-identity">
+        <div class="sn-avatar">
+
+          SN
+        </div>
+        <div class="sn-summary-copy">
+          <div class="sn-summary-kicker">Treatment Documentation</div>
+          <div class="sn-summary-name">SOAP Notes</div>
+          <div class="sn-summary-meta">
+            <span>Treatment #{{ patientTreatmentId || '--' }}</span>
+            <span>{{ soapNote?.signedBy || soapNote?.createdByName || '--' }}</span>
+            <span class="sn-summary-meta--status">{{ soapNote?.status || 'Draft' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sn-kpi-grid">
+        <div class="sn-kpi-card">
+          <div class="sn-kpi-label">Signed At</div>
+          <div class="sn-kpi-value">{{ soapNote?.signedAt ? (soapNote?.signedAt | date:'MMM d, y, h:mm:ss a') : '--' }}</div>
+        </div>
+        <div class="sn-kpi-card">
+          <div class="sn-kpi-label">Created</div>
+          <div class="sn-kpi-value">{{ soapNote?.createdDate ? (soapNote?.createdDate | date:'MMM d, y, h:mm:ss a') : '--' }}</div>
+        </div>
+        <div class="sn-kpi-card">
+          <div class="sn-kpi-label">Modified</div>
+          <div class="sn-kpi-value">{{ soapNote?.modifiedDate ? (soapNote?.modifiedDate | date:'MMM d, y, h:mm:ss a') : '--' }}</div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="sn-action-row">
+      <button
+        *ngIf="!embeddedInTabs"
+        nz-button
+        nzType="default"
+        nzShape="round"
+        class="sn-cta-btn"
+        (click)="goBack()"
+      >
+        <i class="fa-solid fa-arrow-left"></i>
+        <span class="ml-2 hidden md:inline-block">Back</span>
+      </button>
+
+      @if (userRole == 'Global Admin'){
+      <button
+        nz-button
+        nzType="default"
+        nzShape="round"
+        class="sn-cta-btn"
+        (click)="printSoapNote()"
+        [disabled]="isLoading || !hasPrintableContent"
+      >
+        <i class="fa-solid fa-print"></i>
+        <span class="ml-2 hidden md:inline-block">Print SOAP Note</span>
+      </button>
+      }
+    </section>
+
+    <form [formGroup]="form" class="sn-form-stack">
+      <article class="sn-info-panel">
+        <div class="sn-info-head">
+          <div class="sn-info-copy">
+            <h4 class="sn-panel-title">
+              <i class="fa-solid fa-syringe mr-2 text-primary"></i>Allergies
+            </h4>
+            <p class="sn-panel-subtitle">Medication sensitivity and intake context for this SOAP note.</p>
+          </div>
+
+          <button
+            *ngIf="canEdit"
+            type="button"
+            nz-button
+            nzType="default"
+            nzShape="round"
+            class="sn-cta-btn"
+            (click)="addAllergy()"
+          >
+            <i class="fa-solid fa-plus"></i>
+            <span class="ml-2 hidden md:inline-block">Add Allergy</span>
+          </button>
+        </div>
+
+        <ng-container *ngIf="canEdit; else allergiesViewOnly">
+          <div formArrayName="allergies" class="sn-allergy-list">
+            <div
+              class="sn-allergy-item"
+              *ngFor="let al of allergies.controls; let i = index; trackBy: trackByAllergyControl"
+              [formGroupName]="i"
+            >
+              <div class="sn-item-head">
+                <h5 class="sn-item-title">
+                  <span class="sn-item-badge">A{{ i + 1 }}</span>
+                  Allergy #{{ i + 1 }}
+                </h5>
+                <button
+                  *ngIf="allergies.length > 1"
+                  type="button"
+                  nz-button
+                  nzType="default"
+                  nzShape="round"
+                  class="sn-danger-btn"
+                  (click)="removeAllergyByControl(al)"
+                  [disabled]="allergies.length === 1"
+                >
+                  Remove
+                </button>
+              </div>
+
+              <div class="sn-field-grid" [class.sn-mobile-stack]="isPhoneView">
+                <div class="sn-field-card sn-field-card--long sn-col-4">
+                  <label class="label-C">Details of allergies to medications, foods or other substances:</label>
+                  <textarea nz-input class="input-C mt-1 sn-field-control" formControlName="details" rows="2" placeholder="e.g., NKDA" [attr.maxlength]="maxLen.allergyLong"></textarea>
+                </div>
+
+                <div class="sn-field-card sn-field-card--long sn-col-4">
+                  <label class="label-C">Current medications:</label>
+                  <textarea nz-input class="input-C mt-1 sn-field-control" formControlName="currentMedications" rows="2" [attr.maxlength]="maxLen.allergyLong"></textarea>
+                </div>
+
+                <div class="sn-field-card sn-field-card--long sn-col-4">
+                  <label class="label-C">Reason(s) for taking medication:</label>
+                  <textarea nz-input class="input-C mt-1 sn-field-control" formControlName="reasons" rows="2" [attr.maxlength]="maxLen.allergyLong"></textarea>
+                </div>
+
+                <div class="sn-field-card sn-field-card--short sn-col-4">
+                  <label class="label-C">Dosage with units:</label>
+                  <input nz-input class="input-C mt-1 sn-field-control" formControlName="dosageWithUnits" placeholder="e.g., 10 mg, 2 mg/mL" [attr.maxlength]="maxLen.dosageWithUnits" />
+                </div>
+
+                <div class="sn-field-card sn-field-card--short sn-col-4">
+                  <label class="label-C">Additional frequency detail:</label>
+                  <input nz-input class="input-C mt-1 sn-field-control" formControlName="additionalFrequencyDetail" placeholder="e.g., with meals" [attr.maxlength]="maxLen.additionalFrequencyDetail" />
+                </div>
+
+                <div class="sn-field-card sn-field-card--short sn-col-4">
+                  <label class="label-C">Frequency:</label>
+                  <input nz-input class="input-C mt-1 sn-field-control" formControlName="frequency" placeholder="e.g., BID, TID" [attr.maxlength]="maxLen.frequency" />
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #allergiesViewOnly>
+          <div class="sn-allergy-list">
+            <div
+              class="sn-allergy-item"
+              *ngFor="let al of readonlyAllergies; let i = index; trackBy: trackByIndex"
+            >
+              <div class="sn-item-head">
+                <h5 class="sn-item-title">
+                  <span class="sn-item-badge">A{{ i + 1 }}</span>
+                  Allergy #{{ i + 1 }}
+                </h5>
+              </div>
+
+              <div class="sn-detail-grid sn-detail-grid--allergy" [class.sn-mobile-stack]="isPhoneView">
+                <div class="sn-detail-item sn-detail-card sn-col-4">
+                  <label>Details of allergies to medications, foods or other substances:</label>
+                  <div class="sn-detail-value sn-detail-value--multiline">{{ viewValue(al?.details) }}</div>
+                </div>
+
+                <div class="sn-detail-item sn-detail-card sn-col-4">
+                  <label>Current medications:</label>
+                  <div class="sn-detail-value sn-detail-value--multiline">{{ viewValue(al?.currentMedications) }}</div>
+                </div>
+
+                <div class="sn-detail-item sn-detail-card sn-col-4">
+                  <label>Reason(s) for taking medication:</label>
+                  <div class="sn-detail-value sn-detail-value--multiline">{{ viewValue(al?.reasons) }}</div>
+                </div>
+
+                <div class="sn-detail-item sn-detail-card sn-col-4">
+                  <label>Dosage with units:</label>
+                  <div class="sn-detail-value">{{ viewValue(al?.dosageWithUnits) }}</div>
+                </div>
+
+                <div class="sn-detail-item sn-detail-card sn-col-4">
+                  <label>Additional frequency detail:</label>
+                  <div class="sn-detail-value">{{ viewValue(al?.additionalFrequencyDetail) }}</div>
+                </div>
+
+                <div class="sn-detail-item sn-detail-card sn-col-4">
+                  <label>Frequency:</label>
+                  <div class="sn-detail-value">{{ viewValue(al?.frequency) }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </article>
+
+      <article class="sn-info-panel">
+        <div class="sn-info-head">
+          <div class="sn-info-copy">
+            <h4 class="sn-panel-title">
+              <i class="fa-solid fa-notes-medical mr-2 text-primary"></i>SOAP
+            </h4>
+            <p class="sn-panel-subtitle">Structured clinical narrative across subjective, objective, assessment, and plan.</p>
+          </div>
+        </div>
+
+        <ng-container *ngIf="canEdit; else soapViewOnly">
+          <div class="sn-soap-grid" [class.sn-mobile-stack]="isPhoneView">
+            <div class="sn-soap-card sn-col-6">
+              <label class="label-C">Subjective:</label>
+              <textarea
+                nz-input
+                class="input-C mt-1 sn-field-control"
+                rows="6"
+                formControlName="subjective"
+                placeholder="Enter subjective notes"
+                [attr.maxlength]="maxLen.soapSection"
+                [ngClass]="{ 'border-red-500 focus:border-red-500': isFieldInvalid('subjective') }"
+              ></textarea>
+            </div>
+
+            <div class="sn-soap-card sn-col-6">
+              <label class="label-C">Objective:</label>
+              <textarea
+                nz-input
+                class="input-C mt-1 sn-field-control"
+                rows="6"
+                formControlName="objective"
+                placeholder="Enter objective notes"
+                [attr.maxlength]="maxLen.soapSection"
+                [ngClass]="{ 'border-red-500 focus:border-red-500': isFieldInvalid('objective') }"
+              ></textarea>
+            </div>
+
+            <div class="sn-soap-card sn-col-6">
+              <label class="label-C">Assessment:</label>
+              <textarea
+                nz-input
+                class="input-C mt-1 sn-field-control"
+                rows="6"
+                formControlName="assessment"
+                placeholder="Enter assessment"
+                [attr.maxlength]="maxLen.soapSection"
+                [ngClass]="{ 'border-red-500 focus:border-red-500': isFieldInvalid('assessment') }"
+              ></textarea>
+            </div>
+
+            <div class="sn-soap-card sn-col-6">
+              <label class="label-C">Plan:</label>
+              <textarea
+                nz-input
+                class="input-C mt-1 sn-field-control"
+                rows="6"
+                formControlName="plan"
+                placeholder="Enter plan"
+                [attr.maxlength]="maxLen.soapSection"
+                [ngClass]="{ 'border-red-500 focus:border-red-500': isFieldInvalid('plan') }"
+              ></textarea>
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #soapViewOnly>
+          <div class="sn-detail-grid sn-detail-grid--soap" [class.sn-mobile-stack]="isPhoneView">
+            <div class="sn-detail-item sn-detail-card sn-detail-card--soap sn-col-6">
+              <label>Subjective</label>
+              <div class="sn-detail-value sn-detail-value--multiline">{{ viewValue(form.get('subjective')?.value) }}</div>
+            </div>
+
+            <div class="sn-detail-item sn-detail-card sn-detail-card--soap sn-col-6">
+              <label>Objective</label>
+              <div class="sn-detail-value sn-detail-value--multiline">{{ viewValue(form.get('objective')?.value) }}</div>
+            </div>
+
+            <div class="sn-detail-item sn-detail-card sn-detail-card--soap sn-col-6">
+              <label>Assessment</label>
+              <div class="sn-detail-value sn-detail-value--multiline">{{ viewValue(form.get('assessment')?.value) }}</div>
+            </div>
+
+            <div class="sn-detail-item sn-detail-card sn-detail-card--soap sn-col-6">
+              <label>Plan</label>
+              <div class="sn-detail-value sn-detail-value--multiline">{{ viewValue(form.get('plan')?.value) }}</div>
+            </div>
+          </div>
+        </ng-template>
+      </article>
+
+      <article class="sn-info-panel">
+        <div class="sn-info-head">
+          <div class="sn-info-copy">
+            <h4 class="sn-panel-title">
+              <i class="fa-solid fa-pen-nib mr-2 text-primary"></i>e-Signature
+            </h4>
+            <p class="sn-panel-subtitle">Provider sign-off and signature audit details for this record.</p>
+          </div>
+        </div>
+
+        <div class="sn-signature-shell" [ngClass]="{ 'border-red-500': canEdit && !uploadedSignatureUrl }">
+          <ng-container *ngIf="!canEdit">
+            <ng-container *ngIf="uploadedSignatureUrl; else noSigViewOnly">
+              <div class="sn-detail-grid sn-detail-grid--signature mb-3" [class.sn-mobile-stack]="isPhoneView">
+                <div class="sn-detail-item sn-detail-card">
+                  <label>Signed By</label>
+                  <div class="sn-detail-value">{{ soapNote?.signedBy || soapNote?.createdByName || '—' }}</div>
+                </div>
+                <div class="sn-detail-item sn-detail-card">
+                  <label>Signed At</label>
+                  <div class="sn-detail-value">{{ soapNote?.signedAt ? (soapNote?.signedAt | date:'MMM d, y, h:mm:ss a') : '—' }}</div>
+                </div>
+
+              </div>
+              <div class="sn-signature-preview mb-2">
+                <div class="sn-signature-preview-frame">
+                  <img [src]="uploadedSignatureUrl" alt="Signature" class="sn-signature-image" />
+                </div>
+              </div>
+            </ng-container>
+            <ng-template #noSigViewOnly>
+              <div class="sn-detail-grid sn-detail-grid--signature" [class.sn-mobile-stack]="isPhoneView">
+                <div class="sn-detail-item sn-detail-card">
+                  <label>Signature</label>
+                  <div class="sn-detail-value">No signature on file.</div>
+                </div>
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <ng-container *ngIf="canEdit">
+            <ng-container *ngIf="uploadedSignatureUrl && !reSigning; else signatureCanvas">
+              <div class="sn-detail-grid sn-detail-grid--signature mb-3" [class.sn-mobile-stack]="isPhoneView">
+                <div class="sn-detail-item sn-detail-card">
+                  <label>Signed By</label>
+                  <div class="sn-detail-value">{{ soapNote?.signedBy || soapNote?.createdByName || '—' }}</div>
+                </div>
+                <div class="sn-detail-item sn-detail-card">
+                  <label>Signed At</label>
+                  <div class="sn-detail-value">{{ soapNote?.signedAt ? (soapNote?.signedAt | date:'MMM d, y, h:mm:ss a') : '—' }}</div>
+                </div>
+
+              </div>
+              <div class="sn-signature-preview mb-2">
+                <div class="sn-signature-preview-frame">
+                  <img [src]="uploadedSignatureUrl" alt="Signature" class="sn-signature-image" />
+                </div>
+              </div>
+              <p class="sn-signature-note mb-3">
+                A saved provider signature is already attached to this SOAP note. Replace it only if the record needs to be re-signed.
+              </p>
+
+              <div class="sn-inline-actions">
+                <button
+                  type="button"
+                  nz-button
+                  nzType="default"
+                  nzShape="round"
+                  class="sn-cta-btn"
+                  (click)="startResign()"
+                >
+                  <i class="fa-solid fa-rotate"></i>
+                  <span class="ml-2 hidden md:inline-block">Replace Signature</span>
+                </button>
+
+                <button
+                  type="button"
+                  nz-button
+                  nzType="default"
+                  nzShape="round"
+                  class="sn-danger-btn"
+                  (click)="removeSignature()"
+                >
+                  Remove & Re-sign
+                </button>
+              </div>
+            </ng-container>
+
+            <ng-template #signatureCanvas>
+              <p class="sn-signature-note sn-signature-note--compact">
+                Draw the provider signature below, then save it before submitting the SOAP note.
+              </p>
+              <div class="sn-signature-canvas-shell">
+                <canvas
+                  #sigCanvas
+                  class="block w-full"
+                  (mousedown)="startSigDraw($event)"
+                  (mousemove)="sigDraw($event)"
+                  (mouseup)="endSigDraw()"
+                  (mouseleave)="endSigDraw()"
+                  (touchstart)="startSigDraw($event)"
+                  (touchmove)="sigDraw($event)"
+                  (touchend)="endSigDraw()"
+                ></canvas>
+              </div>
+
+              <div class="sn-inline-actions mt-3">
+                <button
+                  type="button"
+                  nz-button
+                  nzType="default"
+                  nzShape="round"
+                  class="sn-cta-btn"
+                  (click)="saveSignature()"
+                  [disabled]="signatureUploading"
+                  [class.opacity-70]="signatureUploading"
+                >
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                  <span class="ml-2 hidden md:inline-block">{{ signatureUploading ? 'Saving...' : 'Save Signature' }}</span>
+                </button>
+
+                <button type="button" nz-button nzType="default" nzShape="round" class="sn-danger-btn" (click)="clearSignature()">
+                  Clear
+                </button>
+
+                <button
+                  *ngIf="uploadedSignatureUrl && reSigning"
+                  type="button"
+                  nz-button
+                  nzType="default"
+                  nzShape="round"
+                  class="sn-cta-btn"
+                  (click)="cancelResign()"
+                >
+                  Cancel
+                </button>
+              </div>
+
+              <p class="sn-signature-tip mt-2 mb-0">
+                Draw your signature above, then click <em>Save Signature</em>. (If you forget, it will be saved automatically when you click <em>Save SOAP Note</em>.)
+              </p>
+            </ng-template>
+          </ng-container>
+        </div>
+      </article>
+
+      <div *ngIf="canEdit" class="sn-save-bar">
+        <button
+          type="button"
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="sn-cta-btn"
+          (click)="save()"
+          [disabled]="isSaving || signatureUploading || form.invalid || !uploadedSignatureUrl"
+          [class.opacity-70]="isSaving || signatureUploading || form.invalid || !uploadedSignatureUrl"
+        >
+          <i class="fa-regular fa-floppy-disk"></i>
+          <span class="ml-2 hidden md:inline-block">{{ (isSaving || signatureUploading) ? 'Saving...' : 'Save SOAP Note' }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-container>
+
+<ng-template #loadingMain>
+  <div class="flex items-center justify-center min-h-[88vh] border-t dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl">
+    <div class="text-center">
+      <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading SOAP notes...</p>
+    </div>
+  </div>
+</ng-template>

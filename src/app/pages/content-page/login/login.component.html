@@ -1,0 +1,111 @@
+<div class="login-page" [class.ui-animate]="uiAnimate">
+
+  <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-2" aria-hidden="true"></div>
+
+  <div class="login-shell">
+
+    <section class="brand-panel">
+      <div class="brand-glow" aria-hidden="true"></div>
+      <div class="brand-wave" aria-hidden="true"></div>
+
+      <div class="brand-top">
+        <img
+          src="assets/img/impact-health-logo-dark.png"
+          alt="Impact Health USA"
+          class="brand-logo"
+          draggable="false"
+        />
+      </div>
+
+      <div class="brand-copy">
+        <h1 class="brand-title">Empowering Care, Elevating Outcomes.</h1>
+        <p class="brand-subtitle">Secure access for patients, providers, and clinics.</p>
+      </div>
+    </section>
+
+    <section class="form-panel">
+      <div class="form-card bg-white dark:bg-gray-800">
+        <div class="form-header">
+          <h2 class="form-title text-gray-900 dark:text-white">Welcome back</h2>
+          <p class="form-subtitle text-gray-500 dark:text-gray-300">Please enter your details</p>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="submitForm()" class="form-body">
+          <div class="anim-item">
+            <label for="email" class="block mb-2 text-sm text-gray-700 dark:text-gray-200">
+              Email
+            </label>
+            <input
+              appValidationErrors
+              nz-input
+              formControlName="email"
+              type="email"
+              name="email"
+              id="email"
+              placeholder="example@example.com"
+              class="input-C"
+              autocomplete="email"
+            />
+          </div>
+
+          <div class="mt-5 anim-item">
+            <label for="password" class="block mb-2 text-sm text-gray-700 dark:text-gray-200">
+              Password
+            </label>
+
+            <div class="relative">
+              <input
+                appValidationErrors
+                nz-input
+                [type]="passwordVisible ? 'text' : 'password'"
+                formControlName="password"
+                id="password"
+                placeholder="Enter your password"
+                name="password"
+                class="input-C pr-10"
+                autocomplete="current-password"
+              />
+
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="passwordVisible ? 'Hide password' : 'Show password'"
+              >
+                <i class="fas" [ngClass]="passwordVisible ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4 form-row anim-item">
+            <label nz-checkbox formControlName="rememberMe" class="remember">
+              Remember Me
+            </label>
+
+            <a routerLink="/forget-password" class="forgot text-blue-600 hover:underline dark:text-blue-400">
+              Forgot password?
+            </a>
+          </div>
+
+          <div class="mt-6 anim-item">
+            <button
+              nz-button
+              nzType="primary"
+              class="w-full h-10 tracking-wide transition-colors duration-300 transform rounded-lg"
+              [nzLoading]="isLoading"
+              [disabled]="isLoading"
+            >
+              <i class="fas fa-sign-in-alt" *ngIf="!isLoading"></i>
+              <span class="ml-2">{{ btnText }}</span>
+            </button>
+          </div>
+        </form>
+
+        <div class="form-footer text-center text-xs text-gray-400 dark:text-gray-400 anim-item">
+          By signing in you agree to the platform’s terms and privacy policy.
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

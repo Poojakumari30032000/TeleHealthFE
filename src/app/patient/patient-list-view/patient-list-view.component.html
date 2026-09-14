@@ -1,0 +1,685 @@
+<nz-tabset
+  nzType="editable-card"
+  class="patient-tabs mt-1"
+  [nzHideAdd]="true"
+  [nzSelectedIndex]="selectedTabIndex"
+  (nzSelectedIndexChange)="onTabIndexChange($event)"
+  (nzClose)="onTabClose($event)"
+>
+  <nz-tab nzTitle="Patient List" [nzClosable]="false">
+    <div class="patient-workspace-shell">
+      <section class="patient-filter-shell">
+        <div class="patient-filter-toolbar">
+          <div class="patient-filter-toolbar-left">
+            <button
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="patient-filter-toggle"
+              (click)="this.showFilters = !this.showFilters;"
+              [attr.aria-expanded]="showFilters"
+              type="button"
+            >
+              <i class="fa-solid fa-sliders"></i>
+              <span>Filters</span>
+              <span *ngIf="visibleFiltersCount > 0" class="patient-filter-count-pill">
+                {{ visibleFiltersCount }}
+              </span>
+              <i
+                class="fa-solid fa-chevron-down patient-filter-chevron"
+                [class.rotate-180]="showFilters"
+              ></i>
+            </button>
+
+            <span
+              *ngIf="!showFilters && visibleFiltersCount > 0"
+              class="patient-filter-summary"
+            >
+              {{ visibleFiltersCount }} active filters
+            </span>
+          </div>
+
+          <div class="patient-filter-toolbar-right">
+            <button
+              *ngIf="userRole === 'Global Admin' || userRole === 'Clinic Admin'"
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="patient-filter-toggle"
+              type="button"
+              (click)="openAddPatientModal()"
+            >
+              <i class="fa-solid fa-plus"></i>
+              <span>Add Patient</span>
+            </button>
+
+            <button
+              *ngIf="userRole === 'Global Admin' || userRole === 'Clinic Admin'"
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="patient-filter-toggle patient-bulk-import-btn"
+              type="button"
+              (click)="openBulkImportModal()"
+            >
+              <i class="fa-solid fa-file-arrow-up"></i>
+              <span>Bulk Import</span>
+            </button>
+
+            <button
+              *ngIf="visibleFiltersCount > 0"
+              nz-button
+              nzType="default"
+              nzShape="round"
+              class="patient-filter-clear"
+              type="button"
+              (click)="clearFilters()"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <div
+          *ngIf="visibleFiltersCount > 0 && !showFilters"
+          class="patient-filter-chip-row"
+        >
+          @for (filter of appliedFilters; track trackByFilterName($index, filter)) {
+            <button
+              *ngIf="!shouldHideAppliedFilter(filter.name)"
+              class="patient-filter-chip"
+              type="button"
+              (click)="removeFilter(filter.name)"
+            >
+              <span>{{ getFilterDisplayName(filter.name) }}: {{ getFilterDisplayValue(filter) }}</span>
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          }
+        </div>
+
+        <div
+          *ngIf="showFilters"
+          class="patient-filter-grid"
+        >
+          <div *ngIf="userRole === 'Provider' || userRole === 'Global Admin'">
+            <label class="label-C-F">Clinic:</label>
+            <nz-select
+              class="w-full patient-filter-select"
+              nzPlaceHolder="Select Clinic"
+              nzShowSearch
+              [nzShowArrow]="true"
+              [(ngModel)]="selectedFacility"
+              [nzLoading]="facilitiesLoading"
+              [nzDisabled]="facilitiesLoading"
+              (ngModelChange)="applyFilter(true)"
+            >
+              <nz-option nzValue="0" nzLabel="All"></nz-option>
+              <nz-option
+                *ngFor="let option of facilities"
+                [nzValue]="option.facilityId"
+                [nzLabel]="option.titlelong"
+              ></nz-option>
+            </nz-select>
+          </div>
+
+          <div>
+            <label class="label-C-F">Title:</label>
+            <input
+              nz-input
+              placeholder="Search by name, email, phone number, MRN#"
+              title="Search by name, email, phone number, MRN#"
+              id="search"
+              class="input-C patient-filter-input"
+              [(ngModel)]="searchQuery"
+              (input)="searchTermChanged()"
+            />
+          </div>
+
+          <div>
+            <label class="label-C-F">Date:</label>
+            <nz-range-picker
+              nzFormat="MM/dd/yyyy"
+              class="datepicker-C w-full patient-filter-date"
+              [(ngModel)]="selectedDateRange"
+              (ngModelChange)="applyFilter(true)"
+            ></nz-range-picker>
+          </div>
+
+          <div>
+            <label class="label-C-F">Status:</label>
+            <nz-select
+              class="w-full patient-filter-select"
+              nzPlaceHolder="Select Patient Status"
+              nzShowSearch
+              nzAllowClear
+              [nzShowArrow]="true"
+              [(ngModel)]="selectedStatus"
+              (ngModelChange)="applyFilter(true)"
+            >
+              <nz-option
+                *ngFor="let option of patientStatusOptions"
+                [nzValue]="option"
+                [nzLabel]="option"
+              ></nz-option>
+            </nz-select>
+          </div>
+
+          <div *ngIf="userRole === 'Global Admin'">
+            <label class="label-C-F">Refill Status:</label>
+            <nz-select
+              class="w-full patient-filter-select"
+              nzPlaceHolder="Select Refill Status"
+              nzShowSearch
+              nzAllowClear
+              [nzShowArrow]="true"
+              [(ngModel)]="selectedRefillStatus"
+              (ngModelChange)="applyFilter(true)"
+            >
+              <nz-option
+                *ngFor="let option of refillStatusOptions"
+                [nzValue]="option"
+                [nzLabel]="option"
+              ></nz-option>
+            </nz-select>
+          </div>
+        </div>
+      </section>
+
+      <section class="patient-table-shell">
+        <nz-table
+          [nzData]="patients"
+          [nzLoading]="loading"
+          [nzFrontPagination]="false"
+          [nzTotal]="total"
+          [nzPageIndex]="pageIndex"
+          [nzPageSize]="pageSize"
+          [nzShowSizeChanger]="true"
+          [nzPageSizeOptions]="[10, 20, 50, 100]"
+          (nzQueryParams)="onQueryParamsChange($event)"
+          [nzScroll]="{ x: '1900px' }"
+          class="w-full patient-table"
+        >
+          <thead>
+          <tr>
+            <th nzWidth="140px">Actions</th>
+            <th nzWidth="180px">Registration Date</th>
+            <th nzWidth="300px">Name</th>
+            <th nzWidth="140px">MRN #</th>
+            <th nzWidth="320px">Email</th>
+            <th nzWidth="180px">Phone number</th>
+            <th nzWidth="140px">Refill Status</th>
+            <th nzWidth="120px">Treatment(s)</th>
+            <th nzWidth="140px">Prescription(s)</th>
+            <th nzWidth="110px">Order(s)</th>
+
+            <th *ngIf="userRole === 'Provider' || userRole === 'Global Admin'" nzWidth="260px">
+              Clinic
+            </th>
+
+            <th nzWidth="160px">Status</th>
+          </tr>
+          </thead>
+
+          <tbody>
+          <tr
+            *ngFor="let row of patients"
+            class="patient-row-clickable"
+            role="button"
+            tabindex="0"
+            (click)="openPatientDetailTab(row)"
+            (keydown.enter)="openPatientDetailTab(row)"
+            (keydown.space)="openPatientDetailTab(row); $event.preventDefault()"
+          >
+            <td>
+              <div class="flex items-center gap-2">
+                <button
+                  nz-button
+                  nzType="default"
+                  nzShape="circle"
+                  (click)="$event.stopPropagation(); navigateToViewPatient(row)"
+                  title="View"
+                >
+                  <i class="fa fa-eye"></i>
+                </button>
+
+                <button
+                  *ngIf="userRole === 'Global Admin'"
+                  nz-button
+                  nzType="default"
+                  nzShape="circle"
+                  (click)="$event.stopPropagation(); AddEditPatient(row)"
+                  title="Edit"
+                >
+                  <i class="fa-regular fa-pen-to-square"></i>
+                </button>
+              </div>
+            </td>
+            <td>{{ row.startDate | date: 'MM/dd/yyyy' }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.mrn }}</td>
+            <td>{{ row.email }}</td>
+            <td>{{ row.phone }}</td>
+
+            <td>
+              <span
+                class="ui-status-badge"
+                [ngClass]="getStatusBadgeClass(row.refillStatus)"
+              >
+                {{ row.refillStatus || '-' }}
+              </span>
+            </td>
+
+            <td>{{ row.treatmentCount ?? '-' }}</td>
+            <td>{{ row.prescriptionCount ?? '-' }}</td>
+            <td>{{ row.orderCount }}</td>
+
+            <td *ngIf="userRole === 'Provider' || userRole === 'Global Admin'">
+              {{ row.facilityName || row.clinicName || '-' }}
+            </td>
+
+            <td>
+              <span
+                class="ui-status-badge"
+                [ngClass]="getStatusBadgeClass(row.status)"
+              >
+                {{ row.status || '-' }}
+              </span>
+            </td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </section>
+    </div>
+  </nz-tab>
+
+  <nz-tab
+    *ngFor="let tab of detailTabs; trackBy: trackByTabKey"
+    [nzTitle]="tab.title"
+    [nzClosable]="true"
+  >
+    <ng-container [ngSwitch]="tab.type">
+      <app-patient-detail-view
+        *ngSwitchCase="'patient'"
+        [patientIdInput]="tab.patientId || null"
+        [embeddedInTabs]="true"
+        [openInPatientTabs]="onEmbeddedTabNavigate"
+        (backToList)="activatePatientListTab()"
+      ></app-patient-detail-view>
+
+      <ng-container *ngSwitchCase="'treatment'">
+        <ng-container
+          *ngComponentOutlet="
+            getTabComponent(tab);
+            ngModule: getTabComponentModule(tab);
+            inputs: getTabComponentInputs(tab)
+          "
+        ></ng-container>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'invoice'">
+        <ng-container
+          *ngComponentOutlet="
+            getTabComponent(tab);
+            ngModule: getTabComponentModule(tab);
+            inputs: getTabComponentInputs(tab)
+          "
+        ></ng-container>
+      </ng-container>
+    </ng-container>
+  </nz-tab>
+</nz-tabset>
+
+<app-comman-form-modal
+  #commanModel
+  [apiUrl]="this.modalApiUrl"
+  (formClosed)="refreshAfterModal()"
+></app-comman-form-modal>
+
+<nz-modal
+  *ngIf="addPatientModalVisible"
+  [(nzVisible)]="addPatientModalVisible"
+  nzTitle="Add Patient"
+  (nzOnCancel)="closeAddPatientModal()"
+  (nzOnOk)="onAddPatientSubmit()"
+  [nzOkLoading]="isSubmittingManualPatient"
+  [nzOkDisabled]="addPatientForm.invalid || isSubmittingManualPatient"
+  [nzMaskClosable]="false"
+  nzWidth="560px"
+>
+  <ng-container *nzModalContent>
+    <form [formGroup]="addPatientForm" class="grid grid-cols-1 gap-3">
+      <div>
+        <label class="label-C">First Name <span class="text-danger">*</span></label>
+        <input
+          nz-input
+          formControlName="firstName"
+          placeholder="Enter First Name"
+          class="input-C mt-1"
+          (blur)="trimAddPatientControl('firstName')"
+        />
+      </div>
+
+      <div>
+        <label class="label-C">Last Name <span class="text-danger">*</span></label>
+        <input
+          nz-input
+          formControlName="lastName"
+          placeholder="Enter Last Name"
+          class="input-C mt-1"
+          (blur)="trimAddPatientControl('lastName')"
+        />
+      </div>
+
+      <div>
+        <label class="label-C">Email <span class="text-danger">*</span></label>
+        <input
+          nz-input
+          type="email"
+          formControlName="email"
+          placeholder="Enter Email"
+          class="input-C mt-1"
+          (blur)="trimAddPatientControl('email'); onBlurEmailCheck()"
+        />
+        <div
+          class="text-danger text-sm mt-1"
+          *ngIf="
+            addPatientForm.get('email')?.touched &&
+            addPatientForm.get('email')?.value &&
+            (addPatientForm.get('email')?.hasError('email') ||
+              addPatientForm.get('email')?.hasError('pattern'))
+          "
+        >
+          Please enter a valid email address.
+        </div>
+        <div class="text-sm mt-1 text-slate-500" *ngIf="emailDuplicateCheck">
+          Checking email…
+        </div>
+        <div
+          class="text-danger text-sm mt-1"
+          *ngIf="addPatientForm.get('email')?.hasError('duplicate')"
+        >
+          Email already exists. Please use a different email.
+        </div>
+      </div>
+
+      <div>
+        <label class="label-C">Phone <span class="text-danger">*</span></label>
+        <div class="add-patient-phone-shell">
+          <span class="add-patient-phone-prefix">+1</span>
+          <input
+            nz-input
+            type="tel"
+            formControlName="phone"
+            placeholder="(###) ###-####"
+            class="input-C add-patient-phone-input"
+            (input)="onAddPatientPhoneInput($event)"
+            (paste)="onAddPatientPhonePaste($event)"
+            maxlength="14"
+          />
+        </div>
+      </div>
+
+      <div *ngIf="userRole === 'Global Admin'">
+        <label class="label-C">Select Clinic <span class="text-danger">*</span></label>
+        <nz-select
+          class="w-full onForm-Select mt-1"
+          nzPlaceHolder="Select Clinic"
+          nzShowSearch
+          [nzLoading]="facilitiesLoading"
+          [nzDisabled]="facilitiesLoading"
+          formControlName="facilityId"
+        >
+          <nz-option
+            *ngFor="let option of facilities"
+            [nzValue]="option.facilityId"
+            [nzLabel]="option.titlelong"
+          ></nz-option>
+        </nz-select>
+      </div>
+    </form>
+  </ng-container>
+</nz-modal>
+
+<nz-modal
+  *ngIf="bulkImportVisible"
+  [(nzVisible)]="bulkImportVisible"
+  nzTitle="Bulk Import Patients"
+  [nzFooter]="null"
+  nzWidth="880px"
+  [nzMaskClosable]="!bulkImportSubmitting && !bulkImportParsing"
+  [nzClosable]="!bulkImportSubmitting && !bulkImportParsing"
+  (nzOnCancel)="closeBulkImportModal()"
+>
+  <ng-container *nzModalContent>
+    <div class="bulk-import-modal-body">
+
+      <div class="pbi-steps">
+        <span class="pbi-step"
+          [class.pbi-step--active]="bulkImportStep === 'upload'"
+          [class.pbi-step--done]="bulkImportStep !== 'upload'">1 · Upload</span>
+        <span class="pbi-step-sep"></span>
+        <span class="pbi-step"
+          [class.pbi-step--active]="bulkImportStep === 'preview'"
+          [class.pbi-step--done]="bulkImportStep === 'result'">2 · Preview</span>
+        <span class="pbi-step-sep"></span>
+        <span class="pbi-step"
+          [class.pbi-step--active]="bulkImportStep === 'result'">3 · Result</span>
+      </div>
+
+      <ng-container *ngIf="bulkImportStep === 'upload'">
+        <p class="bulk-import-hint">
+          Download the template, fill in
+          <strong>FirstName</strong>, <strong>LastName</strong>, <strong>Email</strong> and
+          <strong>MobilePhone</strong> (10-digit), then upload the .xlsx. You'll review every row
+          before anything is imported.
+        </p>
+
+        <div class="bulk-import-toolbar">
+          <button nz-button nzType="default" type="button" (click)="downloadBulkTemplate()">
+            <i class="fa-solid fa-download"></i><span class="ml-2">Download template</span>
+          </button>
+        </div>
+
+        <div *ngIf="userRole === 'Global Admin'" class="pbi-facility-field">
+          <label class="label-C">Import into clinic <span class="text-danger">*</span></label>
+          <nz-select
+            class="w-full onForm-Select mt-1"
+            nzPlaceHolder="Select Clinic"
+            nzShowSearch
+            [nzLoading]="facilitiesLoading"
+            [nzDisabled]="facilitiesLoading"
+            [(ngModel)]="bulkImportFacilityId"
+          >
+            <nz-option
+              *ngFor="let option of facilities"
+              [nzValue]="option.facilityId"
+              [nzLabel]="option.titlelong"
+            ></nz-option>
+          </nz-select>
+          <div class="pbi-hint-muted">Every patient in the file will be added to this clinic.</div>
+        </div>
+
+        <div
+          class="bulk-import-dropzone"
+          [class.bulk-import-dropzone-active]="bulkImportDragOver"
+          (dragover)="onBulkDragOver($event)"
+          (dragleave)="onBulkDragLeave($event)"
+          (drop)="onBulkDrop($event)"
+          (click)="bulkFileInput.click()"
+          role="button"
+          tabindex="0"
+          (keydown.enter)="bulkFileInput.click()"
+        >
+          <input
+            #bulkFileInput
+            type="file"
+            accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            class="bulk-import-file-input-hide"
+            (change)="onBulkFileInputChange($event)"
+          />
+          <div class="bulk-import-dropzone-inner">
+            <i class="fa-solid fa-cloud-arrow-up bulk-import-dropzone-icon"></i>
+            <div>
+              <span class="font-medium">Drop your filled template here</span>
+              <span class="text-gray-500"> or click to browse</span>
+            </div>
+            <div *ngIf="bulkImportFile" class="bulk-import-file-name">
+              <i class="fa-regular fa-file-excel mr-1"></i>{{ bulkImportFile.name }}
+            </div>
+          </div>
+        </div>
+
+        <div class="bulk-import-actions">
+          <button nz-button nzType="default" type="button" (click)="closeBulkImportModal()">
+            Cancel
+          </button>
+          <button
+            nz-button
+            nzType="primary"
+            type="button"
+            [disabled]="!canStartBulkParse"
+            [nzLoading]="bulkImportParsing"
+            (click)="parseAndPreview()"
+          >
+            Preview rows
+          </button>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="bulkImportStep === 'preview'">
+        <div class="pbi-summary">
+          <span class="pbi-pill pbi-pill--valid">{{ bulkValidCount }} ready</span>
+          <span class="pbi-pill pbi-pill--invalid" *ngIf="bulkInvalidCount > 0">
+            {{ bulkInvalidCount }} invalid
+          </span>
+          <span class="pbi-pill pbi-pill--duplicate" *ngIf="bulkDuplicateCount > 0">
+            {{ bulkDuplicateCount }} already registered
+          </span>
+          <span class="pbi-summary-note pbi-checking" *ngIf="bulkDupCheckPending" role="status" aria-live="polite">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> Checking existing accounts…
+          </span>
+          <span class="pbi-summary-note" *ngIf="!bulkDupCheckPending">Only “ready” rows will be imported.</span>
+        </div>
+
+        <nz-table
+          #previewTable
+          [nzData]="bulkParsedRows"
+          [nzShowPagination]="bulkParsedRows.length > 10"
+          [nzPageSize]="10"
+          nzSize="small"
+          class="pbi-table"
+        >
+          <thead>
+            <tr>
+              <th nzWidth="56px">Row</th>
+              <th>First</th>
+              <th>Last</th>
+              <th>Email</th>
+              <th nzWidth="140px">Phone</th>
+              <th nzWidth="200px">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of previewTable.data; trackBy: trackByBulkRow">
+              <td>{{ row.rowNumber }}</td>
+              <td>{{ row.firstName || '—' }}</td>
+              <td>{{ row.lastName || '—' }}</td>
+              <td>{{ row.email || '—' }}</td>
+              <td>{{ row.phoneDisplay || '—' }}</td>
+              <td>
+                <span class="pbi-pill" [ngClass]="'pbi-pill--' + row.status">
+                  {{ bulkRowStatusLabel(row) }}
+                </span>
+                <div class="pbi-row-errors" *ngIf="row.errors.length">
+                  {{ row.errors.join(', ') }}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+
+        <div class="bulk-import-actions">
+          <button
+            nz-button
+            nzType="default"
+            type="button"
+            [disabled]="bulkImportSubmitting || bulkDupCheckPending"
+            (click)="goBackToBulkUpload()"
+          >
+            Back
+          </button>
+          <button
+            nz-button
+            nzType="primary"
+            type="button"
+            [disabled]="!canConfirmBulkImport"
+            [nzLoading]="bulkImportSubmitting || bulkDupCheckPending"
+            [attr.aria-busy]="bulkDupCheckPending"
+            [attr.aria-label]="bulkDupCheckPending ? 'Checking for existing accounts, please wait' : 'Import ' + bulkValidCount + ' patient(s)'"
+            (click)="runBulkImport()"
+          >
+            {{ bulkDupCheckPending ? 'Checking…' : 'Import ' + bulkValidCount + ' patient(s)' }}
+          </button>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="bulkImportStep === 'result'">
+        <div
+          class="bulk-import-success-panel"
+          *ngIf="(bulkImportResult?.patientsCreated ?? 0) > 0"
+        >
+          <div class="bulk-import-success-title">
+            <i class="fa-solid fa-circle-check mr-2"></i>
+            {{ bulkImportResult?.patientsCreated }} patient(s) created
+          </div>
+          <div class="bulk-import-success-msg">
+            Each new patient received a welcome email with sign-in details.
+          </div>
+        </div>
+
+        <div
+          class="bulk-import-error-panel"
+          *ngIf="(bulkImportResult?.patientsSkipped?.length ?? 0) > 0"
+        >
+          <div class="bulk-import-error-title">
+            {{ bulkImportResult?.patientsSkipped?.length }} row(s) skipped
+          </div>
+          <nz-table
+            [nzData]="bulkImportResult?.patientsSkipped || []"
+            [nzShowPagination]="false"
+            nzSize="small"
+            class="pbi-table mt-2"
+          >
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of bulkImportResult?.patientsSkipped; trackBy: trackByBulkSkip">
+                <td>{{ s.email || '—' }}</td>
+                <td>{{ s.firstName }} {{ s.lastName }}</td>
+                <td>{{ s.message }}</td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+
+        <div
+          class="bulk-import-empty-note"
+          *ngIf="(bulkImportResult?.patientsCreated ?? 0) === 0 && (bulkImportResult?.patientsSkipped?.length ?? 0) === 0"
+        >
+          No patients were imported.
+        </div>
+
+        <div class="bulk-import-actions">
+          <button nz-button nzType="primary" type="button" (click)="closeBulkImportModal()">
+            Done
+          </button>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+</nz-modal>

@@ -1,0 +1,124 @@
+<nz-sider
+  nzCollapsible
+  [nzCollapsed]="sidebarCollapsed"
+  [class.sidebar-dark-theme]="isDarkTheme"
+  class="sidebar brand-secondary-gradient overflow-auto h-full fixed left-0 w-[270px] min-w-[270px] max-w-[270px] z-[1000] top-0 shadow-lg lg:shadow-none rounded-tr-xl rounded-br-xl"
+  [nzTrigger]="null"
+>
+  <div class="logo p-4 m-4 rounded-xl flex items-center justify-center">
+    <div class="w-full h-20 bg-logo bg-contain bg-no-repeat bg-center"></div>
+  </div>
+  <div class="flex flex-col h-[calc(100%-9rem)]">
+    <div class="flex-1 overflow-y-auto">
+      <ul
+        nz-menu
+        nzTheme="light"
+        nzMode="inline"
+        class="bg-transparent px-4 border-0 text-white"
+      >
+        <ng-container *ngIf="menuItems.length > 0">
+          <ng-container *ngFor="let menu of menuItems">
+            <ng-container *ngIf="!menu.children; else hasChildren">
+              <li
+                nz-menu-item
+                [nzDisabled]="menu.disabled"
+                [routerLink]="!menu.disabled ? menu.route : null"
+                routerLinkActive="ant-menu-item-selected"
+                [routerLinkActiveOptions]="{ exact: true }"
+                [nzSelected]="isActive(menu.route)"
+                [class.ant-menu-item-selected]="isActive(menu.route)"
+                [class.sidebar-msg-has-badge]="showMessageBadge(menu)"
+              >
+                <i class="{{ menu.icon }} mr-2" *ngIf="menu.icon"></i>
+                <span>{{ menu.title }}</span>
+                <span
+                  *ngIf="showMessageBadge(menu)"
+                  class="sidebar-msg-badge"
+                >
+                  {{ getMessageBadgeCount() }}
+                </span>
+              </li>
+            </ng-container>
+
+            <ng-template #hasChildren>
+              <li
+                nz-submenu
+                [nzOpen]="menu.open || hasActiveChild(menu)"
+                [nzDisabled]="menu.disabled"
+              >
+                <span title class="w-full">
+                  <i class="{{ menu.icon }} mr-2" *ngIf="menu.icon"></i>
+                  <span>{{ menu.title }}</span>
+                </span>
+                <ul>
+                  <ng-container *ngFor="let childMenu of menu.children">
+                    <ng-container *ngIf="!childMenu.children; else hasGrandChildren">
+                      <li
+                        nz-menu-item
+                        [nzDisabled]="childMenu.disabled"
+                        [routerLink]="childMenu.route"
+                        routerLinkActive="ant-menu-item-selected"
+                        [routerLinkActiveOptions]="{ exact: true }"
+                        [nzSelected]="isActive(childMenu.route)"
+                        [class.ant-menu-item-selected]="isActive(menu.route)"
+                        [class.sidebar-msg-has-badge]="showMessageBadge(childMenu)"
+                      >
+                        <i class="{{ childMenu.icon || 'fa-solid fa-arrow-right' }} mr-2"></i>
+                        <span>{{ childMenu.title }}</span>
+                        <span
+                          *ngIf="showMessageBadge(childMenu)"
+                          class="sidebar-msg-badge"
+                        >
+                          {{ getMessageBadgeCount() }}
+                        </span>
+                      </li>
+                    </ng-container>
+
+                    <ng-template #hasGrandChildren>
+                      <li
+                        nz-submenu
+                        [nzOpen]="childMenu.open || hasActiveChild(childMenu)"
+                        [nzDisabled]="childMenu.disabled"
+                      >
+                        <span title class="w-full">
+                          <i class="{{ childMenu.icon }} mr-2"></i>
+                          <span>{{ childMenu.title }}</span>
+                        </span>
+                        <ul>
+                          <ng-container *ngFor="let item of childMenu.children">
+                            <li
+                              nz-menu-item
+                              [nzDisabled]="item.disabled"
+                              [routerLink]="item.route"
+                              routerLinkActive="ant-menu-item-selected"
+                              [routerLinkActiveOptions]="{ exact: true }"
+                              [nzSelected]="isActive(item.route)"
+                            >
+                              <i class="{{ item.icon || 'fa-solid fa-arrow-right' }} mr-2"></i>
+                              <span>{{ item.title }}</span>
+                            </li>
+                          </ng-container>
+                        </ul>
+                      </li>
+                    </ng-template>
+                  </ng-container>
+                </ul>
+              </li>
+            </ng-template>
+          </ng-container>
+        </ng-container>
+      </ul>
+    </div>
+    <div class="p-4">
+      <button
+        nz-button
+        [ngStyle]="isDarkTheme ? darkLogoutButtonStyles : null"
+        class="sidebar-logout-btn w-full dark:!bg-gray-900 dark:!border-gray-600 dark:!text-gray-200 dark:hover:!bg-gray-800 dark:hover:!border-gray-500"
+        (click)="confirmLogout($event)"
+      >
+        <i class="fa-solid fa-sign-out-alt mr-2"></i>
+        <span>Log Out</span>
+      </button>
+    </div>
+  </div>
+</nz-sider>

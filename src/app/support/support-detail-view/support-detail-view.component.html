@@ -1,0 +1,137 @@
+@if(!isLoading){
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+        <div class="col-span-1">
+            <label class="label-C">Title<span class="text-danger">*</span></label>
+            <input nz-input type="text" class="input-C" [(ngModel)]="subject" placeholder="Enter title" />
+        </div>
+        <div class="col-span-1">
+            <label class="label-C">Ticket Status<span class="text-danger">*</span></label>
+            <nz-select [nzBackdrop]="true" nzShowSearch [(ngModel)]="ticketStatus" nzPlaceHolder="Select Ticket Status" class="w-full mt-1">
+                <nz-option nzLabel="Pending" nzValue="Pending"></nz-option>
+                <nz-option nzLabel="Completed" nzValue="Completed" *ngIf="ticketId"></nz-option>
+                <nz-option nzLabel="On Hold" nzValue="OnHold"></nz-option>
+                <nz-option nzLabel="Feedback" nzValue="Feedback"></nz-option>
+                <nz-option nzLabel="Urgent" nzValue="Urgent"></nz-option>
+            </nz-select>
+        </div>
+        <div class="col-span-full">
+            <label class="label-C">Description<span class="text-danger">*</span></label>
+            <quill-editor #desc [modules]="modules" [(ngModel)]="description" class="w-full mb-4 mt-1" placeholder="Add more detailed description..."></quill-editor>
+        </div>
+        <div class="col-span-full flex flex-col">
+            <label class="label-C">Attachments:</label>
+            <nz-upload
+                class="mt-1"
+                nzType="drag"
+                [nzShowUploadList]="false"
+                [nzMultiple]="true"
+                [nzAction]="uploadAction"
+                [nzHeaders]="{ authorization: 'Bearer' + token }"
+                (nzChange)="handleChange($event)"
+                [nzBeforeUpload]="beforeUpload"
+            >
+                <div class="py-4">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <div class="block">Click or drag file to this area to upload</div>
+                </div>
+            </nz-upload>
+
+            <div class="mt-4">
+                <ng-container *ngFor="let item of uploadTicketFile; let i = index">
+                    <div class="flex items-center p-2 my-2 bg-gray-50 rounded cursor-pointer hover:bg-gray-100 dark:bg-gray-700 hover:dark:bg-gray-800"
+                        (click)="openFile(item)">
+                        <div class="flex items-center w-full">
+                            <ng-container [ngSwitch]="getFileType(item)">
+
+                                <ng-container *ngSwitchCase="'image'">
+                                    <img [src]="item?.ticketFileURL" class="max-h-12 rounded mr-2" />
+                                    <div>
+                                    <span class="font-medium">{{ item?.ticketFileName }}</span>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        {{ item?.createdDate }}
+                                    </p>
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'video'">
+                                    <i class="fa fa-video-camera mr-2 text-3xl text-blue-500"></i>
+                                    <span class="font-medium">{{ item?.ticketFileName }}</span>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'pdf'">
+                                    <i class="fa fa-file-pdf-o mr-2 text-3xl text-red-500"></i>
+                                    <span class="font-medium">{{ item?.ticketFileName }}</span>
+                                </ng-container>
+
+                                <ng-container *ngSwitchDefault>
+                                    <i class="fa fa-file mr-2 text-3xl text-gray-500"></i>
+                                    <span class="font-medium">{{ item?.ticketFileName }}</span>
+                                </ng-container>
+                            </ng-container>
+                        </div>
+                        <button class="ml-auto px-2 py-1 text-sm text-red-600 hover:bg-red-50 border border-red-200 rounded" (click)="deleteItem(i)">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+        <div class="col-span-full">
+            <label class="label-C">Activity:</label>
+            <div class="flex pt-1 pb-2">
+                <div class="flex-shrink-0 mr-3">
+                    <img [src]="userData?.photoURL || 'assets/img/no_image_placeholder.png'"
+                        class="w-8 h-8 rounded-full object-cover"/>
+                </div>
+                <div class="flex-grow">
+                    <h6 class="text-sm font-semibold mb-1 dark:text-gray-200">
+                        {{ userData?.firstName + ' ' + userData?.lastName }}
+                    </h6>
+                    <quill-editor #commentEditor [modules]="modules" [(ngModel)]="commentData"  placeholder="Write a comment..." class="w-full" ></quill-editor>
+                    <div class="my-2 space-x-2 text-right">
+                        <button class="px-3 py-1 text-sm text-white bg-blue-500 rounded hover:bg-blue-600" *ngIf="commentData.trim().length > 0" (click)="saveComment()">
+                            Save
+                        </button>
+                        <button class="px-3 py-1 text-sm text-gray-700 bg-gray-200 rounded hover:bg-gray-300" *ngIf="commentData.trim().length > 0" (click)="clearComment()">
+                            Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <ng-container *ngFor="let Item of commentsList; index as i">
+                    <div class="flex">
+                    <div class="flex-shrink-0 mr-3">
+                        <img [src]="Item.createdByImage || 'assets/img/no_image_placeholder.png'" class="w-8 h-8 rounded-full object-cover"/>
+                    </div>
+                    <div class="flex-grow">
+                        <h6 class="text-sm font-semibold mb-1 dark:text-gray-300">
+                        {{ Item.createdBy }}
+                        <span class="text-xs text-gray-500 ml-1 dark:text-gray-300">
+                            {{ Item.createdDate }}
+                        </span>
+                        </h6>
+                        <div class="p-2 mb-0 border rounded-xl bg-gray-100 dark:bg-gray-800 dark:border-gray-700" [innerHTML]="Item.comment"></div>
+                    </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+    <div class="mt-2 pt-4 pb-2 sticky bottom-0 h-[60px] backdrop-blur-xl rounded border-t dark:border-gray-700">
+        <button class="main-btn mb-0" (click)="handleOk()" [disabled]="isBtnLoading">
+            <i class="fa-regular fa-floppy-disk mr-2"></i>
+            {{ ticketId ? 'Update' : 'Submit' }}
+        </button>
+        <button class="mr-2 main-btn mb-0 bg-gray-200 text-gray-700 hover:bg-gray-300" (click)="moveBack()">
+            Cancel
+        </button>
+    </div>
+} @else{
+    <div class="flex items-center justify-center min-h-[88vh] border-t dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl">
+        <div class="text-center">
+            <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+            <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Support data...</p>
+        </div>
+    </div>
+}

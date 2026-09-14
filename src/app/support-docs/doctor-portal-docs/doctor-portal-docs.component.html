@@ -1,0 +1,3769 @@
+@if(userRole == 'Provider'){
+<div class="min-h-[calc(100vh-120px)] bg-gray-50 dark:bg-gray-900 py-6 px-2 lg:px-6">
+  <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <div class="lg:col-span-9">
+      <nz-card
+        class="rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+      >
+
+        <ng-container *nzCardTitle>
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div
+                class="h-10 w-10 flex items-center justify-center rounded-xl bg-primary/10 text-primary"
+              >
+                <i class="fas fa-user-md text-lg"></i>
+              </div>
+              <div>
+                <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  Doctor Portal User Manual
+                </h1>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  Medical Practice &amp; Telehealth Platform
+                </p>
+              </div>
+            </div>
+
+            <span
+              class="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-[11px] font-medium bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-200/80 dark:border-green-800"
+            >
+              <i class="fas fa-book-open mr-1"></i>
+              Support Documentation
+            </span>
+          </div>
+        </ng-container>
+
+        <nz-collapse [nzBordered]="false">
+
+          <nz-collapse-panel
+            [nzHeader]="header1"
+            [nzActive]="activeSectionId === 'section-1'"
+          >
+            <ng-template #header1>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                1. Introduction
+              </span>
+            </ng-template>
+
+            <div
+              id="section-1"
+              class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+            >
+              <p class="mb-3">
+                This user manual describes how doctors use the Doctor Portal within the medical practice and
+                telehealth platform. It explains the key features available to doctors, including scheduling,
+                patient management, treatments, prescriptions, orders, and secure messaging.
+              </p>
+              <p class="mb-3">
+                The portal is designed to give doctors a single place to manage their daily work across one or
+                more clinics, while remaining tightly integrated with the global administration team and third-
+                party pharmacy services.
+              </p>
+
+              <h3
+                class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+              >
+                1.1 Audience
+              </h3>
+              <p class="mb-3">
+                This document is intended for licensed doctors who have been granted access to the Doctor
+                Portal, and for internal teams who need to understand doctor-facing workflows (e.g., product,
+                QA, and support).
+              </p>
+
+              <h3
+                class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+              >
+                1.2 Role in the System
+              </h3>
+              <p class="mb-3">
+                In the overall system, the doctor works under the Global Admin for contractual and payment
+                purposes, and operationally with one or more clinics. Doctor availability is defined globally and
+                shared across all clinics, ensuring that a doctor can never be double-booked in two clinics at the
+                same time.
+              </p>
+              <p class="mb-3">
+                Doctors can view and manage their own schedules, patients, treatments, prescriptions, medicine
+                orders, and direct messages with patients and clinic staff. Clinics and patients cannot manually
+                create appointments; only doctors can create or adjust appointment bookings.
+              </p>
+            </div>
+          </nz-collapse-panel>
+
+          <nz-collapse-panel
+            [nzHeader]="header2"
+            [nzActive]="activeSectionId === 'section-2'"
+          >
+            <ng-template #header2>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                2. Accessing the Doctor Portal
+              </span>
+            </ng-template>
+
+            <div
+              id="section-2"
+              class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+            >
+              <p class="mb-3">
+                Each doctor receives their own login credentials to access the Doctor Portal. After signing in, the
+                system directs the doctor to the main dashboard, which provides an overview of active patients,
+                treatments, pending tasks, and key performance indicators.
+              </p>
+            </div>
+          </nz-collapse-panel>
+
+          <nz-collapse-panel
+            [nzHeader]="header3"
+            [nzActive]="activeSectionId === 'section-3'"
+          >
+            <ng-template #header3>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                3. Doctor Dashboard
+              </span>
+            </ng-template>
+
+            <div
+              id="section-3"
+              class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+            >
+              <p class="mb-3">
+                The dashboard is the doctor’s home screen. It provides a quick snapshot of workload and activity,
+                and shortcuts into detailed sections of the portal via the left-hand navigation menu.
+              </p>
+
+              <div class="mt-4 mb-4">
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/doctor-portal/figure1-dashboard.png"
+                  alt="Figure 1: Doctor Dashboard – overview cards, charts, and navigation menu."
+                />
+                <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                  Figure 1: Doctor Dashboard – overview cards, charts, and navigation menu.
+                </p>
+              </div>
+
+              <p class="mb-2">
+                Key elements of the dashboard include:
+              </p>
+              <ul class="list-disc ml-5 mb-3">
+                <li class="mb-1">
+                  Summary cards showing counts of Active Patients, Active Treatments, Pending Prescription Uploads,
+                  and Pending Appointments.
+                </li>
+                <li class="mb-1">
+                  Daily appointments table indicating the doctor’s upcoming schedule for the current day.
+                </li>
+                <li class="mb-1">
+                  Charts for total patients and treatment types over a selectable date range.
+                </li>
+                <li class="mb-1">
+                  A left-side navigation menu to access Scheduling (Calendar and Availability), My Patients,
+                  Treatments, Orders, Prescriptions, Messages, and other modules.
+                </li>
+              </ul>
+            </div>
+          </nz-collapse-panel>
+
+          <nz-collapse-panel
+            [nzHeader]="header4"
+            [nzActive]="activeSectionId === 'section-4'"
+          >
+            <ng-template #header4>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                4. Scheduling
+              </span>
+            </ng-template>
+
+            <div
+              id="section-4"
+              class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+            >
+              <p class="mb-3">
+                The Scheduling module allows doctors to manage their global availability and appointments across
+                one or more clinics. Availability is defined once and shared with all clinics. When a time slot is
+                booked in any clinic, it is automatically blocked for all others, ensuring the doctor is never
+                double-booked.
+              </p>
+
+              <h3
+                class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+              >
+                4.1 Calendar View
+              </h3>
+              <p class="mb-3">
+                The Calendar view displays all appointments for the doctor in a familiar calendar layout. Doctors
+                can review their schedule by day, week, or another available time range, and they can manually
+                create new appointments.
+              </p>
+
+              <div class="mt-4 mb-4">
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/doctor-portal/figure2-scheduling-calendar.png"
+                  alt="Figure 2: Scheduling – Calendar view with filters and Create Appointment action."
+                />
+                <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                  Figure 2: Scheduling – Calendar view with filters and Create Appointment action.
+                </p>
+              </div>
+
+              <p class="mb-2">
+                From the Calendar view, the doctor can:
+              </p>
+              <ul class="list-disc ml-5 mb-3">
+                <li class="mb-1">
+                  See appointments by time and date, with the current day visually highlighted.
+                </li>
+                <li class="mb-1">
+                  Switch between different views (e.g., week view) using the view selector.
+                </li>
+                <li class="mb-1">
+                  Filter appointments by clinic and other criteria using the Filters panel.
+                </li>
+                <li class="mb-1">
+                  Use the Create Appointment action to manually schedule new appointments with patients.
+                </li>
+              </ul>
+              <p class="mb-3">
+                Appointment statuses may include Pending, Confirmed, Completed, Cancelled, and No-show, helping
+                the doctor track the outcome of each booking.
+              </p>
+
+              <h3
+                class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+              >
+                4.2 Availability
+              </h3>
+              <p class="mb-3">
+                The Availability view lists all configured availability blocks for the doctor. Each availability
+                block defines a date or range, slot duration, and number of slots that can be booked within that
+                period.
+              </p>
+
+              <div class="mt-4 mb-4">
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/doctor-portal/figure3-scheduling-availability.png"
+                  alt="Figure 3: Scheduling – Availability configurations and Add Availability button."
+                />
+                <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                  Figure 3: Scheduling – Availability configurations and Add Availability button.
+                </p>
+              </div>
+
+              <p class="mb-2">
+                From the Availability view, the doctor can:
+              </p>
+              <ul class="list-disc ml-5 mb-3">
+                <li class="mb-1">
+                  Review existing availability entries, including title, provider, start date, slot count, and slot
+                  duration.
+                </li>
+                <li class="mb-1">
+                  Create new availability blocks using the Add Availability button.
+                </li>
+                <li class="mb-1">
+                  Determine how many appointment slots will be generated from a given availability configuration.
+                </li>
+              </ul>
+              <p class="mb-3">
+                Once availability is defined, clinics can book the doctor within those slots. If one clinic books a
+                time slot, that slot becomes unavailable to all other clinics automatically.
+              </p>
+            </div>
+          </nz-collapse-panel>
+
+          <nz-collapse-panel
+            [nzHeader]="header5"
+            [nzActive]="activeSectionId === 'section-5'"
+          >
+            <ng-template #header5>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                5. My Patients
+              </span>
+            </ng-template>
+
+            <div
+              id="section-5"
+              class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+            >
+              <p class="mb-3">
+                The My Patients module displays a list of all patients assigned to the doctor. From here, the doctor
+                can open individual patient records to review clinical history, treatments, prescriptions, and orders.
+              </p>
+
+              <div class="mt-4 mb-4">
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/doctor-portal/figure4-my-patients.png"
+                  alt="Figure 4: My Patients – list of patients assigned to the doctor."
+                />
+                <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                  Figure 4: My Patients – list of patients assigned to the doctor.
+                </p>
+              </div>
+
+              <p class="mb-2">
+                The patient list typically includes:
+              </p>
+              <ul class="list-disc ml-5 mb-3">
+                <li class="mb-1">
+                  Registration date and basic identification details (name, MRN, email, phone).
+                </li>
+                <li class="mb-1">
+                  Counts of treatments, prescriptions, and medicine orders associated with each patient.
+                </li>
+                <li class="mb-1">
+                  Clinic information indicating which clinic the patient is linked to for this doctor.
+                </li>
+                <li class="mb-1">
+                  An action menu to open the full patient record and view more details.
+                </li>
+              </ul>
+              <p class="mb-3">
+                Each patient also has a questionnaire completed during the Get Started flow. Doctors can view this
+                questionnaire for clinical context, but cannot edit the responses.
+              </p>
+            </div>
+          </nz-collapse-panel>
+
+          <nz-collapse-panel
+            [nzHeader]="header6"
+            [nzActive]="activeSectionId === 'section-6'"
+          >
+            <ng-template #header6>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                6. Treatments
+              </span>
+            </ng-template>
+
+            <div
+              id="section-6"
+              class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+            >
+              <p class="mb-3">
+                The Treatments module allows doctors to work with patients in the context of specific treatment
+                types. Treatments are pre-defined in the system (e.g., Mental Health, Ketamine Therapy,
+                Testosterone, etc.) and are selected by the patient during the Get Started flow.
+              </p>
+
+              <div class="mt-4 mb-4">
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/doctor-portal/figure5-treatments.png"
+                  alt="Figure 5: Treatments – patient list organized by treatment records."
+                />
+                <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                  Figure 5: Treatments – patient list organized by treatment records.
+                </p>
+              </div>
+
+              <p class="mb-2">
+                Key aspects of treatment management include:
+              </p>
+              <ul class="list-disc ml-5 mb-3">
+                <li class="mb-1">
+                  A treatment record is created as soon as a patient completes the Get Started flow and selects a
+                  treatment type.
+                </li>
+                <li class="mb-1">
+                  The doctor, before the appointment, has the patient's history and the details based on the intake
+                  form that the patient filled out, based on the category selected. It will be shown next to the
+                  patient's information.
+                </li>
+                <li class="mb-1">
+                  Treatment statuses include Active, Completed, Cancelled, and On Hold.
+                </li>
+                <li class="mb-1">
+                  Doctors can review treatment start dates, patient details, clinic association, and current status.
+                </li>
+                <li class="mb-1">
+                  Doctors can update or end treatment records as clinically appropriate.
+                </li>
+              </ul>
+            </div>
+          </nz-collapse-panel>
+
+          <nz-collapse-panel
+            [nzHeader]="header7"
+            [nzActive]="activeSectionId === 'section-7'"
+          >
+            <ng-template #header7>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                7. Orders
+              </span>
+            </ng-template>
+
+            <div
+              id="section-7"
+              class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+            >
+              <p class="mb-3">
+                The Orders module shows all medicine orders generated from prescriptions written by the doctor.
+                Orders move from the doctor to the clinic, and then from the clinic to the integrated third-party
+                pharmacy for fulfillment and delivery to the patient's address.
+              </p>
+
+              <div class="mt-4 mb-4">
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/doctor-portal/figure6-orders.png"
+                  alt="Figure 6: Orders – list of orders associated with the doctor’s prescriptions."
+                />
+                <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                  Figure 6: Orders – list of orders associated with the doctor’s prescriptions.
+                </p>
+              </div>
+
+              <p class="mb-2">
+                Within the Orders view, the doctor can:
+              </p>
+              <ul class="list-disc ml-5 mb-3">
+                <li class="mb-1">
+                  Review order details, including order ID, order date, patient, and MRN.
+                </li>
+                <li class="mb-1">
+                  See when an order was sent to the pharmacy and when it was printed or processed.
+                </li>
+                <li class="mb-1">
+                  Access further details via the actions menu (for example, viewing the linked prescription).
+                </li>
+              </ul>
+              <p class="mb-3">
+                Each order is linked to exactly one prescription. A prescription may contain multiple medicines, but
+                a new order always requires a new prescription. Doctors can edit or cancel an order only while it is
+                still pending and has not yet been sent to the pharmacy. Once sent, the order becomes read-only,
+                and any change requires a new prescription and a new order.
+              </p>
+            </div>
+          </nz-collapse-panel>
+
+          <nz-collapse-panel
+            [nzHeader]="header8"
+            [nzActive]="activeSectionId === 'section-8'"
+          >
+            <ng-template #header8>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                8. Prescriptions
+              </span>
+            </ng-template>
+
+            <div
+              id="section-8"
+              class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+            >
+              <p class="mb-3">
+                The Prescriptions module provides a complete list of prescriptions created by the doctor. It also
+                includes information about refill status, remaining refills, and expiration dates.
+              </p>
+
+              <div class="mt-4 mb-4">
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/doctor-portal/figure7-prescriptions.png"
+                  alt="Figure 7: Prescriptions – overview of patient prescriptions, statuses, and refills."
+                />
+                <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                  Figure 7: Prescriptions – overview of patient prescriptions, statuses, and refills.
+                </p>
+              </div>
+
+              <p class="mb-3">
+                Prescriptions are created when the doctor writes a handwritten prescription and uploads an image of
+                it into the system. Global Admin staff then transcribes the handwritten prescription into a structured
+                digital form. The doctor can later view this structured prescription in the Prescriptions list.
+              </p>
+              <p class="mb-2">
+                Typical fields and indicators include:
+              </p>
+              <ul class="list-disc ml-5 mb-3">
+                <li class="mb-1">
+                  Patient name and prescription number.
+                </li>
+                <li class="mb-1">
+                  Date of prescription and prescription status (e.g., Pending, Uploaded).
+                </li>
+                <li class="mb-1">
+                  Refill status, remaining refills, and next refill date.
+                </li>
+                <li class="mb-1">
+                  Expiration date and timestamp of when the prescription was sent to the pharmacy.
+                </li>
+              </ul>
+              <p class="mb-3">
+                Doctors can modify or cancel prescriptions only while they are still pending and before they are sent
+                to the pharmacy. Once transmitted to the pharmacy, the prescription is locked from editing, and a
+                new prescription is required for any change or additional order.
+              </p>
+            </div>
+          </nz-collapse-panel>
+
+          <nz-collapse-panel
+            [nzHeader]="header9"
+            [nzActive]="activeSectionId === 'section-9'"
+          >
+            <ng-template #header9>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                9. Messages
+              </span>
+            </ng-template>
+
+            <div
+              id="section-9"
+              class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+            >
+              <p class="mb-3">
+                The Messages module enables secure one-to-one messaging between the doctor and their patients,
+                as well as between the doctor and clinic staff. Messaging is strictly scoped to existing relationships
+                and is not a general chat system.
+              </p>
+
+              <div class="mt-4 mb-4">
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/doctor-portal/figure8-messages.png"
+                  alt="Figure 8: Messages – secure one-to-one chat with patients and clinic staff."
+                />
+                <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                  Figure 8: Messages – secure one-to-one chat with patients and clinic staff.
+                </p>
+              </div>
+
+              <p class="mb-2">
+                Messaging rules include:
+              </p>
+              <ul class="list-disc ml-5 mb-3">
+                <li class="mb-1">
+                  Doctors can only message patients who are assigned to them.
+                </li>
+                <li class="mb-1">
+                  Doctors can only message staff in the clinics where they are currently working.
+                </li>
+                <li class="mb-1">
+                  Conversations are strictly one-to-one; group chats are not supported.
+                </li>
+                <li class="mb-1">
+                  The Messages screen provides a searchable list of conversations and a chat pane for each selected
+                  conversation.
+                </li>
+              </ul>
+            </div>
+          </nz-collapse-panel>
+
+          <nz-collapse-panel
+            [nzHeader]="header10"
+            [nzActive]="activeSectionId === 'section-10'"
+          >
+            <ng-template #header10>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                10. Key Rules and Permissions
+              </span>
+            </ng-template>
+
+            <div
+              id="section-10"
+              class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+            >
+              <p class="mb-2">
+                The following business rules govern how doctors interact with the system and other roles:
+              </p>
+              <ul class="list-disc ml-5 mb-3">
+                <li class="mb-1">
+                  Doctors have their own login and access only to the doctor-facing portal.
+                </li>
+                <li class="mb-1">
+                  Doctors can define global availability; clinics cannot modify availability directly.
+                </li>
+                <li class="mb-1">
+                  Only doctors can manually create or adjust appointments; clinics and patients cannot.
+                </li>
+                <li class="mb-1">
+                  A doctor can be attached to multiple clinics, but cannot be booked in more than one clinic at the
+                  same time.
+                </li>
+                <li class="mb-1">
+                  Doctors can view but not edit the patient’s Get Started questionnaire responses.
+                </li>
+                <li class="mb-1">
+                  Doctors can edit or end treatments, cancel appointments, and modify orders/prescriptions only
+                  while they are pending and not yet sent to the pharmacy.
+                </li>
+                <li class="mb-1">
+                  Once an order or prescription has been sent to the pharmacy, it is locked from editing; any change
+                  requires a new prescription and new order.
+                </li>
+                <li class="mb-1">
+                  Doctors can message only their assigned patients and staff of their associated clinics, and only in
+                  one-to-one conversations.
+                </li>
+              </ul>
+              <p class="mb-0">
+                This manual covers the doctor-facing functionality only. Other roles, such as Global Admin, clinics,
+                patients, and the integrated pharmacy, have separate workflows and permissions defined elsewhere.
+              </p>
+            </div>
+          </nz-collapse-panel>
+        </nz-collapse>
+      </nz-card>
+    </div>
+
+    <div class="lg:col-span-3">
+      <div
+        class="sticky top-20 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-4 text-xs"
+      >
+        <h2 class="text-[13px] font-semibold text-gray-800 dark:text-gray-100 mb-2">
+          Quick navigation
+        </h2>
+        <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-3">
+          Jump to any section of the doctor portal manual.
+        </p>
+
+        <ul class="space-y-1">
+          <li>
+            <button
+              type="button"
+              (click)="scrollToSection('section-1')"
+              class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+            >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                1
+              </span>
+              <span class="text-gray-800 dark:text-gray-100">Introduction</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              (click)="scrollToSection('section-2')"
+              class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+            >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                2
+              </span>
+              <span class="text-gray-800 dark:text-gray-100">Accessing the Doctor Portal</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              (click)="scrollToSection('section-3')"
+              class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+            >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                3
+              </span>
+              <span class="text-gray-800 dark:text-gray-100">Doctor Dashboard</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              (click)="scrollToSection('section-4')"
+              class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+            >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                4
+              </span>
+              <span class="text-gray-800 dark:text-gray-100">Scheduling</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              (click)="scrollToSection('section-5')"
+              class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+            >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                5
+              </span>
+              <span class="text-gray-800 dark:text-gray-100">My Patients</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              (click)="scrollToSection('section-6')"
+              class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+            >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                6
+              </span>
+              <span class="text-gray-800 dark:text-gray-100">Treatments</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              (click)="scrollToSection('section-7')"
+              class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+            >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                7
+              </span>
+              <span class="text-gray-800 dark:text-gray-100">Orders</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              (click)="scrollToSection('section-8')"
+              class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+            >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                8
+              </span>
+              <span class="text-gray-800 dark:text-gray-100">Prescriptions</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              (click)="scrollToSection('section-9')"
+              class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+            >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                9
+              </span>
+              <span class="text-gray-800 dark:text-gray-100">Messages</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              (click)="scrollToSection('section-10')"
+              class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+            >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                10
+              </span>
+              <span class="text-gray-800 dark:text-gray-100">Key Rules and Permissions</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+@if(userRole == 'Clinic Admin'){
+  <div class="min-h-[calc(100vh-120px)] bg-gray-50 dark:bg-gray-900 py-6 px-2 lg:px-6">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <div class="lg:col-span-9">
+        <nz-card
+          class="rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+        >
+
+          <ng-container *nzCardTitle>
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div
+                  class="h-10 w-10 flex items-center justify-center rounded-xl bg-primary/10 text-primary"
+                >
+                  <i class="fas fa-hospital-alt text-lg"></i>
+                </div>
+                <div>
+                  <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    Clinic Portal – User Manual
+                  </h1>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    For Clinic Admins and Staff (Full Permissions)
+                  </p>
+                </div>
+              </div>
+
+              <span
+                class="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-[11px] font-medium bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-200/80 dark:border-green-800"
+              >
+              <i class="fas fa-book-open mr-1"></i>
+              Support Documentation
+            </span>
+            </div>
+          </ng-container>
+
+          <nz-collapse [nzBordered]="false">
+
+            <nz-collapse-panel
+              [nzHeader]="header1"
+              [nzActive]="activeSectionId === 'section-1'"
+            >
+              <ng-template #header1>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                1. Introduction
+              </span>
+              </ng-template>
+
+              <div
+                id="section-1"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  This user manual explains how clinics use the Clinic Portal to manage patients, treatments, appointments, products, orders, and billing. It is written from the perspective of a Clinic Admin with full permissions. Individual staff roles may have a subset of these capabilities.
+                </p>
+                <p class="mb-3">
+                  The platform is owned and operated by the Global Admin. Clinics onboard onto the platform, connect their payment accounts, and use the system to run their day-to-day operations. Patients interact only with the clinic-branded experience and never see the Global Admin.
+                </p>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header2"
+              [nzActive]="activeSectionId === 'section-2'"
+            >
+              <ng-template #header2>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                2. Getting Around the Portal
+              </span>
+              </ng-template>
+
+              <div
+                id="section-2"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  After logging in, you land on the Clinic Dashboard. The left navigation menu stays visible on every screen and is grouped into sections: Clinic Analytics, Scheduling, People, Clinical, Products, Invoicing, Billing, Communication, Branding, and Integrations.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure1-dashboard.png"
+                    alt="Figure 1 – Clinic Dashboard and main navigation"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 1 – Clinic Dashboard and main navigation
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header3"
+              [nzActive]="activeSectionId === 'section-3'"
+            >
+              <ng-template #header3>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                3. Scheduling
+              </span>
+              </ng-template>
+
+              <div
+                id="section-3"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The Scheduling section allows the clinic to see provider calendars and manage provider availability.
+                </p>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  3.1 Calendar
+                </h3>
+                <p class="mb-3">
+                  The Calendar shows appointments for clinic providers with clinic patients. Clinic staff can filter by provider and date range, and switch between grid and list views. Appointments are view-only from the clinic side; scheduling changes such as cancellation or rescheduling must be coordinated with the doctor.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure3-calendar.png"
+                    alt="Figure 3 – Clinic Calendar (view-only appointments)"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 3 – Clinic Calendar (view-only appointments)
+                  </p>
+                </div>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  3.2 Availability
+                </h3>
+                <p class="mb-3">
+                  Availability lists the time blocks when each provider is available to see patients. These blocks define the appointment slots that appear on the calendar. Clinic staff can create and modify availability on behalf of providers by using the Add Availability action, including start date, duration, and number of slots. Changes here affect all clinics associated with that provider because availability is global per doctor.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure4-availability.png"
+                    alt="Figure 4 – Provider availability managed by the clinic"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 4 – Provider availability managed by the clinic
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header4"
+              [nzActive]="activeSectionId === 'section-4'"
+            >
+              <ng-template #header4>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                4. People – Staff
+              </span>
+              </ng-template>
+
+              <div
+                id="section-4"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The Staff screen lists everyone working in the clinic—providers, customer support staff, clinic admins, and other roles. From here, you can add new staff members, update contact information, assign user types, and activate or deactivate accounts.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure5-staff.png"
+                    alt="Figure 5 – Staff management"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 5 – Staff management
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header5"
+              [nzActive]="activeSectionId === 'section-5'"
+            >
+              <ng-template #header5>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                5. Clinical Workspace
+              </span>
+              </ng-template>
+
+              <div
+                id="section-5"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The Clinical section is where clinics manage their patients and the associated care records. Because patients enter the system through the clinic’s own marketing, each clinic can only see its own patients and related data.
+                </p>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  5.1 Patients
+                </h3>
+                <p class="mb-3">
+                  The Patients view shows all patients that belong to the clinic, including registration date, MRN, contact details, and counts of treatments, prescriptions, and orders. Use the action menu at the end of each row to open a detailed patient profile and review history.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure6-patients.png"
+                    alt="Figure 6 – Clinic patient list"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 6 – Clinic patient list
+                  </p>
+                </div>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  5.2 Treatments
+                </h3>
+                <p class="mb-3">
+                  Treatment lists all treatment records for clinic patients. Each row shows the treatment number, start date, patient, contact details, and treatment status (Active, Completed, Cancelled, On Hold). Clinic staff can update the status when a treatment is completed, paused, or discontinued.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure7-treatments.png"
+                    alt="Figure 7 – Treatments for clinic patients"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 7 – Treatments for clinic patients
+                  </p>
+                </div>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  5.3 Prescriptions
+                </h3>
+                <p class="mb-3">
+                  The Prescriptions screen surfaces all prescriptions created by doctors for clinic patients. You can see prescription status (such as Pending or Uploaded), refill information, and key dates. Clinic staff use this screen to review prescriptions before sending related orders to the pharmacy.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure8-prescriptions.png"
+                    alt="Figure 8 – Prescriptions for clinic patients"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 8 – Prescriptions for clinic patients
+                  </p>
+                </div>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  5.4 Orders
+                </h3>
+                <p class="mb-3">
+                  Orders represent prescription orders that will be sent to the integrated pharmacy. The Orders screen shows order ID, date, patient, MRN, and transmission status. Clinic staff can trigger sending an order to the pharmacy or resend it if required, as long as the underlying business rules allow it.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure9-orders.png"
+                    alt="Figure 9 – Orders list and pharmacy transmission status"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 9 – Orders list and pharmacy transmission status
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header6"
+              [nzActive]="activeSectionId === 'section-6'"
+            >
+              <ng-template #header6>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                6. Products &amp; Pricing
+              </span>
+              </ng-template>
+
+              <div
+                id="section-6"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The Products section allows clinics to configure what they sell—treatment categories, packages, medicine pricing, coupons, and patient intake forms. These settings control both the patient experience and billing.
+                </p>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  6.1 Categories
+                </h3>
+                <p class="mb-3">
+                  Categories represent high-level treatment offerings such as Ketamine Therapy, Life Coaching, or Urgent Care. Clinics can add, edit, or remove categories to match the services they provide.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure10-categories.png"
+                    alt="Figure 10 – Treatment categories"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 10 – Treatment categories
+                  </p>
+                </div>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  6.2 Packages
+                </h3>
+                <p class="mb-3">
+                  Packages bundle treatments, appointments, and medicines over a defined period (for example, a 3-month or 6-month ketamine therapy program). Each package has its own price, duration, and included components. Clinics can create their own packages from scratch and control the pricing for each one.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure11-packages.png"
+                    alt="Figure 11 – Treatment packages with clinic pricing"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 11 – Treatment packages with clinic pricing
+                  </p>
+                </div>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  6.3 Drugs Catalog
+                </h3>
+                <p class="mb-3">
+                  The Drugs Catalog lists all medicines available from the integrated pharmacy. For each drug you can see the strength, dosage form, package size, whether it is a controlled substance, and three pricing fields:
+                </p>
+                <p class="mb-2">
+                  • Wholesale Price – base price received from the pharmacy.
+                </p>
+                <p class="mb-2">
+                  • Suggested Retail Price – price suggested by Global Admin as a guideline.
+                </p>
+                <p class="mb-3">
+                  • Clinic Sale Price – the price actually charged to patients by this clinic (clinics can update if needed).
+                </p>
+                <p class="mb-3">
+                  Clinics can adjust Suggested Retail Price and Clinic Sale Price to achieve their desired profit margin while remaining competitive.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure12-drugs-catalog.png"
+                    alt="Figure 12 – Drugs catalog and pricing controls"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 12 – Drugs catalog and pricing controls
+                  </p>
+                </div>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  6.4 Coupons
+                </h3>
+                <p class="mb-3">
+                  Coupons allow clinics to run promotions and discounts. Each coupon has a code, a discount value (amount or percentage), and a list of packages it applies to. Patients enter the coupon code themselves during checkout, and the discount is automatically applied to eligible purchases.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure13-coupons.png"
+                    alt="Figure 13 – Coupon management"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 13 – Coupon management
+                  </p>
+                </div>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  6.5 Forms (Patient Intake)
+                </h3>
+                <p class="mb-3">
+                  Forms are treatment-specific intake questionnaires that patients complete at the start of their journey after choosing a treatment type. Clinics can create new forms, edit existing ones, or deactivate forms. Each form can be associated with one or more products so that patients see the correct questions for their selected treatment.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure14-forms.png"
+                    alt="Figure 14 – Intake forms for treatments"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 14 – Intake forms for treatments
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header7"
+              [nzActive]="activeSectionId === 'section-7'"
+            >
+              <ng-template #header7>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                7. Invoicing – Patient Purchases
+              </span>
+              </ng-template>
+
+              <div
+                id="section-7"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  Whenever a patient purchases a package, treatment, or extra medicines, the system automatically generates an invoice in the Invoicing section. Clinic staff can review invoices, verify amounts, and access the full history of patient purchases.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure15-invoices.png"
+                    alt="Figure 15 – Automatically generated patient invoices"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 15 – Automatically generated patient invoices
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header8"
+              [nzActive]="activeSectionId === 'section-8'"
+            >
+              <ng-template #header8>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                8. Billing – Clinic Obligations to Global Admin
+              </span>
+              </ng-template>
+
+              <div
+                id="section-8"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The Billing section tracks the financial relationship between the clinic and Global Admin. This includes monthly platform fees and the cost of medicines dispensed to patients.
+                </p>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  8.1 Bills
+                </h3>
+                <p class="mb-3">
+                  Bills are generated automatically on the Global Admin side and appear here for the clinic. Each bill shows the total amount, status (Paid or Pending), invoice date, and due date. Clinics cannot create bills; their only actions are to review and pay them.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure16-bills.png"
+                    alt="Figure 16 – Bills issued by Global Admin"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 16 – Bills issued by Global Admin
+                  </p>
+                </div>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  8.2 Bill Payments
+                </h3>
+                <p class="mb-3">
+                  Bill Payments shows the history of payments made against those bills, including payment method, amount, status, and date. This provides a clear audit trail of what has been paid and when.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure17-bill-payments.png"
+                    alt="Figure 17 – Bill payment history"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 17 – Bill payment history
+                  </p>
+                </div>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  8.3 Payment Methods
+                </h3>
+                <p class="mb-3">
+                  In Payment Methods, the clinic manages the cards used to pay Global Admin. Multiple cards can be stored, a default card can be set, and cards can be added or removed as needed.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure18-payment-methods.png"
+                    alt="Figure 18 – Cards used to pay Global Admin"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 18 – Cards used to pay Global Admin
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header9"
+              [nzActive]="activeSectionId === 'section-9'"
+            >
+              <ng-template #header9>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                9. Communication
+              </span>
+              </ng-template>
+
+              <div
+                id="section-9"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The Messages feature enables secure one-to-one communication within the platform. Clinics can message:
+                </p>
+                <p class="mb-2">
+                  • Doctors who are treating the clinic’s patients.
+                </p>
+                <p class="mb-2">
+                  • Patients who belong to the clinic.
+                </p>
+                <p class="mb-3">
+                  • Global Admin, for operational or billing questions.
+                </p>
+                <p class="mb-3">
+                  Clinics cannot message other clinics and cannot create group chats; all conversations are strictly one-to-one.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure19-messaging.png"
+                    alt="Figure 19 – Messaging for doctors, patients, and Global Admin"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 19 – Messaging for doctors, patients, and Global Admin
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header10"
+              [nzActive]="activeSectionId === 'section-10'"
+            >
+              <ng-template #header10>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                10. Branding
+              </span>
+              </ng-template>
+
+              <div
+                id="section-10"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  Branding controls the look and feel of the clinic experience. Clinics can upload their logo, select primary and secondary colors, customize chart colors, and choose a font style. These settings ensure that the patient experience reflects the clinic’s own brand rather than the Global Admin.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure20-branding.png"
+                    alt="Figure 20 – Branding customization"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 20 – Branding customization
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header11"
+              [nzActive]="activeSectionId === 'section-11'"
+            >
+              <ng-template #header11>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                11. Integrations
+              </span>
+              </ng-template>
+
+              <div
+                id="section-11"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The Integrations section connects the Clinic Portal with external systems such as the clinic’s website and payment gateway.
+                </p>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  11.1 Website Embeds (WordPress)
+                </h3>
+                <p class="mb-3">
+                  For marketing and patient acquisition, clinics can embed the Getting Started module and Categories with Packages directly into their WordPress or other websites. The Integrations page provides code snippets that can be copied and pasted into website pages, allowing patients to start their journey from marketing landing pages while still being tied to the correct clinic.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure21-website-embeds.png"
+                    alt="Figure 21 – Website integration snippets"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 21 – Website integration snippets
+                  </p>
+                </div>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  11.2 Square Payment Integration
+                </h3>
+                <p class="mb-3">
+                  Square is used as the payment processor for patient purchases. Each clinic links its own Square account by entering the Application ID, Access Token, and Location ID. Once configured, all patient payments for that clinic flow through its Square account, while the platform separately bills the clinic for software usage and medicine costs.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/clinic-portal/figure22-square.png"
+                    alt="Figure 22 – Square integration settings"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 22 – Square integration settings
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+          </nz-collapse>
+        </nz-card>
+      </div>
+
+      <div class="lg:col-span-3">
+        <div
+          class="sticky top-20 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-4 text-xs"
+        >
+          <h2 class="text-[13px] font-semibold text-gray-800 dark:text-gray-100 mb-2">
+            Quick navigation
+          </h2>
+          <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-3">
+            Jump to any section of the clinic portal manual.
+          </p>
+
+          <ul class="space-y-1">
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-1')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                1
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Introduction</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-2')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                2
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Getting Around the Portal</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-3')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                3
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Scheduling</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-4')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                4
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">People – Staff</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-5')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                5
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Clinical Workspace</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-6')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                6
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Products &amp; Pricing</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-7')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                7
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Invoicing – Patient Purchases</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-8')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                8
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">
+                Billing – Clinic Obligations to Global Admin
+              </span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-9')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                9
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Communication</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-10')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                10
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Branding</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-11')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                11
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Integrations</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+}
+
+@if (userRole == 'Patient'){
+
+  <div class="min-h-[calc(100vh-120px)] bg-gray-50 dark:bg-gray-900 py-6 px-2 lg:px-6">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <div class="lg:col-span-9">
+        <nz-card
+          class="rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+        >
+
+          <ng-container *nzCardTitle>
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div
+                  class="h-10 w-10 flex items-center justify-center rounded-xl bg-primary/10 text-primary"
+                >
+                  <i class="fas fa-user text-lg"></i>
+                </div>
+                <div>
+                  <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    Patient User Guide – ISOL EHR System
+                  </h1>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    ISOL EHR Patient Portal
+                  </p>
+                </div>
+              </div>
+
+              <span
+                class="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-[11px] font-medium bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-200/80 dark:border-green-800"
+              >
+              <i class="fas fa-book-open mr-1"></i>
+              Support Documentation
+            </span>
+            </div>
+          </ng-container>
+
+          <nz-collapse [nzBordered]="false">
+
+            <nz-collapse-panel
+              [nzHeader]="header1"
+              [nzActive]="activeSectionId === 'section-1'"
+            >
+              <ng-template #header1>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                1. Introduction
+              </span>
+              </ng-template>
+
+              <div
+                id="section-1"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  Welcome to the ISOL EHR Patient Portal. This guide explains how you can use the system easily and
+                  understand every part of your healthcare journey. It is written in simple language so you can follow
+                  each step clearly.
+                </p>
+
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header2"
+              [nzActive]="activeSectionId === 'section-2'"
+            >
+              <ng-template #header2>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                2. Getting Started
+              </span>
+              </ng-template>
+
+              <div
+                id="section-2"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+
+                <p class="mb-3">
+                  When you first arrive at the web application, you will begin by choosing a treatment category that
+                  matches your needs, such as Mental Health, Weight Loss, Ketamine Therapy, etc.
+                </p>
+
+                <p class="mb-3">
+                  You will then answer a short set of questions that help your doctor understand your needs better.
+                </p>
+
+                <p class="mb-2">
+                  2.1 You will be asked to select the category for your treatment.
+                </p>
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/isol-patient/2.1.png"
+                  alt="Patient dashboard showing active treatments, appointments, and medication schedule."
+                />
+
+                <p class="mt-2 mb-2">
+                  2.3 After selecting the category, you will be redirected to the package option.
+                </p>
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/isol-patient/2.2.png"
+                  alt="Patient dashboard showing active treatments, appointments, and medication schedule."
+                />
+
+                <p class="mb-2 mt-2">
+                  2.4 Once you select the Package, you will be asked to sign up with your details. You will receive an
+                  email with a verification link. You must click this link to activate your account.
+                </p>
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/isol-patient/2.3.png"
+                  alt="Patient dashboard showing active treatments, appointments, and medication schedule."
+                />
+
+                <p class="mb-2 mt-2">
+                  2.5 Once you sign up, you will be redirected to the secure payment method.
+                </p>
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/isol-patient/2.4.png"
+                  alt="Patient dashboard showing active treatments, appointments, and medication schedule."
+                />
+
+                <p class="mb-2 mt-2">
+                  2.6 Once payment is confirmed, you will select the appointment date for your doctor consultation.
+                </p>
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/isol-patient/2.6.png"
+                  alt="Patient dashboard showing active treatments, appointments, and medication schedule."
+                />
+
+                <p class="mb-2 mt-2">
+                  2.7 Once an appointment is selected, you will get a notification and see a confirmation screen which
+                  shows details related to the appointment options you have selected.
+                </p>
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/isol-patient/2.7.png"
+                  alt="Patient dashboard showing active treatments, appointments, and medication schedule."
+                />
+
+                <p class="mb-2 mt-2">
+                  2.8 Once you are logged in, you will complete your initial information.
+                </p>
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/isol-patient/fig-2.8-completesignup.png"
+                  alt="Patient dashboard showing active treatments, appointments, and medication schedule."
+                />
+
+                <p class="mb-0 mt-2">
+                  2.9 Once you have added the additional personal information will complete the remaining questions in
+                  the questionnaire form related to the treatment category that you have selected.
+                </p>
+
+                <img
+                  nz-image
+                  class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                  src="assets/docs/isol-patient/figure2-intake-form.png"
+                  alt="Patient dashboard showing active treatments, appointments, and medication schedule."
+                />
+
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header3"
+              [nzActive]="activeSectionId === 'section-3'"
+            >
+              <ng-template #header3>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                3. Completing the Intake form Questions
+              </span>
+              </ng-template>
+
+              <div
+                id="section-3"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The very first time you log in, you will be asked to answer a series of intake questions based on your
+                  treatment and category selection. This helps the doctor review your previous medical history before
+                  the actual consultation.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/isol-patient/figure2-intake-form.png"
+                    alt="Patient intake form questions based on treatment category."
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Screenshot: Intake form questions.
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header4"
+              [nzActive]="activeSectionId === 'section-4'"
+            >
+              <ng-template #header4>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                4. Your Patient Dashboard
+              </span>
+              </ng-template>
+
+              <div
+                id="section-4"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-2">
+                  After completing all required questions, you will enter your dashboard. This is the main page where
+                  you can view:
+                </p>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    Your active treatments
+                  </li>
+                  <li class="mb-1">
+                    Your upcoming appointment
+                  </li>
+                  <li class="mb-1">
+                    Your next medication shipping date
+                  </li>
+                  <li class="mb-1">
+                    Your next refill date
+                  </li>
+                </ul>
+
+                <p class="mb-3">
+                  <a
+                    href="https://crmxofront.bitzage.com/dashboard/patient"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    https://crmxofront.bitzage.com/dashboard/patient
+                  </a>
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/isol-patient/figure3-dashboard.png"
+                    alt="Patient dashboard showing active treatments, appointments, and medication schedule."
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Screenshot: Patient dashboard.
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header5"
+              [nzActive]="activeSectionId === 'section-5'"
+            >
+              <ng-template #header5>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                5. Viewing Your Treatment Details
+              </span>
+              </ng-template>
+
+              <div
+                id="section-5"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-2">
+                  Inside each treatment page, you can see:
+                </p>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    Treatment name
+                  </li>
+                  <li class="mb-1">
+                    Duration
+                  </li>
+                  <li class="mb-1">
+                    Doctor notes
+                  </li>
+                  <li class="mb-1">
+                    Medication schedule
+                  </li>
+                  <li class="mb-1">
+                    Shipping history
+                  </li>
+                  <li class="mb-1">
+                    Treatment timeline
+                  </li>
+                </ul>
+
+                <p class="mb-3">
+                  <a
+                    href="https://crmxofront.bitzage.com/treatment/view"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    https://crmxofront.bitzage.com/treatment/view
+                  </a>
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/isol-patient/figure4-treatment-details.png"
+                    alt="Treatment detail screen with notes, schedule, and timeline."
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Screenshot: Treatment details.
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header6"
+              [nzActive]="activeSectionId === 'section-6'"
+            >
+              <ng-template #header6>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                6. Booking Appointments
+              </span>
+              </ng-template>
+
+              <div
+                id="section-6"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+
+                <p class="mb-3">
+                  All video appointments are done through Zoom. Your meeting link will appear inside the portal.
+                </p>
+
+                <p class="mb-3">
+                  <a
+                    href="https://crmxofront.bitzage.com/schedule/calendar"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    https://crmxofront.bitzage.com/schedule/calendar
+                  </a>
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/isol-patient/figure5-appointments-calendar.png"
+                    alt="Appointment calendar with available slots and Zoom link."
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Screenshot: Appointment calendar.
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header7"
+              [nzActive]="activeSectionId === 'section-7'"
+            >
+              <ng-template #header7>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                7. Medication &amp; Delivery
+              </span>
+              </ng-template>
+
+              <div
+                id="section-7"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  If your doctor prescribes medication, the system creates an order automatically.
+                </p>
+
+                <p class="mb-3">
+                  The clinic reviews it, and the pharmacy delivers the medication to your home.
+                </p>
+
+                <p class="mb-2">
+                  You will see:
+                </p>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    Next shipping date
+                  </li>
+                  <li class="mb-1">
+                    Next refill date
+                  </li>
+                  <li class="mb-1">
+                    Shipping history
+                  </li>
+                </ul>
+
+                <p class="mb-3">
+                  <a
+                    href="https://crmxofront.bitzage.com/order/view"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    https://crmxofront.bitzage.com/order/view
+                  </a>
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/isol-patient/figure6-medication-delivery.png"
+                    alt="Medication orders with shipping dates and history."
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Screenshot: Medication &amp; delivery status.
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header8"
+              [nzActive]="activeSectionId === 'section-8'"
+            >
+              <ng-template #header8>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                8. Messages
+              </span>
+              </ng-template>
+
+              <div
+                id="section-8"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  You can message your doctor directly.
+                </p>
+
+                <p class="mb-3">
+                  You can message the clinic.
+                </p>
+
+                <p class="mb-3">
+                  <a
+                    href="https://crmxofront.bitzage.com/chat"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    https://crmxofront.bitzage.com/chat
+                  </a>
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/isol-patient/figure7-messages.png"
+                    alt="Messages screen showing conversation with doctor and clinic."
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Screenshot: Messages.
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header9"
+              [nzActive]="activeSectionId === 'section-9'"
+            >
+              <ng-template #header9>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                9. Buying a New Treatment
+              </span>
+              </ng-template>
+
+              <div
+                id="section-9"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  You can purchase a new treatment anytime.
+                </p>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    If you choose a different category, you will answer a new questionnaire.
+                  </li>
+
+                </ul>
+
+                <p class="mb-3">
+                  <a
+                    href="https://crmxofront.bitzage.com/buy-new-treatment"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    https://crmxofront.bitzage.com/buy-new-treatment
+                  </a>
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/isol-patient/figure8-buy-new-treatment.png"
+                    alt="Buy new treatment screen with package options."
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Screenshot: Buying a new treatment.
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header10"
+              [nzActive]="activeSectionId === 'section-10'"
+            >
+              <ng-template #header10>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                10. Notifications
+              </span>
+              </ng-template>
+
+              <div
+                id="section-10"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-2">
+                  You will receive notifications for:
+                </p>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    Appointment confirmations
+                  </li>
+                  <li class="mb-1">
+                    Appointment reminders
+                  </li>
+                  <li class="mb-1">
+                    Rescheduled or cancelled appointments
+                  </li>
+                  <li class="mb-1">
+                    Shipping updates
+                  </li>
+                  <li class="mb-1">
+                    Refill reminders
+                  </li>
+                  <li class="mb-1">
+                    New prescriptions uploaded
+                  </li>
+                  <li class="mb-1">
+                    Payment confirmations
+                  </li>
+                </ul>
+
+                <p class="mb-3">
+                  Notifications come via emai/SMS and inside the portal.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/isol-patient/figure9-notifications.png"
+                    alt="Notifications panel showing reminders and updates."
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Screenshot: Notifications.
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header11"
+              [nzActive]="activeSectionId === 'section-11'"
+            >
+              <ng-template #header11>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                11. Billing &amp; Payments (For Patients)
+              </span>
+              </ng-template>
+
+              <div
+                id="section-11"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  Your information is kept secure. You must verify your email to access your account. All medical
+                  details are protected, and you cannot edit information added by the clinic or doctor.
+                </p>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  Bills
+                </h3>
+
+                <p class="mb-3">
+                  Inside your patient portal, you can view all the bills related to the treatments you have
+                  purchased.
+                </p>
+
+                <p class="mb-2">
+                  Each invoice shows:
+                </p>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    The name of the treatment you paid for
+                  </li>
+                  <li class="mb-1">
+                    The date you made the payment
+                  </li>
+                  <li class="mb-1">
+                    The amount you were charged
+                  </li>
+                  <li class="mb-1">
+                    Your invoice ID
+                  </li>
+                  <li class="mb-1">
+                    The status (Paid)
+                  </li>
+                </ul>
+
+                <p class="mb-3">
+                  Your bill are always available under the Billing section, so you can check them anytime.
+                </p>
+
+                <p class="mb-3">
+                  <a
+                    href="https://crmxofront.bitzage.com/billing/patientBills"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    https://crmxofront.bitzage.com/billing/patientBills
+                  </a>
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/isol-patient/figure10-invoices.png"
+                    alt="Patient invoices list with status and amounts."
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Screenshot: Patient invoices list.
+                  </p>
+                </div>
+
+                <h3
+                  class="mt-4 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  Payment Confirmation
+                </h3>
+
+                <p class="mb-2">
+                  After every successful payment, you will receive:
+                </p>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    An email confirmation
+                  </li>
+                  <li class="mb-1">
+                    A notification inside your portal
+                  </li>
+                  <li class="mb-1">
+                    A new invoice has been added automatically to your Billing section
+                  </li>
+                </ul>
+
+                <p class="mb-0">
+                  This ensures you always have a clear record of everything you have paid for.
+                </p>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header12"
+              [nzActive]="activeSectionId === 'section-12'"
+            >
+              <ng-template #header12>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                11. Security &amp; Safety
+              </span>
+              </ng-template>
+
+              <div
+                id="section-12"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-0">
+                  Your information is kept secure. You must verify your email to access your account. All medical
+                  details are protected, and you cannot edit information added by the clinic or doctor.
+                </p>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header13"
+              [nzActive]="activeSectionId === 'section-13'"
+            >
+              <ng-template #header13>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                12. Summary
+              </span>
+              </ng-template>
+
+              <div
+                id="section-13"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-2">
+                  This guide helps you understand how to:
+                </p>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    Sign up and verify your account
+                  </li>
+                  <li class="mb-1">
+                    Complete questionnaires
+                  </li>
+                  <li class="mb-1">
+                    Use your dashboard
+                  </li>
+                  <li class="mb-1">
+                    Check your treatment
+                  </li>
+                  <li class="mb-1">
+                    Book appointments
+                  </li>
+                  <li class="mb-1">
+                    Track medication
+                  </li>
+                  <li class="mb-1">
+                    Message your doctor
+                  </li>
+                  <li class="mb-1">
+                    Receive notifications
+                  </li>
+                </ul>
+
+                <p class="mb-0">
+                  This simple handbook ensures you can use the system with ease and confidence.
+                </p>
+              </div>
+            </nz-collapse-panel>
+          </nz-collapse>
+        </nz-card>
+      </div>
+
+      <div class="lg:col-span-3">
+        <div
+          class="sticky top-20 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-4 text-xs"
+        >
+          <h2 class="text-[13px] font-semibold text-gray-800 dark:text-gray-100 mb-2">
+            Quick navigation
+          </h2>
+          <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-3">
+            Jump to any section of the patient user guide.
+          </p>
+
+          <ul class="space-y-1">
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-1')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                1
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Introduction</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-2')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                2
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Getting Started</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-3')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                3
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">
+                Completing the Intake form Questions
+              </span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-4')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                4
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Your Patient Dashboard</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-5')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                5
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">
+                Viewing Your Treatment Details
+              </span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-6')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                6
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Booking Appointments</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-7')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                7
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Medication &amp; Delivery</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-8')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                8
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Messages</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-9')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                9
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Buying a New Treatment</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-10')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                10
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Notifications</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-11')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                11
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">
+                Billing &amp; Payments (For Patients)
+              </span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-12')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                12
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Security &amp; Safety</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-13')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                13
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Summary</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+}
+
+@if(userRole == 'Global Admin'){
+  <div class="min-h-[calc(100vh-120px)] bg-gray-50 dark:bg-gray-900 py-6 px-2 lg:px-6">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <div class="lg:col-span-9">
+        <nz-card
+          class="rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+        >
+
+          <ng-container *nzCardTitle>
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div
+                  class="h-10 w-10 flex items-center justify-center rounded-xl bg-primary/10 text-primary"
+                >
+                  <i class="fas fa-user-shield text-lg"></i>
+                </div>
+                <div>
+                  <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    Global Admin Portal – Functional &amp; User Guide (v1)
+                  </h1>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Global Admin Portal
+                  </p>
+                </div>
+              </div>
+
+              <span
+                class="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-[11px] font-medium bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-200/80 dark:border-green-800"
+              >
+              <i class="fas fa-book-open mr-1"></i>
+              Support Documentation
+            </span>
+            </div>
+          </ng-container>
+
+          <nz-collapse [nzBordered]="false">
+
+            <nz-collapse-panel
+              [nzHeader]="header1"
+              [nzActive]="activeSectionId === 'section-1'"
+            >
+              <ng-template #header1>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                1. Introduction
+              </span>
+              </ng-template>
+
+              <div
+                id="section-1"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <h3
+                  class="mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  1.1 Purpose
+                </h3>
+                <p class="mb-3">
+                  This document describes the Global Admin side of the platform: what it is, how it works, and how a
+                  Global Admin uses each screen to operate and govern the system. It covers both a conceptual model
+                  (roles, entities, and flows) and a practical user guide for each module.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  1.2 Audience
+                </h3>
+                <p class="mb-3">
+                  The primary audience is the Global Admin Owner and Support Global Admins. Secondary readers
+                  include product managers, QA analysts, and engineers who need to understand expected behaviour
+                  from the Global Admin perspective.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  1.3 Scope
+                </h3>
+                <p class="mb-3">
+                  This document covers the Global Admin Dashboard, Clinics, Clinical data views (Patients, Treatments,
+                  Prescriptions, Orders), Products (Categories, Packages, Drugs Catalog, Forms), Invoicing (Payment
+                  Dashboard, Invoices, Invoice Payments), and Admin &amp; Support (User Management, Messages, Tickets,
+                  Activity Log). The Analytics module is planned for a future phase and is intentionally excluded.
+                </p>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header2"
+              [nzActive]="activeSectionId === 'section-2'"
+            >
+              <ng-template #header2>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                2. System Overview
+              </span>
+              </ng-template>
+
+              <div
+                id="section-2"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <h3
+                  class="mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  2.1 Key Actors
+                </h3>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    Global Admin Owner – owns the platform and has full control. Can create and manage Support Global
+                    Admins and governs overall configuration.
+                  </li>
+                  <li class="mb-1">
+                    Support Global Admin – operates the system day-to-day under limits defined by the Owner.
+                    Typically manages clinics, providers, orders, billing, and tickets.
+                  </li>
+                  <li class="mb-1">
+                    Clinic Admin / Clinic Staff – work on the clinic portal; bring patients into the system via marketing
+                    campaigns and manage their own patients, appointments, and payments to Global Admin.
+                  </li>
+                  <li class="mb-1">
+                    Providers / Doctors – medical professionals managed centrally by Global Admin. A provider can be
+                    attached to multiple clinics with separate availability per clinic.
+                  </li>
+                  <li class="mb-1">
+                    Patients – individuals receiving treatment. They interact with clinics and providers, not with Global
+                    Admin or pharmacy directly.
+                  </li>
+                  <li class="mb-1">
+                    Pharmacy (3rd party) – integrated only with Global Admin. Supplies the base drug catalog and prices
+                    and fulfills orders that clinics trigger via the system.
+                  </li>
+                </ul>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  2.2 Business Model
+                </h3>
+                <p class="mb-3">
+                  Global Admin onboards clinics and provides them with three pillars: a virtual clinic platform, access to
+                  qualified providers, and an integrated pharmacy. Clinics then acquire patients through their own
+                  marketing channels and run their operations on top of this infrastructure. In the current model clinics
+                  pay Global Admin based on appointments and orders generated through the platform.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  2.3 High-Level Flows
+                </h3>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    Clinic Onboarding – Global Admin creates a clinic record, sets up contact and billing details, and
+                    enables the clinic. Clinic-side users are created so they can start onboarding patients.
+                  </li>
+                  <li class="mb-1">
+                    Provider Assignment – Global Admin creates providers and associates them with one or more clinics
+                    through availability schedules. Clinics then book appointments against this availability.
+                  </li>
+                  <li class="mb-1">
+                    Patient Journey – patients arrive through a clinic’s marketing funnel, select a treatment, complete an
+                    intake form, are evaluated by a provider, receive prescriptions, and generate pharmacy orders.
+                  </li>
+                  <li class="mb-1">
+                    Billing – the system tracks appointments and orders per clinic, generates invoices, and records
+                    payments made by clinics to Global Admin.
+                  </li>
+                  <li class="mb-1">
+                    Support – clinics and providers communicate with Global Admin via messages and tickets. Global
+                    Admin monitors key activities via the Activity Log.
+                  </li>
+                </ul>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header3"
+              [nzActive]="activeSectionId === 'section-3'"
+            >
+              <ng-template #header3>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                3. Data Model &amp; Permissions
+              </span>
+              </ng-template>
+
+              <div
+                id="section-3"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <h3
+                  class="mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  3.1 Main Entities
+                </h3>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    Clinic – represents a customer facility. Stores name, address, contact details, billing email and
+                    status (Active/Inactive). Linked to patients, treatments, prescriptions, orders, invoices, and
+                    payments.
+                  </li>
+                  <li class="mb-1">
+                    Provider – doctor or other clinician managed by Global Admin. Can be attached to multiple clinics
+                    via availability. Has their own provider-portal credentials.
+                  </li>
+                  <li class="mb-1">
+                    Patient – belongs to a clinic and participates in treatments, prescriptions, and orders.
+                  </li>
+                  <li class="mb-1">
+                    Treatment – a program/package assigned to a patient (for example a 3-month or 6-month course).
+                    Has status such as Active, Completed, Cancelled, or On Hold.
+                  </li>
+                  <li class="mb-1">
+                    Prescription – created by a provider. Drives pharmacy orders and may include refill information.
+                  </li>
+                  <li class="mb-1">
+                    Order – represents a medication order to the pharmacy. Tracks status from created through sent,
+                    completed, or cancelled. Clinics and Global Admin can trigger Send to Pharmacy / Resend.
+                  </li>
+                  <li class="mb-1">
+                    Product Category – a grouping of treatments/products such as Ketamine Therapy or Urgent Care.
+                  </li>
+                  <li class="mb-1">
+                    Package – a treatment package with description, duration, and price. Global packages are visible to
+                    all clinics; clinics can customise their own pricing/variants.
+                  </li>
+                  <li class="mb-1">
+                    Drug – item in the Drugs Catalog. Base list and prices come from pharmacy; Global Admin can
+                    adjust globally, and clinics can override clinic-level prices.
+                  </li>
+                  <li class="mb-1">
+                    Form – intake or other questionnaire. Some forms are global templates; others are clinic-specific.
+                  </li>
+                  <li class="mb-1">
+                    Invoice – billing record for a clinic based mainly on appointments and orders. Can be automatic or,
+                    rarely, manual/adjustment.
+                  </li>
+                  <li class="mb-1">
+                    Payment – financial transaction applied to an invoice.
+                  </li>
+                  <li class="mb-1">
+                    Ticket – support case raised by a clinic, provider, or Global Admin.
+                  </li>
+                  <li class="mb-1">
+                    Activity Log Entry – record of significant actions such as login attempts, role changes, invoice
+                    creation, orders sent to pharmacy, and ticket updates.
+                  </li>
+                </ul>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  3.2 Global Admin Roles
+                </h3>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    Global Admin Owner – unrestricted access to all configuration and data. Creates Support Global
+                    Admin accounts and defines operating policies.
+                  </li>
+                  <li class="mb-1">
+                    Support Global Admin – operational administrator with broad but not absolute powers. Exact
+                    limitations are configurable but typically exclude owner-level tasks such as modifying core system
+                    defaults or elevating their own privileges.
+                  </li>
+                </ul>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header4"
+              [nzActive]="activeSectionId === 'section-4'"
+            >
+              <ng-template #header4>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                4. Navigation Overview
+              </span>
+              </ng-template>
+
+              <div
+                id="section-4"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-2">
+                  The Global Admin portal uses a left-hand navigation menu containing the major modules:
+                </p>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    Dashboard
+                  </li>
+                  <li class="mb-1">
+                    Clinics
+                  </li>
+                  <li class="mb-1">
+                    Clinical – Patients, Treatments, Prescriptions, Orders
+                  </li>
+                  <li class="mb-1">
+                    Products – Categories, Packages, Drugs Catalog, Forms
+                  </li>
+                  <li class="mb-1">
+                    Invoicing – Payment Dashboard, Invoices, Invoice Payments
+                  </li>
+                  <li class="mb-1">
+                    Admin &amp; Support – User Management, Messages, Tickets, Activity Log
+                  </li>
+                </ul>
+
+                <p class="mb-3">
+                  The Analytics menu is presented in the UI but is part of a future phase and is not described here.
+                </p>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header5"
+              [nzActive]="activeSectionId === 'section-5'"
+            >
+              <ng-template #header5>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                5. Dashboard
+              </span>
+              </ng-template>
+
+              <div
+                id="section-5"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The Dashboard provides a high-level summary of platform activity: number of clinics, total active
+                  treatments, monthly revenue, and collection status. Bar and donut charts display trends such as
+                  monthly clinic revenue, collections versus outstanding balances, treatment categories, and active
+                  providers.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure1-dashboard.png"
+                    alt="Figure 1 – Global Admin Dashboard"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 1 – Global Admin Dashboard
+                  </p>
+                </div>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header6"
+              [nzActive]="activeSectionId === 'section-6'"
+            >
+              <ng-template #header6>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                6. Clinics Module
+              </span>
+              </ng-template>
+
+              <div
+                id="section-6"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The Clinics module lists all facilities onboarded on the platform and allows Global Admin to manage
+                  their basic details and operational status.
+                </p>
+
+                <div class="mt-4 mb-4">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure2-clinics-list.png"
+                    alt="Figure 2 – Clinics list"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 2 – Clinics list
+                  </p>
+                </div>
+
+                <p class="mb-2">
+                  Each row shows clinic name, address, phone, key contact emails, and status. Status has the following
+                  effects:
+                </p>
+
+                <ul class="list-disc ml-5 mb-3">
+                  <li class="mb-1">
+                    Active – clinic users can log in, onboard patients, and generate appointments and orders. Billing
+                    continues.
+                  </li>
+                  <li class="mb-1">
+                    Inactive – clinic is effectively suspended, usually due to unpaid dues. Clinic users cannot log in and
+                    the system stops generating new invoices for that clinic.
+                  </li>
+                </ul>
+
+                <p class="mb-3">
+                  Global Admin can add a clinic, edit details, and toggle Active/Inactive from the Actions menu. Billing
+                  rules are not configured per clinic as a subscription; instead, invoices are derived from that clinic’s
+                  appointments and orders.
+                </p>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header7"
+              [nzActive]="activeSectionId === 'section-7'"
+            >
+              <ng-template #header7>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                7. Clinical Module (Global View)
+              </span>
+              </ng-template>
+
+              <div
+                id="section-7"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The Clinical section provides cross-clinic visibility into patients, treatments, prescriptions, and
+                  orders. It is primarily an oversight and support tool for Global Admin.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  7.1 Patients
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure3-patients.png"
+                    alt="Figure 3 – Patients (global view)"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 3 – Patients (global view)
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  The Patients screen lists all patients in the system with registration date, MRN, contact details,
+                  counts of treatments/prescriptions/orders, and their home clinic. From here Global Admin can open a
+                  patient’s record for review but typically does not edit core demographics; changes are made by the
+                  clinic.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  7.2 Treatments
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure4-treatments.png"
+                    alt="Figure 4 – Treatments"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 4 – Treatments
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  The Treatments view shows treatment number, start date, patient, MRN, clinic, contact information,
+                  and treatment status. Global Admin can change a treatment’s status (for example to mark a course as
+                  Completed, Cancelled, or On Hold) when correcting data or resolving support issues.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  7.3 Prescriptions
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure5-prescriptions.png"
+                    alt="Figure 5 – Prescriptions"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 5 – Prescriptions
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  The Prescriptions screen lists all prescriptions with patient name, prescription number, dates,
+                  prescription and refill status, remaining refills, and expiry. Global Admin can modify prescription
+                  status and refill information where policy allows, for example when coordinating with the pharmacy or
+                  correcting provider errors.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  7.4 Orders
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure6-orders.png"
+                    alt="Figure 6 – Orders"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 6 – Orders
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  Orders represent medication orders to the pharmacy and show order ID, date, patient, MRN, clinic, and
+                  timestamps for when the order was sent or printed. Global Admin can update or delete orders and can
+                  trigger Send to Pharmacy or Resend just like clinics. Any changes propagate back to the clinic’s view
+                  so both sides stay in sync.
+                </p>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header8"
+              [nzActive]="activeSectionId === 'section-8'"
+            >
+              <ng-template #header8>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                8. Products
+              </span>
+              </ng-template>
+
+              <div
+                id="section-8"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The Products section defines the clinical and commercial catalogue that clinics draw from: treatment
+                  categories, packages, the shared drug catalog, and forms.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  8.1 Categories
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure7-categories.png"
+                    alt="Figure 7 – Product Categories"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 7 – Product Categories
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  Categories group treatments or offerings (for example Ketamine Therapy, Life Coaching, Urgent Care).
+                  Global Admin can add, edit, pause/resume, or delete categories. These are global definitions and are
+                  visible to all clinics.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  8.2 Packages
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure8-packages.png"
+                    alt="Figure 8 – Packages"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 8 – Packages
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  Packages represent concrete treatment bundles (e.g. Ketamine Therapy – 3 Months) with description,
+                  price, duration, and status. Global packages are visible to all clinics. Clinics can customise these
+                  packages for their own pricing and offers, but cloning a package as a separate object is not required
+                  in v1.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  8.3 Drugs Catalog
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure9-drugs-catalog.png"
+                    alt="Figure 9 – Drugs Catalog"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 9 – Drugs Catalog
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  The Drugs Catalog contains all medications available for ordering. Pharmacy sends the base list and
+                  wholesale prices to Global Admin, who can review and adjust before the data becomes visible to
+                  clinics. Clinics may then override wholesale or sale prices at their own clinic level; such overrides
+                  affect only that clinic and do not modify the global record.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  8.4 Forms
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure10-forms.png"
+                    alt="Figure 10 – Forms"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 10 – Forms
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  Forms are intake and other questionnaires that patients complete when starting or continuing
+                  treatments. Global Admin can create, edit, and manage forms. Some forms are global templates
+                  shared across clinics, while others may be tied to specific clinics. Status indicators show whether a
+                  form is active or pending configuration.
+                </p>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header9"
+              [nzActive]="activeSectionId === 'section-9'"
+            >
+              <ng-template #header9>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                9. Invoicing
+              </span>
+              </ng-template>
+
+              <div
+                id="section-9"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The Invoicing section tracks financial relationships between clinics and Global Admin. Payments to
+                  pharmacy are handled outside the system in this phase; the portal focuses on what clinics owe and
+                  pay to Global Admin.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  9.1 Payment Dashboard
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure11-payment-dashboard.png"
+                    alt="Figure 11 – Payment Dashboard"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 11 – Payment Dashboard
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  The Payment Dashboard summarises total received, pending amounts, and number of successful
+                  payments for the selected date range. The list of recent payments shows which clinics have paid, via
+                  which method, and whether the payment completed. All metrics are aggregated across clinics.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  9.2 Invoices
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure12-invoices.png"
+                    alt="Figure 12 – Invoices"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 12 – Invoices
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  The Invoices screen lists invoices issued to clinics with facility name, total amount, status
+                  (Paid/Pending), invoice date, and due date. Invoices are generated mainly automatically based on a
+                  clinic’s appointments and orders, but Global Admin can occasionally create manual or adjustment
+                  invoices when necessary.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  9.3 Invoice Payments
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure13-invoice-payments.png"
+                    alt="Figure 13 – Invoice Payments"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 13 – Invoice Payments
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  Invoice Payments shows each payment a clinic has made: payment number, invoice, facility, amount,
+                  method, card last-4, status, and date. These payments are recorded when clinics pay through their
+                  portal using integrated card processing (Square).
+                </p>
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header10"
+              [nzActive]="activeSectionId === 'section-10'"
+            >
+              <ng-template #header10>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                10. Admin &amp; Support
+              </span>
+              </ng-template>
+
+              <div
+                id="section-10"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  Admin &amp; Support brings together tools for managing users, conversations, support tickets, and the
+                  system activity log.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  10.1 User Management – Global Admin Users
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure14-global-admin-users.png"
+                    alt="Figure 14 – Global Admin Users"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 14 – Global Admin Users
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  The Global Admin Users tab lists all Global Admin accounts with their contact details and status. The
+                  Owner can add new Support Global Admins, deactivate accounts, and update information. All Global
+                  Admins listed here log in through the Global Admin portal; there is no ability to impersonate clinic
+                  users in v1.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  10.2 User Management – Providers
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure15-providers.png"
+                    alt="Figure 15 – Providers"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 15 – Providers
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  The Providers tab lists all provider accounts (doctors and similar roles). Each provider can be
+                  attached to multiple clinics through separate availability schedules. These accounts are distinct from
+                  Global Admin users; their credentials are used on the provider portal.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  10.3 Messages
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure16-messages.png"
+                    alt="Figure 16 – Messages"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 16 – Messages
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  The Messages module provides one-to-one chat between Global Admin and other roles. Clinics and
+                  providers can initiate conversations with Global Admin; patients do not initiate chats in v1. All
+                  conversations appear in a single unified inbox today, with role-based filtering planned for a future
+                  release.
+                </p>
+
+                <h3
+                  class="mt-2 mb-2 text-[13px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  10.4 Tickets
+                </h3>
+
+                <div class="mt-2 mb-3">
+
+                  <img
+                    nz-image
+                    class="w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                    src="assets/docs/global-admin/figure17-tickets.png"
+                    alt="Figure 17 – Tickets"
+                  />
+                  <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400 italic">
+                    Figure 17 – Tickets
+                  </p>
+                </div>
+
+                <p class="mb-3">
+                  Tickets are structured support requests. Clinics, providers, and Global Admin themselves can create
+                  tickets. Each ticket has a number, title, priority (for example High or Medium), status (Open, In
+                  Progress, Closed), creator, and timestamps. Anyone who raised a ticket can see its status changes.
+                  Priorities can be mapped to internal SLAs, even though enforcement is a process matter rather than an
+                  automated rule in v1.
+                </p>
+
+              </div>
+            </nz-collapse-panel>
+
+            <nz-collapse-panel
+              [nzHeader]="header11"
+              [nzActive]="activeSectionId === 'section-11'"
+            >
+              <ng-template #header11>
+              <span class="font-bold text-gray-1000 dark:text-gray-100">
+                11. Summary
+              </span>
+              </ng-template>
+
+              <div
+                id="section-11"
+                class="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <p class="mb-3">
+                  The Global Admin portal forms the operational backbone of the platform. From this console the Owner
+                  and Support Global Admins onboard clinics, configure products, coordinate with the integrated
+                  pharmacy, and maintain billing and support workflows. Clinics remain in control of patient acquisition
+                  and day-to-day care delivery, while Global Admin ensures consistency, compliance, and financial
+                  integrity across the network.
+                </p>
+
+                <p class="mb-0">
+                  As the product evolves, this document can serve as the foundation for future iterations: Analytics,
+                  more granular permissions, richer automation around billing and SLAs, and additional integrations. For
+                  now, it should provide a clear, end-to-end view of how the Global Admin role operates within the
+                  system.
+                </p>
+              </div>
+            </nz-collapse-panel>
+          </nz-collapse>
+        </nz-card>
+      </div>
+
+      <div class="lg:col-span-3">
+        <div
+          class="sticky top-20 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-4 text-xs"
+        >
+          <h2 class="text-[13px] font-semibold text-gray-800 dark:text-gray-100 mb-2">
+            Quick navigation
+          </h2>
+          <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-3">
+            Jump to any section of the Global Admin guide.
+          </p>
+
+          <ul class="space-y-1">
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-1')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                1
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Introduction</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-2')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                2
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">System Overview</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-3')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                3
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Data Model &amp; Permissions</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-4')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                4
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Navigation Overview</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-5')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                5
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Dashboard</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-6')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                6
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Clinics Module</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-7')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                7
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Clinical Module (Global View)</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-8')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                8
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Products</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-9')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                9
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Invoicing</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-10')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                10
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Admin &amp; Support</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                (click)="scrollToSection('section-11')"
+                class="w-full flex items-center gap-2 hover:text-primary focus:outline-none focus:text-primary"
+              >
+              <span
+                class="h-5 w-5 rounded-full bg-primary/10 text-[11px] flex items-center justify-center text-primary"
+              >
+                11
+              </span>
+                <span class="text-gray-800 dark:text-gray-100">Summary</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+}

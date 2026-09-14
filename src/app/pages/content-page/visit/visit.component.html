@@ -1,0 +1,319 @@
+@if(!loadingBranding){
+  <nz-layout class="contentLayout min-h-[100vh] bg-white dark:bg-gray-800">
+    <nz-header class="border-b border-lightPrimary bg-transparent flex items-center justify-between h-[72px] z-[100]">
+      <div class="logo">
+        <div class="w-40 bg-logo bg-contain bg-no-repeat bg-center"></div>
+      </div>
+      <div class="text-gray-700 dark:text-gray-400 relative flex items-center">
+        <span class="hidden min-[550px]:inline">Already have an account?</span>
+
+        <button nz-button nzType="primary" class="rounded-lg ml-2 h-8" (click)="this.isLoginModalVisible = true;">
+          <i class="hidden min-[550px]:inline fa-solid fa-arrow-right-to-bracket"></i>
+          <span class="ml-1">Sign In</span>
+        </button>
+      </div>
+
+      <div class="hidden min-[600px]:flex items-center space-x-3">
+        <button nz-button nzType="primary" class="rounded-lg h-8" (click)="isModalVisible = true;">
+          <span class="hidden mr-1 md:inline-block">Help</span>
+          <i class="fa-solid fa-question"></i>
+        </button>
+
+        <button (click)="toggleDarkMode()" class="relative text-gray-500 inline-flex border-gray-300 items-center justify-center dark:text-gray-400 bg-gray-200 hover:bg-gray-300 w-8 h-8 dark:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
+          <i class="text-lg fa-solid" [ngClass]="isDarkMode ? 'fa-sun text-yellow-400' : 'fa-moon text-gray-800'"></i>
+        </button>
+      </div>
+
+      <div class="min-[600px]:hidden">
+        <button nz-button nz-dropdown [nzDropdownMenu]="mobileMenu" [nzTrigger]="'click'"
+          class="relative rounded-lg h-8 text-primary inline-flex items-center justify-center dark:text-gray-400 bg-transparent hover:bg-gray-300 w-10 h- dark:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 text-sm p-2.5">
+          <i class="text-lg fa-solid fa-bars"></i>
+        </button>
+
+        <nz-dropdown-menu #mobileMenu="nzDropdownMenu">
+          <ul nz-menu>
+            <li nz-menu-item (click)="isModalVisible = true;">
+              <i class="fa-solid fa-question mr-2"></i>
+              Help
+            </li>
+            <li nz-menu-item (click)="toggleDarkMode()">
+              <i class="fa-solid mr-2" [ngClass]="isDarkMode ? 'fa-sun text-yellow-400' : 'fa-moon'"></i>
+              {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
+            </li>
+          </ul>
+        </nz-dropdown-menu>
+      </div>
+    </nz-header>
+
+    <nz-sider class="bg-transparent  w-full max-w-full md:min-w-[320px] lg:min-w-[400px] px-4 md:px-8 mx-auto">
+      <div class="sticky top-[8rem] ">
+        <nz-card
+          class="no-step-interaction visit-card drop-shadow-lg flex items-center justify-center h-full md:h-[82vh] p-6 md:p-10 rounded-xl dark:bg-gray-900 dark:text-white bg-white text-gray-800">
+          <div class="w-full max-h-full overflow-auto">
+            <nz-steps class="mx-auto" nzDirection="vertical" [nzCurrent]="currentStep">
+              <nz-step *ngFor="let step of sider_steps" [nzTitle]="step.title"
+                [nzDescription]="step.description"></nz-step>
+            </nz-steps>
+          </div>
+        </nz-card>
+      </div>
+    </nz-sider>
+
+    <nz-content class="mr-8">
+      <div class="hidden max-[768px]:inline horizontal-steps">
+        <nz-steps class="px-6 sm:px-12 md:px-20  no-step-interaction" [nzCurrent]="currentStep">
+          <nz-step *ngFor="let step of sider_steps" [nzIcon]="step.icon"></nz-step>
+        </nz-steps>
+      </div>
+
+      <div class="max-w-100">
+
+        @if(isSubmitting){
+          <nz-card class="visit-card drop-shadow-lg flex flex-col h-full p-4 rounded-xl mb-6">
+            <div class="text-center text-primary text-5xl py-[6rem]">
+              <i class="fa-solid fa-arrows-spin animate-spin"></i>
+              <p class="text-xl mt-4">Processing your submission...</p>
+            </div>
+          </nz-card>
+        }@else {
+          <div *ngIf="sider_steps.length === 0">
+            <ng-template [ngTemplateOutlet]="loading"></ng-template>
+          </div>
+
+          <div *ngIf="sider_steps.length > 0">
+            <ng-container [ngSwitch]="getCurrentStepComponent()">
+              <ng-container *ngSwitchCase="'subscription'">
+                <nz-card class="visit-card drop-shadow-lg flex flex-col h-full p-5 rounded-xl mb-6 dark:bg-gray-900">
+                  <app-visit-subscription [selectedSub]="this.selectedSub"
+                    (onContinue)="goToNextStep($event, 'subscription')"
+                    (onPrevious)="goToPreviousStep($event, 'subscription')"
+                    [currentStep]="currentStep"></app-visit-subscription>
+                </nz-card>
+              </ng-container>
+
+              <ng-container *ngSwitchCase="'basicForm'">
+                <nz-card class="visit-card drop-shadow-lg flex flex-col h-full p-5 rounded-xl mb-6 dark:bg-gray-900">
+                  <h6 class="text-primary uppercase font-bold mb-2" *ngIf="currentStep === 0">Lets Start With</h6>
+                  <div class="flex justify-start">
+                    <div class="block mr-2" *ngIf="currentStep !== 0">
+                      <button nz-button nzType="default" class="mb-4 rounded-lg h-8" (click)="goToPreviousStep()">
+                        <i class="fa-solid fa-arrow-left"></i>
+                      </button>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-8 dark:text-gray-200">Personal Information</h2>
+                  </div>
+                  <form [formGroup]="basicInfoForm" (ngSubmit)="onSubmit()">
+                    <div class="md:flex items-start justify-between">
+                      <div class="w-full md:w-1/3 mb-4">
+                        <label class="label-C">
+                          First Name
+                          <span class="text-danger">*</span>
+                        </label>
+                        <input nz-input formControlName="firstName" type="text" placeholder="Enter First Name"
+                          appValidationErrors class="input-C" />
+                      </div>
+                      <div class="w-full md:w-1/3 md:ml-4 mb-4">
+                        <label class="label-C">
+                          Last Name
+                          <span class="text-danger">*</span>
+                        </label>
+                        <input nz-input formControlName="lastName" type="text" placeholder="Enter Last Name"
+                          appValidationErrors class="input-C" />
+                      </div>
+                      <div class="w-full md:w-1/3 md:ml-4 mb-4">
+                        <label class="label-C">
+                          Email
+                          <span class="text-danger">*</span>
+                        </label>
+                        <input nz-input formControlName="email" type="email" placeholder="Enter Email" appValidationErrors
+                          class="input-C" />
+                      </div>
+                    </div>
+                    <div class="md:flex items-start justify-between">
+                      <div class="w-full md:w-1/3 mb-4">
+                        <label class="label-C">
+                          Sex Assigned at Birth
+                          <span class="text-danger">*</span>
+                        </label>
+                        <nz-select class="onVisit-Select mt-1 block w-full" nzPlaceHolder="Select Sex" formControlName="gender" nzShowSearch appValidationErrors>
+                          <nz-option nzLabel="Male" nzValue="Male"></nz-option>
+                          <nz-option nzLabel="Female" nzValue="Female"></nz-option>
+                        </nz-select>
+                      </div>
+                      <div class="w-full md:w-1/3 md:ml-4 mb-4">
+                        <label class="label-C">
+                          Date of Birth
+                          <span class="text-danger">*</span>
+                        </label>
+                        <nz-date-picker formControlName="dob" appValidationErrors [nzFormat]="'MM/dd/YYYY'"
+                          class="datepicker-C" nzPlaceHolder="Select Birthdate"
+                          [nzDisabledDate]="disableFutureDates"></nz-date-picker>
+                      </div>
+                      <div class="w-full md:w-1/3 md:ml-4 mb-4">
+                        <label class="label-C">
+                          Phone number
+                          <span class="text-danger">*</span>
+                        </label>
+                        <input nz-input formControlName="phone" type="text" placeholder="(###) ###-####" appValidationErrors
+                          class="input-C" />
+                      </div>
+                    </div>
+                    <div class="mb-4">
+                      <label class="label-C">
+                        Address
+                        <span class="text-danger">*</span>
+                      </label>
+                      <input nz-input formControlName="address" type="text" placeholder="Enter Address" appValidationErrors
+                        class="input-C" />
+                    </div>
+
+                    <div class="mb-4">
+                      <label class="label-C">
+                        Address 2
+                      </label>
+                      <input nz-input formControlName="street" type="text" placeholder="Enter Address 2" appValidationErrors
+                        class="input-C" />
+                    </div>
+
+                    <div class="md:flex items-start justify-between">
+                      <div class="w-full md:w-1/3 mb-4">
+                        <label class="label-C">
+                          City
+                          <span class="text-danger">*</span>
+                        </label>
+                        <nz-select class="onVisit-Select mt-1 block w-full" nzPlaceHolder="Select city"
+                          formControlName="cityId" nzShowSearch appValidationErrors (ngModelChange)="loadStateById($event)">
+                          <nz-option *ngFor="let city of cityList" [nzValue]="city.id" [nzLabel]="city.name"></nz-option>
+                        </nz-select>
+                      </div>
+
+                      <div class="w-full md:w-1/3 md:ml-4 mb-4">
+                        <label class="label-C">
+                          State
+                          <span class="text-danger">*</span>
+                        </label>
+                        <nz-select class="onVisit-Select mt-1 block w-full" nzPlaceHolder="Select state"
+                          formControlName="stateId" nzShowSearch appValidationErrors>
+                          <nz-option *ngIf="stateList" [nzValue]="stateList.id" [nzLabel]="stateList.name"></nz-option>
+                        </nz-select>
+                      </div>
+                      <div class="w-full md:w-1/3 md:ml-4 mb-4">
+                        <label class="label-C">
+                          Zip Code
+                          <span class="text-danger">*</span>
+                        </label>
+                        <input nz-input formControlName="zipcode" type="tel" placeholder="Enter Zip Code"
+                          appValidationErrors class="input-C" />
+                      </div>
+                    </div>
+                    <div class="mb-4">
+                      <label nz-checkbox formControlName="termCondition" class="visitCheckbox dark:text-gray-300">
+                        I agree to ISOLHEALTH
+                      </label>
+                      <a target="_blank"
+                        class="text-primary underline-offset-8 hover:text-danger-400 hover:font-semibold hover:underline">Terms
+                        and Condition</a>
+                      <div
+                        *ngIf="basicInfoForm.get('termCondition')?.invalid && basicInfoForm.get('termCondition')?.touched"
+                        class="text-danger-500 text-sm block">
+                        Agreeing to term and condition is required to continue further.
+                      </div>
+                    </div>
+                    <div class="py-5 w-full bg-white dark:bg-gray-900">
+                      <button nz-button nzType="primary" class="rounded-lg block w-full h-8"
+                        [disabled]="basicInfoForm.invalid || !basicInfoForm.value.termCondition">
+                        Next
+                      </button>
+                    </div>
+                  </form>
+                </nz-card>
+              </ng-container>
+
+              <ng-container *ngSwitchCase="'provider'">
+                <nz-card class="visit-card drop-shadow-lg flex flex-col h-full p-5 rounded-xl mb-6 dark:bg-gray-900">
+                  <app-visit-provider [categoryId]="this.selectedCategory"
+                    (onContinue)="goToNextStep($event, 'provider')" (onPrevious)="goToPreviousStep($event)"
+                    [providerApt]="providerApt"></app-visit-provider>
+                </nz-card>
+              </ng-container>
+
+              <ng-container *ngSwitchCase="'payment'">
+                <app-visit-payment [selectedSub]="this.selectedSub" (onContinue)="goToNextStep($event, 'payment')"
+                  (onPrevious)="goToPreviousStep($event, 'payment')" [paymentData]="this.paymentData"
+                  [currentStep]="currentStep"></app-visit-payment>
+              </ng-container>
+
+              <ng-container *ngSwitchCase="'intakeForm'">
+                <nz-card
+                  class="visit-card drop-shadow-lg flex flex-col h-full p-5 rounded-xl mb-6 dark:bg-gray-900">
+                  <app-dynamic-intake-form *ngIf="intakeFormJson;else loading" [JsonData]="this.intakeFormJson"
+                    (onContinue)="goToNextStep($event, 'intakeForm')" (onPrevious)="goToPreviousStep($event, 'intakeForm')"
+                    type="visitIntakeForm" [formDataIN]="this.intakeFormData"
+                    [currentStep]="currentStep"></app-dynamic-intake-form>
+                </nz-card>
+              </ng-container>
+
+            </ng-container>
+          </div>
+        }
+      </div>
+    </nz-content>
+  </nz-layout>
+}@else {
+  <div class="flex items-center justify-center h-dvh dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl">
+    <div class="text-center">
+        <i class="fa-solid fa-arrows-spin animate-spin text-primary dark:text-white text-5xl"></i>
+    </div>
+  </div>
+}
+
+<ng-template #loading>
+  <nz-card class="visit-card drop-shadow-lg flex flex-col h-full p-4 rounded-xl mb-6">
+    <div class="text-center text-primary text-5xl py-[6rem]">
+      <i class="fa-solid fa-arrows-spin animate-spin"></i>
+    </div>
+  </nz-card>
+</ng-template>
+
+<nz-drawer *ngIf="isModalVisible" [(nzVisible)]="isModalVisible" nzTitle="Need Help?" (nzOnClose)="isModalVisible=false;"
+  [nzClosable]="true" [nzMaskClosable]="false" nzPlacement="right" nzWidth="350px" [nzBodyStyle]="{ padding: '24px' }">
+  <ng-container *nzDrawerContent>
+    <div class="relative">
+      <div class="flex items-center mb-4 text-sm text-gray-400 dark:text-gray-300">
+        <i class="fas fa-envelope mr-4 text-2xl"></i>
+        <span class="text-sm">
+          Feel free to email us anytime at
+          <a class="block text-blue-500 dark:text-blue-400 hover:underline" href="mailto:care@dudemeds.com">care"&#64;"isolhealth.com</a>
+        </span>
+      </div>
+      <div class="flex items-center text-gray-400 dark:text-gray-300">
+        <i class="fas fa-phone-alt mr-4 text-2xl"></i>
+        <div class="text-sm">
+          <p>Call or text us at +1</p>
+          <p>Monday - Friday: 9am - 5pm ET</p>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</nz-drawer>
+
+<nz-modal *ngIf="isLoginModalVisible" [(nzVisible)]="isLoginModalVisible" nzTitle="Enter Your Login Credentials" (nzOnCancel)="isLoginModalVisible = false;" [nzMaskClosable]="false"
+  (nzOnOk)="handleLoginOk()" [nzOkLoading]="isLoginFormSubmitting" [nzOkDisabled]="isLoginFormSubmitting" nzCentered >
+  <ng-container *nzModalContent>
+    <form [formGroup]="loginForm" (ngSubmit)="handleLoginOk()">
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-500">Email</label>
+        <input nz-input appValidationErrors formControlName="email" type="email" placeholder="Enter Email"
+          class="input-C" />
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-500">Password</label>
+        <div class="relative">
+          <input #passwordLoginField nz-input type="password" appValidationErrors formControlName="password" placeholder="Enter Password" class="input-C" />
+          <i class="fa-solid fa-{{ passwordLoginField.type === 'password' ? 'eye' : 'eye-slash' }} cursor-pointer absolute top-2 right-0 pr-3 flex items-center"
+            (click)="passwordLoginField.type = passwordLoginField.type === 'password' ? 'text' : 'password'"></i>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+</nz-modal>

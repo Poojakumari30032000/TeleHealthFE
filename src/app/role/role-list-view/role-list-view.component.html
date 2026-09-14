@@ -1,0 +1,110 @@
+<div class="role-list">
+
+  <div class="role-list__toolbar">
+    <div class="role-list__filters">
+      <nz-input-group [nzPrefix]="searchIcon" class="role-list__search">
+        <input
+          nz-input
+          type="text"
+          placeholder="Search roles"
+          [(ngModel)]="searchText"
+          (ngModelChange)="searchTermChanged()"
+          aria-label="Search roles" />
+      </nz-input-group>
+      <ng-template #searchIcon><i class="fa-solid fa-magnifying-glass"></i></ng-template>
+
+      <label nz-checkbox [(ngModel)]="includeInactive" (ngModelChange)="onIncludeInactiveChange()">
+        Show inactive
+      </label>
+    </div>
+
+    <!-- Gated on the same permission the server requires for every write on this
+         screen, so the button is not offered to someone who would get a 403. -->
+    <button
+      *appHasAnyPermission="['user_management']"
+      nz-button
+      nzType="primary"
+      (click)="addRole()">
+      <i class="fa-solid fa-plus"></i>&nbsp; Add Role
+    </button>
+  </div>
+
+  <nz-table
+    #roleTable
+    [nzData]="roles"
+    [nzLoading]="loading"
+    [nzFrontPagination]="false"
+    [nzTotal]="totalCount"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="pageNumber"
+    (nzPageIndexChange)="onPageChange($event)"
+    nzSize="middle"
+    [nzScroll]="{ x: '900px' }">
+
+    <thead>
+      <tr>
+        <th nzWidth="240px">Role</th>
+        <th>Description</th>
+        <th nzWidth="120px" class="role-list__num">Permissions</th>
+        <th nzWidth="100px" class="role-list__num">Users</th>
+        <th nzWidth="110px">Status</th>
+        <th nzWidth="120px" nzRight>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let role of roleTable.data">
+        <td>
+          <span class="role-list__name">{{ role.roleName }}</span>
+          <nz-tag
+            *ngIf="role.isSystemRole"
+            nzColor="blue"
+            nz-tooltip
+            nzTooltipTitle="Built-in role. Its name cannot be changed and it cannot be deleted, but its permissions can.">
+            Built-in
+          </nz-tag>
+        </td>
+
+        <td class="role-list__muted">{{ role.roleDescription || '—' }}</td>
+
+        <td class="role-list__num">{{ permissionLabel(role) }}</td>
+
+        <td class="role-list__num">{{ role.assignedUserCount }}</td>
+
+        <td>
+          <nz-tag [nzColor]="role.isActive ? 'green' : 'default'">
+            {{ role.isActive ? 'Active' : 'Inactive' }}
+          </nz-tag>
+        </td>
+
+        <td nzRight>
+          <button
+            *appHasAnyPermission="['user_management']"
+            nz-button
+            nzType="text"
+            nz-tooltip
+            nzTooltipTitle="Edit permissions"
+            (click)="editRole(role)">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+
+          <button
+            *appHasAnyPermission="['user_management']"
+            nz-button
+            nzType="text"
+            nzDanger
+            [disabled]="!canDelete(role)"
+            nz-tooltip
+            [nzTooltipTitle]="deleteTooltip(role)"
+            (click)="deleteRole(role)">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <nz-empty
+    *ngIf="!loading && roles.length === 0"
+    nzNotFoundContent="No roles match your search."></nz-empty>
+</div>

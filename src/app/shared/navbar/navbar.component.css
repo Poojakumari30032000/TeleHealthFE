@@ -1,0 +1,6 @@
+.select ::ng-deep .ant-select-selector{
+    height: 40px !important;
+    align-items: center;
+    border-radius: 1.5rem;
+}
+

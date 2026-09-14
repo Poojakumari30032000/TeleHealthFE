@@ -1,0 +1,57 @@
+<div class="max-w-3xl mx-auto py-4">
+  <div class="flex items-center gap-4 mb-6">
+    <button type="button" class="main-btn mb-0" (click)="goBack()">
+      <i class="fa-solid fa-arrow-left mr-2"></i>
+      Back
+    </button>
+    <button type="button" class="main-btn mb-0" (click)="goToPackage()">
+      <i class="fa-solid fa-box mr-2"></i>
+      Package details
+    </button>
+  </div>
+
+  @if (isLoading) {
+    <div class="flex justify-center items-center min-h-[200px]">
+      <i class="fa-solid fa-spinner animate-spin text-3xl text-primary"></i>
+    </div>
+  } @else if (hasError) {
+    <div class="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-6 text-center">
+      <p class="text-red-600 dark:text-red-400">Failed to load package or categories.</p>
+      <button type="button" class="main-btn mt-4" (click)="loadBundleCategories()">
+        <i class="fa-solid fa-rotate-right mr-2"></i>
+        Retry
+      </button>
+    </div>
+  } @else {
+    <div class="bg-gray-100 dark:bg-gray-700 px-4 py-3 rounded-xl mb-4">
+      <h1 class="text-xl font-semibold dark:text-gray-200">
+        Categories assigned to package
+      </h1>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+        Package: <span class="font-medium text-gray-800 dark:text-gray-200">{{ bundleName }}</span>
+      </p>
+    </div>
+
+    @if (categories.length === 0) {
+      <div class="rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 p-6 text-center text-gray-500 dark:text-gray-400">
+        No category assigned to this package.
+      </div>
+    } @else {
+      <ul class="space-y-3">
+        @for (cat of categories; track cat.categoryId) {
+          <li
+            class="rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 p-4 flex items-center gap-3"
+          >
+            <span class="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <i class="fa-solid fa-folder text-primary"></i>
+            </span>
+            <div>
+              <span class="font-medium text-gray-900 dark:text-gray-100">{{ cat.categoryName }}</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">ID: {{ cat.categoryId }}</span>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  }
+</div>

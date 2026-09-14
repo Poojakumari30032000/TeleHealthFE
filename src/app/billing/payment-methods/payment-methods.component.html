@@ -1,0 +1,88 @@
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+    @for (item of cards; track $index) {
+        <div [ngClass]="{'border-primary dark:border-primary border-dashed':item.isDefault}" class="p-4 bg-gray-50 dark:bg-transparent rounded-2xl shadow-sm border dark:border-gray-600 flex flex-col justify-between relative">
+            @if (item.isDefault === true) {
+            <div class="absolute top-[-12px] left-5">
+                <span class="bg-primary text-white px-3 py-0.5 rounded-full text-xs font-medium">Default</span>
+            </div>
+            }
+
+            <div class="flex items-center gap-4">
+                <i class="fa-solid fa-credit-card text-primary text-3xl"></i>
+                <div class="flex-grow">
+                    <p class="text-lg font-medium text-gray-700 dark:text-gray-100">**** **** **** {{ item.last4 }}
+                    </p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Expires {{ item.expirationMonth }}/{{ item.expirationYear }}
+                    </p>
+                    <p class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ item.cardHolderName }}</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 mt-4 justify-between">
+                <div class="flex gap-2">
+
+                    <button class="main-btn hover:bg-danger hover:text-white px-3 h-8 mb-0" (click)="confirmDelete($event,item)">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+
+                @if (item.isDefault !== true) {
+                <button class="main-btn ml-auto flex items-center mb-0 h-8" (click)="onClick(item)">
+                    <i class="fa-solid fa-check"></i>
+                    <span class="ml-2 hidden md:inline-block">Set As Default</span>
+                </button>
+                }
+            </div>
+
+        </div>
+    }
+
+    <div class="p-4 bg-primary-50 dark:bg-gray-600 dark:border-gray-600 rounded-2xl shadow-sm border flex flex-col items-center justify-center min-h-32">
+
+        <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-2">
+            Before adding a new card, please read our <a class="text-primary hover:underline">Terms and
+                Conditions</a>.
+        </p>
+
+        <button nz-button (click)="addCard()" nzType="primary"
+            class="rounded-lg dark:bg-transparent dark:text-gray-300 dark:hover:bg-gray-700 mt-2">
+            Add new card
+        </button>
+    </div>
+
+</div>
+
+<nz-modal
+[(nzVisible)]="addCardModalTrigger"
+nzTitle="Add Card"
+(nzOnCancel)="onCancelAddCard()"
+(nzOnOk)="saveCard()"
+[nzOkLoading]="isFormSubmitting">
+
+<ng-container *nzModalContent>
+
+  @if (paymentProvider === 'stripe') {
+
+    <div id="stripe-card-element" class="min-h-[3rem]"></div>
+
+    @if (stripeError) {
+      <p class="text-danger text-sm mt-2">{{ stripeError }}</p>
+    }
+
+  } @else {
+
+    <div #cardContainer class="relative">
+      <div id="card-container"></div>
+    </div>
+
+    <div class="relative">
+      <label class="block text-sm font-medium text-gray-500">Cardholder Name</label>
+      <input nz-input type="text" [(ngModel)]="cardholderName" class="input-C"/>
+    </div>
+
+  }
+
+</ng-container>
+</nz-modal>
+

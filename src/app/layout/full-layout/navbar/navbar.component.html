@@ -1,0 +1,535 @@
+<nz-header class="bg-transparent flex justify-between items-center pb-4  px-0 border-0">
+    <div class="flex items-center space-x-4 justify-between w-full">
+
+        <div class="flex items-center">
+            <button class="text-xl lg:hidden toggle-button mr-4" (click)="toggleSidebar()">
+                <i class="fa-solid fa-bars dark:text-gray-500"></i>
+            </button>
+            <div class="flex flex-col gap-1">
+                <h2 class="text-2xl font-semibold text-primary dark:text-gray-200">
+                    {{ currentTitle() }}
+                </h2>
+                <nav *ngIf="breadcrumbs().length > 0" class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                    <ng-container *ngFor="let crumb of breadcrumbs(); let last = last">
+                        <a [routerLink]="crumb.path" class="hover:text-gray-900 dark:hover:text-white">
+                            {{ crumb.label }}
+                        </a>
+                        <i *ngIf="!last" class="fa-solid fa-chevron-right text-xs mx-1"></i>
+                    </ng-container>
+                </nav>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <button *ngIf="appointmentData && userRole === 'Provider'" (click)="this.appointmentDrawerVisible = true;" class="relative text-gray-500 inline-flex items-center justify-center dark:text-gray-400 hover:bg-gray-300 w-8 h-8 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-full text-sm p-2.5 bg-gray-200 dark:bg-gray-700">
+                <i class="fa-solid fa-calendar-days text-blue-600 dark:text-blue-400 text-xl"></i>
+                <span class="absolute top-0 right-0 inline-flex items-center justify-center w-3 h-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                </span>
+            </button>
+
+            <button (click)="navigateToChat()" class="nb-icon-btn" title="Messages">
+              <i class="fa-solid fa-comments"></i>
+              <span *ngIf="totalUnreadMessages() > 0" class="nb-badge">
+                {{ totalUnreadMessages() > 99 ? '99+' : totalUnreadMessages() }}
+              </span>
+            </button>
+
+            <button nz-dropdown nzTrigger="click" [nzDropdownMenu]="notificationMenu"
+                    class="nb-icon-btn" title="Notifications">
+              <i class="fa-solid fa-bell"></i>
+              <span *ngIf="unreadNotificationCount > 0" class="nb-badge">
+                {{ unreadNotificationCount > 99 ? '99+' : unreadNotificationCount }}
+              </span>
+            </button>
+            <div nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu" class="flex items-center gap-2 cursor-pointer">
+              @if (getProfileUrl == '') {
+                <span class="inline-flex w-8 h-8 items-center justify-center rounded-full border border-gray-300 bg-gray-100 dark:border-gray-600 dark:bg-gray-700">
+                  <i class="fa-solid fa-user text-primary"></i>
+                </span>
+              }
+              @else{
+                <img class="w-8 h-8 rounded-full" [src]="getProfileUrl" alt="assets/img/profileimage.png">
+                }
+                <div class="text-sm text-gray-900 dark:text-white hidden lg:block">
+                  <div class="font-semibold">{{profileName}}</div>
+                  <div class="truncate text-xs">{{userRole}}</div>
+                </div>
+                <i class="fa-solid fa-chevron-down dark:text-gray-500"></i>
+            </div>
+        </div>
+    </div>
+</nz-header>
+
+<nz-dropdown-menu #notificationMenu="nzDropdownMenu">
+  <div class="nb-notif-panel">
+
+    <div class="nb-notif-header">
+      <div class="nb-notif-header__title">
+        <i class="fa-solid fa-bell nb-notif-header__icon"></i>
+        <span>Notifications</span>
+      </div>
+      <span *ngIf="unreadNotificationCount > 0" class="nb-notif-header__count">
+        {{ unreadNotificationCount }}
+      </span>
+    </div>
+
+    <div class="nb-notif-list">
+      @for (notification of notifications; track notification) {
+        <div class="nb-notif-item" [class.nb-notif-item--read]="notification.isRead">
+
+          <div class="nb-notif-icon" [ngClass]="{
+            'nb-notif-icon--appointment': notification.notificationType.includes('Appointment'),
+            'nb-notif-icon--patient':     notification.notificationType.includes('Patient'),
+            'nb-notif-icon--rx':          notification.notificationType.includes('Prescription') || notification.notificationType.includes('Refill'),
+            'nb-notif-icon--payment':     notification.notificationType.includes('Payment') || notification.notificationType.includes('Invoice') || notification.notificationType.includes('Billing'),
+            'nb-notif-icon--message':     notification.notificationType.includes('Message'),
+            'nb-notif-icon--order':       notification.notificationType.includes('Order'),
+            'nb-notif-icon--alert':       notification.notificationType.includes('Alert') || notification.notificationType.includes('System')
+          }">
+            <i class="fas" [ngClass]="{
+              'fa-calendar-check':              notification.notificationType.includes('Appointment'),
+              'fa-user':                        notification.notificationType.includes('Patient'),
+              'fa-prescription-bottle-medical': notification.notificationType.includes('Prescription') || notification.notificationType.includes('Refill'),
+              'fa-credit-card':                 notification.notificationType.includes('Payment') || notification.notificationType.includes('Invoice') || notification.notificationType.includes('Billing'),
+              'fa-envelope':                    notification.notificationType.includes('Message'),
+              'fa-box':                         notification.notificationType.includes('Order'),
+              'fa-triangle-exclamation':        notification.notificationType.includes('Alert') || notification.notificationType.includes('System'),
+              'fa-bell':                        !notification.notificationType.includes('Appointment') &&
+                                                !notification.notificationType.includes('Patient') &&
+                                                !notification.notificationType.includes('Prescription') &&
+                                                !notification.notificationType.includes('Refill') &&
+                                                !notification.notificationType.includes('Payment') &&
+                                                !notification.notificationType.includes('Invoice') &&
+                                                !notification.notificationType.includes('Billing') &&
+                                                !notification.notificationType.includes('Message') &&
+                                                !notification.notificationType.includes('Order') &&
+                                                !notification.notificationType.includes('Alert') &&
+                                                !notification.notificationType.includes('System')
+            }"></i>
+          </div>
+
+          <div class="nb-notif-content">
+            <p class="nb-notif-title">{{ getNotifTitle(notification) }}</p>
+            <p class="nb-notif-desc">{{ notification.description }}</p>
+            <span class="nb-notif-time">{{ notification.createdDate }}</span>
+          </div>
+
+          <button
+            *ngIf="!notification.isRead"
+            (click)="$event.stopPropagation(); markAsRead(notification.notificationId)"
+            class="nb-notif-read-btn"
+            title="Mark as read"
+          >
+            <i class="fa-solid fa-check"></i>
+          </button>
+        </div>
+      }
+      @empty {
+        <div class="nb-notif-empty">
+          <i class="fa-solid fa-bell-slash nb-notif-empty__icon"></i>
+          <p class="nb-notif-empty__title">All caught up!</p>
+          <p class="nb-notif-empty__sub">No new notifications right now.</p>
+        </div>
+      }
+    </div>
+
+    <div *ngIf="notifications.length > 0" class="nb-notif-footer">
+      <button class="nb-notif-footer-btn" (click)="markAsRead(0, 'All')">
+        <i class="fa-solid fa-check-double"></i>
+        <span>Mark all as read</span>
+      </button>
+      <span class="nb-notif-footer-divider"></span>
+      <button class="nb-notif-footer-btn nb-notif-footer-btn--primary" (click)="openViewAllNotifications()">
+        <i class="fa-solid fa-list-ul"></i>
+        <span>View all</span>
+      </button>
+    </div>
+
+  </div>
+</nz-dropdown-menu>
+
+<nz-modal
+  [(nzVisible)]="isViewAllModalVisible"
+  nzTitle=""
+  [nzFooter]="null"
+  [nzWidth]="640"
+  [nzCentered]="true"
+  [nzMaskClosable]="true"
+  nzClassName="nb-notif-modal"
+  (nzOnCancel)="closeViewAllNotifications()"
+>
+  <ng-container *nzModalContent>
+    <div class="nb-notif-modal-shell">
+
+      <div class="nb-notif-modal-banner">
+        <div class="nb-notif-modal-banner-icon">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+        <div class="nb-notif-modal-banner-body">
+          <div class="nb-notif-modal-banner-title">All Notifications</div>
+          <div class="nb-notif-modal-banner-sub">
+            <ng-container *ngIf="unreadNotificationCount > 0">
+              {{ unreadNotificationCount }} unread of {{ notifications.length }} total
+            </ng-container>
+            <ng-container *ngIf="unreadNotificationCount === 0">
+              {{ notifications.length }} total — all caught up
+            </ng-container>
+          </div>
+        </div>
+        <button
+          *ngIf="unreadNotificationCount > 0"
+          class="nb-notif-modal-mark-all"
+          (click)="markAsRead(0, 'All')"
+          title="Mark all as read"
+        >
+          <i class="fa-solid fa-check-double"></i>
+          <span>Mark all read</span>
+        </button>
+      </div>
+
+      <div class="nb-notif-modal-toolbar">
+        <div class="nb-notif-modal-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            type="text"
+            placeholder="Search notifications..."
+            [(ngModel)]="notifViewAllSearch"
+          />
+        </div>
+        <div class="nb-notif-modal-filters">
+          <button class="nb-notif-modal-filter"
+                  [class.nb-notif-modal-filter--active]="notifViewAllFilter === 'all'"
+                  (click)="notifViewAllFilter = 'all'">All</button>
+          <button class="nb-notif-modal-filter"
+                  [class.nb-notif-modal-filter--active]="notifViewAllFilter === 'unread'"
+                  (click)="notifViewAllFilter = 'unread'">
+            Unread
+            <span class="nb-notif-modal-filter-count" *ngIf="unreadNotificationCount > 0">
+              {{ unreadNotificationCount }}
+            </span>
+          </button>
+          <button class="nb-notif-modal-filter"
+                  [class.nb-notif-modal-filter--active]="notifViewAllFilter === 'read'"
+                  (click)="notifViewAllFilter = 'read'">Read</button>
+        </div>
+      </div>
+
+      <div class="nb-notif-modal-list">
+        @for (notification of filteredViewAllNotifications; track notification.notificationId) {
+          <div class="nb-notif-modal-item" [class.nb-notif-modal-item--read]="notification.isRead">
+            <div class="nb-notif-icon" [ngClass]="{
+              'nb-notif-icon--appointment': notification.notificationType.includes('Appointment'),
+              'nb-notif-icon--patient':     notification.notificationType.includes('Patient'),
+              'nb-notif-icon--rx':          notification.notificationType.includes('Prescription') || notification.notificationType.includes('Refill'),
+              'nb-notif-icon--payment':     notification.notificationType.includes('Payment') || notification.notificationType.includes('Invoice') || notification.notificationType.includes('Billing'),
+              'nb-notif-icon--message':     notification.notificationType.includes('Message'),
+              'nb-notif-icon--order':       notification.notificationType.includes('Order'),
+              'nb-notif-icon--alert':       notification.notificationType.includes('Alert') || notification.notificationType.includes('System')
+            }">
+              <i class="fas" [ngClass]="{
+                'fa-calendar-check':              notification.notificationType.includes('Appointment'),
+                'fa-user':                        notification.notificationType.includes('Patient'),
+                'fa-prescription-bottle-medical': notification.notificationType.includes('Prescription') || notification.notificationType.includes('Refill'),
+                'fa-credit-card':                 notification.notificationType.includes('Payment') || notification.notificationType.includes('Invoice') || notification.notificationType.includes('Billing'),
+                'fa-envelope':                    notification.notificationType.includes('Message'),
+                'fa-box':                         notification.notificationType.includes('Order'),
+                'fa-triangle-exclamation':        notification.notificationType.includes('Alert') || notification.notificationType.includes('System'),
+                'fa-bell':                        !notification.notificationType.includes('Appointment') &&
+                                                  !notification.notificationType.includes('Patient') &&
+                                                  !notification.notificationType.includes('Prescription') &&
+                                                  !notification.notificationType.includes('Refill') &&
+                                                  !notification.notificationType.includes('Payment') &&
+                                                  !notification.notificationType.includes('Invoice') &&
+                                                  !notification.notificationType.includes('Billing') &&
+                                                  !notification.notificationType.includes('Message') &&
+                                                  !notification.notificationType.includes('Order') &&
+                                                  !notification.notificationType.includes('Alert') &&
+                                                  !notification.notificationType.includes('System')
+              }"></i>
+            </div>
+
+            <div class="nb-notif-modal-item-content">
+              <div class="nb-notif-modal-item-header">
+                <span class="nb-notif-modal-item-title">{{ getNotifTitle(notification) }}</span>
+                <span class="nb-notif-modal-item-type">{{ prettifyNotificationType(notification.notificationType) }}</span>
+              </div>
+              <p class="nb-notif-modal-item-desc">{{ notification.description }}</p>
+              <span class="nb-notif-modal-item-time">
+                <i class="fa-regular fa-clock"></i>
+                {{ notification.createdDate }}
+              </span>
+            </div>
+
+            <div class="nb-notif-modal-item-actions">
+              <span class="nb-notif-modal-unread-dot" *ngIf="!notification.isRead" title="Unread"></span>
+              <button
+                *ngIf="!notification.isRead"
+                class="nb-notif-modal-read-btn"
+                (click)="markAsRead(notification.notificationId)"
+                title="Mark as read"
+              >
+                <i class="fa-solid fa-check"></i>
+              </button>
+            </div>
+          </div>
+        }
+        @empty {
+          <div class="nb-notif-modal-empty">
+            <i class="fa-solid fa-bell-slash nb-notif-modal-empty__icon"></i>
+            <p class="nb-notif-modal-empty__title">
+              <ng-container *ngIf="notifViewAllSearch || notifViewAllFilter !== 'all'">No matches</ng-container>
+              <ng-container *ngIf="!notifViewAllSearch && notifViewAllFilter === 'all'">All caught up!</ng-container>
+            </p>
+            <p class="nb-notif-modal-empty__sub">
+              <ng-container *ngIf="notifViewAllSearch || notifViewAllFilter !== 'all'">Try a different filter or search term.</ng-container>
+              <ng-container *ngIf="!notifViewAllSearch && notifViewAllFilter === 'all'">No notifications to show right now.</ng-container>
+            </p>
+          </div>
+        }
+      </div>
+
+    </div>
+  </ng-container>
+</nz-modal>
+
+<nz-dropdown-menu #menu="nzDropdownMenu">
+    <div class="w-56 overflow-hidden rounded-xl border border-gray-300 bg-gray-100 shadow-lg dark:border-gray-600 dark:bg-gray-700">
+      <div class="block border-b border-gray-300 px-4 py-3 text-sm text-gray-900 dark:border-gray-600 dark:text-white lg:hidden">
+        <div class="font-semibold">{{profileName}}</div>
+        <div class="truncate text-xs text-gray-600 dark:text-gray-300">{{userRole}}</div>
+      </div>
+
+      <ul class="py-1.5 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="avatarButton">
+        <li>
+          <a
+            class="flex cursor-pointer items-center gap-2 px-4 py-2.5 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
+            (click)="this.chnagePasswordModal()"
+          >
+            <i class="fa-solid fa-key w-4 text-center"></i>
+            <span>Change Password</span>
+          </a>
+        </li>
+
+        @if(userRole === 'Patient'){
+        <li>
+          <a
+            class="flex cursor-pointer items-center gap-2 px-4 py-2.5 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
+            (click)="UpdateProfile()"
+          >
+            <i class="fa-solid fa-user w-4 text-center"></i>
+            <span>Profile Settings</span>
+          </a>
+        </li>
+        }
+
+        <li>
+          <div class="px-4 py-2.5 text-gray-700 transition-colors hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white">
+            <nz-upload
+              class="w-full text-gray-700 dark:text-gray-200"
+              [nzAction]="uploadUrl"
+              [nzHeaders]="{ authorization: 'Bearer ' + token }"
+              [nzLimit]="1"
+              [nzShowUploadList]="false"
+              nzAccept="image/*"
+              [nzBeforeUpload]="beforeUploadImage"
+              (nzChange)="handleChange($event)"
+            >
+              <a class="flex cursor-pointer items-center gap-2 text-gray-700 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white">
+                <i class="fa-solid fa-user w-4 text-center"></i>
+                <span>Profile Picture</span>
+              </a>
+            </nz-upload>
+          </div>
+        </li>
+
+        <li>
+          <a
+            (click)="toggleDarkMode()"
+            class="flex cursor-pointer items-center gap-2 px-4 py-2.5 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
+          >
+            <i class="fa-solid w-4 text-center" [ngClass]="isDarkMode ? 'fa-sun text-yellow-400' : 'fa-moon text-gray-800 dark:text-gray-200'"></i>
+            <span>{{ isDarkMode ? 'Light' : 'Dark' }} Mode</span>
+          </a>
+        </li>
+
+        <li class="border-t border-gray-300 mt-1 pt-1 dark:border-gray-600">
+          <a
+            (click)="confirmLogout()"
+            class="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 dark:text-red-300 dark:hover:bg-red-500/10 dark:hover:text-red-200"
+          >
+            <i class="fa-solid fa-right-from-bracket w-4 text-center"></i>
+            <span>Log Out</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+</nz-dropdown-menu>
+
+ <nz-drawer
+  [nzClosable]="true"
+  [nzVisible]="appointmentDrawerVisible"
+  nzPlacement="right"
+  nzTitle="Upcoming Appointment"
+  (nzOnClose)="appointmentDrawerVisible = false"
+  [nzWidth]="400"
+>
+  <div *nzDrawerContent>
+    <div *ngIf="appointmentData" class="p-4">
+      <div class="flex items-start mb-4">
+        <div class="flex items-center justify-center rounded-full w-12 h-12 bg-blue-600 mr-3">
+          <i class="fas fa-calendar text-white text-xl"></i>
+        </div>
+        <div>
+          <h3 class="font-semibold text-lg dark:text-gray-200">{{ appointmentData.patientName }}</h3>
+          <p class="text-gray-600 dark:text-gray-400">Appointment with you</p>
+        </div>
+      </div>
+
+      <div class="mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <div class="flex items-center mb-2">
+          <i class="far fa-clock mr-2 text-gray-600 dark:text-gray-300"></i>
+          <span class="dark:text-gray-200">
+            {{ appointmentData.startTime }} - {{ appointmentData.endTime }}
+            ({{ appointmentData.duration }} mins)
+          </span>
+        </div>
+        <div class="flex items-center">
+          <i class="far fa-calendar mr-2 text-gray-600 dark:text-gray-300"></i>
+          <span class="dark:text-gray-200">{{ appointmentData.startDate | date: 'mediumDate' }}</span>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 mt-6">
+        <button nz-button nzType="default" class="rounded-md" (click)="appointmentDrawerVisible = false;">
+          Dismiss
+        </button>
+        <button
+          nz-button
+          nzType="primary"
+          class="rounded-md"
+          [routerLink]="'/video-call/' + appointmentData.patientAppointmentSlotId"
+        >
+          Join Call
+        </button>
+      </div>
+    </div>
+  </div>
+</nz-drawer>
+
+<app-availability-add-edit-model #availability></app-availability-add-edit-model>
+
+<nz-modal
+  [(nzVisible)]="isVisible"
+  nzTitle="User Prefrences"
+  (nzOnOk)="handleOk()"
+  (nzOnCancel)="handleCancel()"
+  [nzOkLoading]="isConfirmLoading"
+  [nzOkDisabled]="ChangePasswordForm.invalid || isConfirmLoading"
+  [nzMaskClosable]="false"
+>
+  <ng-container *nzModalContent>
+    <form [formGroup]="ChangePasswordForm" (ngSubmit)="handleOk()">
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-500">Current Password</label>
+        <div class="relative">
+          <input #currentPassword nz-input type="password"
+            formControlName="currentPassword" placeholder="Enter Password" class="input-C" />
+          <i class="fa-solid fa-{{ currentPassword.type === 'password' ? 'eye' : 'eye-slash' }} cursor-pointer absolute inset-y-0 right-0 pr-3 flex items-center"
+            (click)="currentPassword.type = currentPassword.type === 'password' ? 'text' : 'password'"></i>
+        </div>
+        <div *ngIf="f['currentPassword']?.touched && f['currentPassword']?.errors" class="text-red-500 text-xs">
+          <div *ngIf="f['currentPassword']?.errors?.['required']">Current Password is required</div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-500">New Password</label>
+        <div class="relative">
+          <input #newPassword nz-input type="password"
+            formControlName="newPassword" placeholder="Enter Password" class="input-C" />
+          <i class="fa-solid fa-{{ newPassword.type === 'password' ? 'eye' : 'eye-slash' }} cursor-pointer absolute inset-y-0 right-0 pr-3 flex items-center"
+            (click)="newPassword.type = newPassword.type === 'password' ? 'text' : 'password'"></i>
+        </div>
+        <div *ngIf="f['newPassword']?.touched && f['newPassword']?.errors" class="text-red-500 text-xs">
+          <div *ngIf="f['newPassword']?.errors?.['required']">New Password is required</div>
+          <div *ngIf="f['newPassword']?.errors?.['minlength']">Minimum 8 characters required</div>
+          <div *ngIf="f['newPassword']?.errors?.['pattern']">
+            Must contain uppercase, lowercase, number, and special character
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-500">Confirm Password</label>
+        <div class="relative">
+          <input #confirmPassword nz-input type="password"
+            formControlName="confirmNewPassword" placeholder="Enter Password" class="input-C" />
+          <i class="fa-solid fa-{{ confirmPassword.type === 'password' ? 'eye' : 'eye-slash' }} cursor-pointer absolute inset-y-0 right-0 pr-3 flex items-center"
+            (click)="confirmPassword.type = confirmPassword.type === 'password' ? 'text' : 'password'"></i>
+        </div>
+        <div *ngIf="f['confirmNewPassword']?.touched && f['confirmNewPassword']?.errors" class="text-red-500 text-xs">
+          <div *ngIf="f['confirmNewPassword']?.errors?.['required']">Confirm Password is required</div>
+          <div *ngIf="f['confirmNewPassword']?.errors?.['mismatch']">Passwords do not match</div>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+</nz-modal>
+
+<nz-modal
+[(nzVisible)]="profileIsVisible"
+nzTitle="Profile Information"
+(nzOnCancel)="handleProfileCancel()"
+(nzOnOk)="handleProfileOk()">
+
+<ng-container *nzModalContent>
+
+  <div class="relative mb-4">
+
+    <label class="block text-sm font-medium text-gray-500">First Name</label>
+    <input nz-input placeholder="Basic usage" type="text" class="input-C"/>
+
+  </div>
+
+    <div class="relative mb-4">
+
+      <label class="block text-sm font-medium text-gray-500">Middle Name</label>
+    <input nz-input placeholder="Basic usage" type="text" class="input-C"/>
+
+  </div>
+
+    <div class="relative mb-4">
+
+      <label class="block text-sm font-medium text-gray-500">Last Name</label>
+    <input nz-input placeholder="Basic usage" type="text" class="input-C"/>
+
+  </div>
+
+  <div class="relative mb-4">
+    <label class="block text-sm font-medium text-gray-500">Phone Number</label>
+    <input nz-input type="text" placeholder="(###) ###-####" class="input-C" />
+
+  </div>
+
+  <div class="relative">
+
+    <nz-upload
+              [nzAction]="uploadUrl"
+              [nzHeaders]="{ authorization: 'Bearer' + token }"
+              [nzLimit]="1"
+              (nzChange)="handleChange($event)"
+              [nzShowUploadList]="false"
+              nzAccept="image/*"
+              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+              <i class="fa-solid fa-user mr-1"></i>
+              Profile Picture
+            </nz-upload>
+
+  </div>
+</ng-container>
+</nz-modal>
+
+<app-comman-form-modal #commanModel [apiUrl]="this.modalApiUrl"></app-comman-form-modal>

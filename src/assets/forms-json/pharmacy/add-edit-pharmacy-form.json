@@ -1,0 +1,206 @@
+{
+  "title": "Pharmacy Registration Form",
+  "primaryId": "pharmacyId",
+  "rows": [
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Pharmacy Name",
+          "name": "pharmacyName",
+          "placeholder": "Enter Pharmacy Name",
+          "validations": { "required": true }
+        },
+        {
+          "type": "select",
+          "label": "Pharmacy Type",
+          "name": "pharmacyType",
+          "placeholder": "Select Pharmacy Type",
+          "options": [
+            { "label": "Retail", "value": "Retail" },
+            { "label": "Hospital", "value": "Hospital" },
+            { "label": "Mail Order", "value": "Mail Order" }
+          ],
+          "validations": { "required": true }
+        },
+        {
+          "type": "text",
+          "label": "Legal Business Name",
+          "name": "legalBusinesName",
+          "placeholder": "Enter Legal Name",
+          "validations": { "required": true }
+        },
+        {
+          "type": "text",
+          "label": "DBA Name",
+          "name": "dbaName",
+          "placeholder": "Enter Doing Business As Name"
+        },
+        {
+          "type": "text",
+          "label": "Address",
+          "name": "address",
+          "placeholder": "Enter Street Address",
+          "class": "col-span-2",
+          "validations": { "required": true }
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "title": "Regulatory Compliance:",
+      "fields": [
+        {
+          "type": "text",
+          "label": "NABP e-Profile ID",
+          "name": "nabpId",
+          "placeholder": "Enter 7-digit NABP ID",
+          "validations": { 
+            "required": true,
+            "pattern": "^\\d{7}$",
+            "errorMessage": "Must be 7 digits" 
+          }
+        },
+        {
+          "type": "text",
+          "label": "DEA Number",
+          "name": "deaNumber",
+          "placeholder": "Enter DEA Number",
+          "validations": { "required": true }
+        },
+        {
+          "type": "text",
+          "label": "State CS License",
+          "name": "stateCSLicense",
+          "placeholder": "Enter CS License #",
+          "validations": { "required": true }
+        },
+        {
+          "type": "date",
+          "label": "License Expiration",
+          "name": "licenseExpiration",
+          "validations": { "required": true }
+        },
+        {
+          "type": "select",
+          "label": "Accreditation",
+          "name": "accereditation",
+          "placeholder": "Select Accreditation",
+          "options": [
+            { "label": "ACHC", "value": "ACHC" },
+            { "label": "URAC", "value": "URAC" },
+            { "label": "None", "value": "None" }
+          ],
+          "validations": { "required": true }
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "title": "Pharmacist Information:",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Pharmacist in Charge",
+          "name": "inChargePharmacist",
+          "placeholder": "Enter Pharmacist Name",
+          "validations": { "required": true }
+        },
+        {
+          "type": "text",
+          "label": "Pharmacist License",
+          "name": "pharmacistLicense",
+          "placeholder": "Enter License Number",
+          "validations": { "required": true }
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-1 gap-2 mb-2",
+      "title": "Operational Details:",
+      "fields": [
+        {
+          "type": "multi-select",
+          "label": "Storage Capabilities",
+          "name": "pharmacyStorage",
+          "placeholder": "Select storage types",
+          "options": [
+            { "label": "Refrigerated", "value": "cold" },
+            { "label": "Controlled Substances", "value": "cs" },
+            { "label": "Hazardous Drugs", "value": "hazardous" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "label": "24/7 Operation",
+          "name": "is24Operation",
+          "class": "col-span-full"
+        },
+        {
+          "type": "checkbox",
+          "label": "Compounding Services",
+          "name": "isCompoundingServices",
+          "class": "col-span-full"
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "title": "Contact Information:",
+      "fields": [
+        {
+          "type": "email",
+          "label": "Email",
+          "name": "email",
+          "placeholder": "Enter Email Address",
+          "validations": { "required": true }
+        },
+        {
+          "type": "tel",
+          "label": "Phone Number",
+          "name": "phoneNumber",
+          "placeholder": "Enter Phone Number",
+          "validations": { "required": true }
+        },
+        {
+          "type": "text",
+          "label": "Emergency Contact Name",
+          "name": "emergencyContactName",
+          "placeholder": "Enter Emergency Contact Name"
+        },
+        {
+          "type": "tel",
+          "label": "Emergency Phone",
+          "name": "emergencyPhone",
+          "placeholder": "Enter Emergency Phone"
+        }
+      ]
+    },
+    {
+      "class": "grid grid-cols-2 gap-2 mb-2",
+      "title": "Tax & Billing:",
+      "fields": [
+        {
+          "type": "text",
+          "label": "Federal Tax ID",
+          "name": "federalTaxId",
+          "placeholder": "Enter Federal Tax ID",
+          "validations": { "required": true }
+        },
+        {
+          "type": "text",
+          "label": "Medicaid Number",
+          "name": "medicaidNumber",
+          "placeholder": "Enter Medicaid Provider #"
+        },
+        {
+          "type": "text",
+          "label": "Medicare PTAN",
+          "name": "medicarePTAN",
+          "placeholder": "Enter Medicare PTAN"
+        }
+      ]
+    }
+  ]
+}

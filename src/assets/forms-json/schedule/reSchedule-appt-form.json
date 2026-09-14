@@ -1,0 +1,103 @@
+{
+    "title": "Appointment",
+    "primaryId": "id",
+    "rows": [
+      {
+        "class": "grid grid-cols-1 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "select",
+            "label": "Provider",
+            "name": "provider",
+            "placeholder": "Select Provider",
+            "class": "col-span-1",
+            "disabled": true,
+            "options": [
+              { "label": "Provider 1", "value": 1 },
+              { "label": "Provider 2", "value": 2 }
+            ],
+            "validations": { "required": true }
+          },
+          {
+            "type": "select",
+            "label": "Client",
+            "name": "client",
+            "disabled": true,
+            "placeholder": "Select Client",
+            "class": "col-span-1",
+            "options": [
+              { "label": "15 Client", "value": 15 },
+              { "label": "30 Client", "value": 30 }
+            ],
+            "validations": { "required": true }
+          },
+          {
+            "type": "date",
+            "label": "Start Date",
+            "name": "startDate",
+            "placeholder": "Select Start Date",
+            "class": "col-span-1",
+            "dependsOn": ["provider", "client"],
+            "fetchUrl": "Appointments/getAvailableDates?providerId={provider}&clientId={client}",
+            "validations": { "required": true }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-2 gap-2 mb-2",
+        "fields": [
+          {
+            "type": "select",
+            "label": "Start Time",
+            "name": "startTime",
+            "placeholder": "Select Start Time",
+            "class": "col-span-1",
+            "dependsOn": ["startDate"],
+            "fetchUrl": "Appointments/getAvailableTimes?date={startDate}",
+            "validations": { "required": true }
+          },
+          {
+            "type": "select",
+            "label": "End Time",
+            "name": "endTime",
+            "placeholder": "Select End Time",
+            "class": "col-span-1",
+            "dependsOn": ["startTime"],
+            "fetchUrl": "Appointments/getAvailableEndTimes?startTime={startTime}",
+            "validations": { "required": true }
+          },
+          {
+            "type": "select",
+            "label": "Duration",
+            "name": "duration",
+            "placeholder": "Select Duration",
+            "class": "col-span-1",
+            "options": [
+              { "label": "15 minutes", "value": 15 },
+              { "label": "30 minutes", "value": 30 },
+              { "label": "45 minutes", "value": 45 },
+              { "label": "60 minutes", "value": 60 }
+            ],
+            "validations": { "required": true }
+          }
+        ]
+      },
+      {
+        "class": "grid grid-cols-1",
+        "fields": [
+          {
+            "type": "select",
+            "label": "Service",
+            "name": "service",
+            "placeholder": "Select Service",
+            "class": "col-span-2",
+            "fetchUrl": "Services/getAll",
+            "labelKey": ["name"],
+            "valueKey": "id",
+            "validations": { "required": true }
+          }
+        ]
+      }
+    ]
+  }
+  

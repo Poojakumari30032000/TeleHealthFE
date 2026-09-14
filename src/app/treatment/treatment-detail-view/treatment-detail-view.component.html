@@ -1,0 +1,747 @@
+@if(!hasError){
+
+  <ng-container *ngIf="!isLoading && treatmentData; else loadingMain">
+    <nz-tabset
+      nzType="editable-card"
+      class="treatment-related-tabs mt-1"
+      [nzHideAdd]="true"
+      [nzSelectedIndex]="selectedRelatedTabIndex"
+      (nzSelectedIndexChange)="onRelatedTabIndexChange($event)"
+      (nzClose)="onRelatedTabClose($event)"
+    >
+      <nz-tab nzTitle="Treatment Detail" [nzClosable]="false">
+    <div class="ehr-workspace-shell">
+    <section class="ehr-summary-hero">
+      <div class="ehr-summary-identity">
+        <div class="ehr-avatar">
+          {{ (treatmentData.firstName || 'P')[0] }}{{ (treatmentData.lastName || 'T')[0] }}
+        </div>
+        <div>
+          <div class="ehr-summary-name">
+            {{ treatmentData.firstName && treatmentData.lastName ? treatmentData.firstName + ' ' + treatmentData.lastName : (treatmentData.firstName || treatmentData.lastName || '--') }}
+          </div>
+          <div class="ehr-summary-meta">
+            <span>MRN #{{ treatmentData.mrn || '--' }}</span>
+            <span>Treatment #{{ this.treatmentId || '--' }}</span>
+            <span>{{ treatmentData.email || '--' }}</span>
+            @if (treatmentData.refill === true){
+              <span class="inline-flex items-center text-xs font-medium px-3 py-1 rounded-full shadow-sm border bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">Refill Requested</span>
+            } @else {
+              <span class="inline-flex items-center text-xs font-medium px-3 py-1 rounded-full shadow-sm border bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">No Refill Request</span>
+            }
+          </div>
+
+        </div>
+      </div>
+      <div class="ehr-kpi-grid">
+        <div class="ehr-kpi-card">
+          <div class="ehr-kpi-label">Appointments</div>
+          <div class="ehr-kpi-value">{{ slots.length }}</div>
+        </div>
+        <div class="ehr-kpi-card">
+          <div class="ehr-kpi-label">Prescriptions</div>
+          <div class="ehr-kpi-value">{{ prescriptions.length }}</div>
+        </div>
+        <div class="ehr-kpi-card">
+          <div class="ehr-kpi-label">Orders</div>
+          <div class="ehr-kpi-value">{{ orders.length }}</div>
+        </div>
+        <div class="ehr-kpi-card">
+          <div class="ehr-kpi-label">Treatment Status</div>
+          <div class="ehr-kpi-value text-base">
+            <span
+            class="ui-status-badge"
+            [ngClass]="getStatusBadgeClass(treatmentData?.treatmentStatus)"
+          >
+            {{ treatmentData?.treatmentStatus || '—' }}
+          </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="quick-actions-bar">
+      @if (userRole === 'Patient' && treatmentData.refill === false) {
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="treatment-cta-btn"
+          [nzLoading]="refillRequestLoading"
+          (click)="openRefillRequest()"
+        >
+          <i class="fa-regular fa-pen-to-square"></i>
+          <span class="ml-2 hidden md:inline-block">Request Refill</span>
+        </button>
+      }
+      @else if (userRole === 'Global Admin' && treatmentData.refill === true) {
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="treatment-cta-btn"
+          [nzLoading]="refillRequestLoading"
+          (click)="openRefillRequest()">
+          <i class="fa-regular fa-pen-to-square"></i>
+          <span class="ml-2 hidden md:inline-block">Mark Refilled</span>
+        </button>
+      }
+      @if (userRole === 'Global Admin') {
+        <button
+          nz-button
+          nzType="default"
+          nzShape="round"
+          class="treatment-cta-btn"
+          [nzLoading]="sendingIntakeFormReminder"
+          [disabled]="hasIntakeForms || sendingIntakeFormReminder || (treatmentData.treatmentStatus !== 'Active' && treatmentData.treatmentStatus !== 'active')"
+          (click)="sendIntakeForm()"
+        >
+          <i class="fa-solid fa-paper-plane"></i>
+          <span class="ml-2 hidden md:inline-block">Resend Intake Form</span>
+        </button>
+      }
+    </section>
+
+    <section class="workflow-hub">
+      <nz-tabset nzType="line" nzSize="small" class="workflow-sections">
+        <nz-tab [nzTitle]="'Details'">
+          <div class="workflow-pane">
+            <section class="workspace-overview-grid">
+              <article class="info-panel">
+                <div class="info-panel-head">
+                  <h4 class="info-panel-title">
+                    <i class="fa-solid fa-user mr-2 text-primary"></i>Patient Snapshot
+                  </h4>
+                </div>
+
+                <div class="info-pair-grid">
+                  <div><label>Treatment #</label><span>{{ this.treatmentId || "--" }}</span></div>
+                  <div><label>MRN #</label><span>{{ treatmentData.mrn || "--" }}</span></div>
+                  <div><label>Patient Name</label><span>{{ treatmentData.firstName && treatmentData.lastName ? treatmentData.firstName + ' ' + treatmentData.lastName : (treatmentData.firstName || treatmentData.lastName || '--') }}</span></div>
+                  <div><label>Email</label><span>{{ treatmentData.email || "--" }}</span></div>
+                  <div><label>Phone</label><span>{{ treatmentData.phoneNumber || "--" }}</span></div>
+                  <div><label>Gender</label><span>{{ treatmentData.gender || "--" }}</span></div>
+                  <div><label>DOB</label><span>{{ (treatmentData.dob | date:'MM/dd/yyyy') || "--" }}</span></div>
+                  <div><label>Last Edited</label><span>{{ (treatmentData.lastEditedDate | date:'MM/dd/yyyy') || "--" }}</span></div>
+                  <div class="col-span-2"><label>Address</label><span>{{ treatmentData.address || "--" }}</span></div>
+                </div>
+              </article>
+
+              <article class="info-panel">
+                <div class="info-panel-head">
+                  <h4 class="info-panel-title">
+                    <i class="fa-solid fa-layer-group mr-2 text-primary"></i>Package And Billing
+                  </h4>
+                  @if (userRole == 'Global Admin') {
+                    <button
+                      *appHasAnyPermission="['treatment_patient_edit']"
+                      nz-button
+                      nzType="default"
+                      nzShape="round"
+                      class="treatment-cta-btn"
+                      (click)="openUpdateStatus()"
+                    >
+                      <i class="fa-regular fa-pen-to-square"></i>
+                      <span class="ml-2 hidden md:inline-block">Update Status</span>
+                    </button>
+                  }
+                </div>
+
+                <div class="info-pair-grid">
+                  <div><label>Category</label><span>{{ treatmentData.category?.categoryName || "--" }}</span></div>
+                  <div>
+                    <label>Questionnaire</label>
+                    <span>
+                      <ng-container *ngIf="hasIntakeForms; else questionnaireFallback">
+                        <button
+                          nz-button
+                          nzType="link"
+                          nzShape="round"
+                          class="!p-0 font-semibold text-primary hover:opacity-80 align-baseline"
+                          (click)="openIntakeAnswers()">
+                          Intake Form Answers
+                        </button>
+                      </ng-container>
+                      <ng-template #questionnaireFallback>
+                        {{ treatmentData.questionnaire || "--" }}
+                      </ng-template>
+                    </span>
+                  </div>
+                  <div><label>Package</label><span>{{ treatmentData.bundle?.name || "--" }}</span></div>
+                  <div><label>Date Started</label><span>{{ (treatmentData.dateStarted | date : 'MM/dd/yyyy') || "--" }}</span></div>
+                  <div class="col-span-2"><label>Description</label><span>{{ treatmentData.bundle?.description || "--" }}</span></div>
+                  <div><label>Package Price</label><span>${{ treatmentData.bundle?.price || "--" }}</span></div>
+                  <div>
+                    <label>Applied Discount</label>
+                    <span>
+                      @if (treatmentData.appliedCoupon) {
+                        @if (treatmentData.appliedCoupon.discountType === 'Amount') {
+                          {{ treatmentData.appliedCoupon.discountValue | currency:'USD':'symbol':'1.0-2' }}
+                        } @else if (treatmentData.appliedCoupon.discountType === 'Percentage') {
+                          {{ treatmentData.appliedCoupon.discountValue }}%
+                        } @else {
+                          --
+                        }
+                      } @else {
+                        --
+                      }
+                    </span>
+                  </div>
+                  <div><label>Coupon</label><span>{{ treatmentData.coupon || "--" }}</span></div>
+                  @if (treatmentData.appliedCoupon && treatmentData.isRecurring) {
+                    <div class="col-span-2">
+                      @if (treatmentData.appliedCoupon.couponApplicationType === 'RecurringAllowed' && treatmentData.appliedCoupon.isValid) {
+
+                        <p class="text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 rounded-lg px-3 py-2">
+                          <i class="fa-solid fa-circle-check mr-1.5"></i>Coupon is active — subscription will renew at the discounted rate.
+                        </p>
+                      } @else if (treatmentData.appliedCoupon.couponApplicationType === 'OneTimeOnly') {
+
+                        <p class="text-xs font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg px-3 py-2">
+                          <i class="fa-solid fa-tag mr-1.5"></i>Coupon applied to first payment only — subsequent renewals will be at the full price.
+                        </p>
+                      } @else {
+
+                        <p class="text-xs font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg px-3 py-2">
+                          <i class="fa-solid fa-circle-exclamation mr-1.5"></i>Coupon is no longer valid — subscription will renew at the full price.
+                        </p>
+                      }
+                    </div>
+                  }
+                  <div><label>Next Payment</label><span>{{ (treatmentData.nextRecurringPaymentDate | date : 'MM/dd/yyyy') || "--" }}</span></div>
+                  <div>
+                    <label>Billing Cycle</label>
+                    <span>
+                      @if(treatmentData.recurringDurationMonths != null){
+                        {{ treatmentData.recurringDurationMonths + ' months' || "--" }}
+                      } @else if (treatmentData.recurringDurationDays == null) {
+                        --
+                      }
+                    </span>
+                  </div>
+                  <div><label>Subscription</label>
+                    <span
+                      class="ui-status-badge"
+                      [ngClass]="getStatusBadgeClass(treatmentData?.treatmentStatus)"
+                    >
+                      {{ treatmentData?.treatmentStatus || '—' }}
+                    </span>
+                  </div>
+                  <div>
+                    <label>Recurring</label>
+                    <span>
+                      @if (userRole == 'Patient') {
+                        <nz-switch
+                          [(ngModel)]="treatmentData.isRecurring"
+                          nzCheckedChildren="On"
+                          nzUnCheckedChildren="Off"
+                          [nzControl]="true"
+                          [nzLoading]="toggleLoading"
+                          (click)="toggleRecurring()"
+                        ></nz-switch>
+                      } @else {
+                        {{ treatmentData.isRecurring ? 'On' : 'Off' }}
+                      }
+                    </span>
+                  </div>
+                </div>
+              </article>
+            </section>
+          </div>
+        </nz-tab>
+
+        <nz-tab [nzTitle]="'Appointments (' + slots.length + ')'">
+          <div class="workflow-pane">
+            @if (slots.length === 0) {
+              <div class="empty-records">
+                <i class="fa-regular fa-calendar-xmark"></i>
+                <span>No appointments found for this treatment.</span>
+              </div>
+            } @else {
+              @if (hasFollowUpSchedulingAvailable) {
+                <div class="follow-up-availability-banner" role="status" aria-live="polite">
+                  <i class="fa-solid fa-calendar-check"></i>
+                  <span>The option to schedule a follow up appointment is now available.</span>
+                </div>
+              }
+              <div class="records-list">
+                @for (s of slots; track $index) {
+                  <article
+                    class="record-row"
+                    [class.record-row-clickable]="!isPlaceholderSlot(s)"
+                    [class.record-row-disabled]="isPlaceholderSlot(s) && !isFollowUpAvailableForRow(s, $index)"
+                    role="button"
+                    tabindex="0"
+                    [attr.aria-disabled]="isPlaceholderSlot(s) && !isFollowUpAvailableForRow(s, $index)"
+                    [attr.title]="
+                      isPlaceholderSlot(s)
+                        ? (isFollowUpAvailableForRow(s, $index) ? 'Follow-up scheduling is available' : 'Scheduling pending')
+                        : 'Open appointment detail'
+                    "
+                    (click)="isPlaceholderSlot(s) ? null : onSelectSlot(s)"
+                    (keydown.enter)="isPlaceholderSlot(s) ? null : onSelectSlot(s)"
+                    (keydown.space)="isPlaceholderSlot(s) ? null : onSelectSlot(s); $event.preventDefault()"
+                  >
+                    <div class="record-main">
+                      <div class="record-title">Appointment #{{ s.patientAppointmentSlotId || '--' }}</div>
+                      @if (userRole != 'Clinic Admin') {
+                        <div class="record-subtitle">{{ s.providerName || 'Unassigned provider' }}</div>
+                      }
+                    </div>
+
+                    <div class="record-facts">
+                      <div class="record-fact">
+                        <label>Date</label>
+                        <span>{{ isPlaceholderSlot(s) ? '-' : (s.startDate | date: 'EEE, MMM d, y') }}</span>
+                      </div>
+                      <div class="record-fact">
+                        <label>Time</label>
+                        <span>{{ isPlaceholderSlot(s) ? '-' : (formatTime12(s.startTime) + ' – ' + formatTime12(s.endTime)) }}</span>
+                      </div>
+                    </div>
+
+                    <div class="record-end">
+                      <span class="record-status-chip ui-status-badge"
+                            [ngClass]="statusClass(s.status)">
+                        {{ s.status || '—' }}
+                      </span>
+                      <div class="record-actions-inline">
+                        <button nz-button nzType="default" nzShape="circle"
+                                (click)="$event.stopPropagation(); onSelectSlot(s)"
+                                [disabled]="isPlaceholderSlot(s)"
+                                [attr.title]="isPlaceholderSlot(s) ? 'Scheduling pending' : null">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        @if(userRole === 'Patient'){
+                        @if (isFollowUpAvailableForRow(s, $index)) {
+                          <button nz-button nzType="default" nzShape="circle"
+                                  (click)="$event.stopPropagation(); setNewAppointment(s)">
+                            <i class="fas fa-calendar-plus"></i>
+                          </button>
+                        }
+                        }
+                      </div>
+                    </div>
+                  </article>
+                }
+              </div>
+            }
+          </div>
+        </nz-tab>
+
+        <nz-tab [nzTitle]="'Prescriptions (' + prescriptions.length + ')'">
+          <div class="workflow-pane">
+            @if(userRole != 'Patient' && userRole != 'Clinic Admin'){
+              <div class="workflow-pane-actions">
+                <button
+                  nz-button
+                  (click)="addNewPrescription()"
+                  nzType="default"
+                  nzShape="round"
+                  class="treatment-cta-btn"
+                  [nzLoading]="isFormSubmitting"
+                  [disabled]="isFormSubmitting"
+                >
+                  + Add New Prescription
+                </button>
+              </div>
+            }
+
+            @if (prescriptions.length === 0) {
+              <div class="empty-records">
+                <i class="fa-regular fa-file-prescription"></i>
+                <span>No prescriptions available yet.</span>
+              </div>
+            } @else {
+              <div class="records-list">
+                <article
+                  class="record-row record-row-clickable"
+                  *ngFor="let r of prescriptions; trackBy: trackByPrescriptionId"
+                  role="button"
+                  tabindex="0"
+                  (click)="onViewPrescription(r)"
+                  (keydown.enter)="onViewPrescription(r)"
+                  (keydown.space)="onViewPrescription(r); $event.preventDefault()"
+                >
+                  <div class="record-main">
+                      <div class="record-title">Prescription #{{ r.patientPrescriptionId || '--' }}</div>
+                    @if (userRole != 'Clinic Admin') {
+                      <div class="record-subtitle">{{ r.providerName || 'Provider unavailable' }}</div>
+                    }
+                  </div>
+
+                  <div class="record-facts">
+                    <div class="record-fact"><label>Date</label><span>{{ r.prescritionDate ? (r.prescritionDate | date: 'yyyy-MM-dd') : '—' }}</span></div>
+                    <div class="record-fact"><label>Treatment #</label><span>{{ r.patientTreatmentId ?? '—' }}</span></div>
+                    <div class="record-fact"><label>Expiry</label><span>{{ r.expiryDate ? (r.expiryDate | date: 'yyyy-MM-dd') : '—' }}</span></div>
+                  </div>
+
+                  <div class="record-end">
+                    <span class="record-status-chip ui-status-badge"
+                          [ngClass]="statusClassPrescription(r.orderStatus)">
+                      {{ r.orderStatus || '—' }}
+                    </span>
+                    <div class="record-actions-inline">
+                      <button nz-button nzType="default" nzShape="circle" (click)="$event.stopPropagation(); onViewPrescription(r)">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            }
+          </div>
+        </nz-tab>
+
+        @if (userRole != 'Patient'){
+        <nz-tab [nzTitle]="'SOAP Notes (' + soapNotes.length + ')'">
+          <div class="workflow-pane">
+            @if (userRole === 'Provider') {
+              <div class="workflow-pane-actions">
+                <button
+                  nz-button
+                  nzType="default"
+                  nzShape="round"
+                  class="treatment-cta-btn"
+                  (click)="createTreatmentSoapNote()"
+                >
+                  + Create SOAP Note
+                </button>
+              </div>
+            }
+
+            @if (soapNotes.length === 0) {
+              <div class="empty-records">
+                <i class="fa-solid fa-notes-medical"></i>
+                <span>No SOAP notes found for this treatment.</span>
+              </div>
+            } @else {
+              <div class="records-list">
+                <article
+                  class="record-row record-row-clickable"
+                  *ngFor="let sn of soapNotes; trackBy: trackBySoapNoteId"
+                  role="button"
+                  tabindex="0"
+                  (click)="onViewSoapNote(sn)"
+                  (keydown.enter)="onViewSoapNote(sn)"
+                  (keydown.space)="onViewSoapNote(sn); $event.preventDefault()"
+                >
+                  <div class="record-main">
+                    <div class="record-title">SOAP Note #{{ sn.soapNoteId || '--' }}</div>
+                    @if (userRole != 'Clinic Admin'){
+                    <div class="record-subtitle">{{ sn.signedBy || sn.createdByName || 'Unsigned' }}</div>
+                    }
+                  </div>
+
+                  <div class="record-facts">
+                    @if (userRole != 'Clinic Admin'){
+                    <div class="record-fact"><label>Signed By</label><span>{{ sn.signedBy || sn.createdByName || '—' }}</span></div>
+                    }
+                    <div class="record-fact"><label>Signed At</label><span>{{ sn.signedAt ? (sn.signedAt | date: 'MMM d, y, h:mm a') : '—' }}</span></div>
+                    <div class="record-fact"><label>Created</label><span>{{ sn.createdDate ? (sn.createdDate | date: 'MMM d, y, h:mm a') : '—' }}</span></div>
+                  </div>
+
+                  <div class="record-end">
+                    <span class="record-status-chip ui-status-badge"
+                          [ngClass]="getStatusBadgeClass(sn.status)">
+                      {{ sn.status || 'Draft' }}
+                    </span>
+                    <div class="record-actions-inline">
+                      <button nz-button nzType="default" nzShape="circle" (click)="$event.stopPropagation(); onViewSoapNote(sn)">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            }
+          </div>
+        </nz-tab>
+        }
+
+      </nz-tabset>
+    </section>
+    </div>
+      </nz-tab>
+
+      <nz-tab
+        *ngFor="let tab of relatedTabs; trackBy: trackByRelatedTabKey"
+        [nzTitle]="tab.title"
+        [nzClosable]="true"
+      >
+
+          @if (tab.type === 'document') {
+            <div class="grid grid-cols-1 gap-3">
+              <div>
+                <label class="text-gray-500 dark:text-gray-400 text-sm">Document Name</label>
+                <div class="label-C font-semibold mt-1">{{ tab.data?.documentName || '--' }}</div>
+              </div>
+              <div>
+                <label class="text-gray-500 dark:text-gray-400 text-sm">Description</label>
+                <div class="label-C font-semibold mt-1">{{ tab.data?.description || '--' }}</div>
+              </div>
+
+              @if (tab.data?.documentUrl && isImageDocument(tab.data?.documentUrl)) {
+                <img
+                  class="max-h-[70vh] w-full object-contain rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40"
+                  [src]="tab.data.documentUrl"
+                  alt="Document preview"
+                />
+              } @else if (tab.data?.documentUrl) {
+                <iframe
+                  class="w-full h-[70vh] rounded-lg border border-gray-200 dark:border-gray-700"
+                  [src]="tab.safeUrl"
+                  title="Document preview"
+                ></iframe>
+              } @else {
+                <div class="text-sm text-gray-500 dark:text-gray-400">Document preview not available.</div>
+              }
+            </div>
+          } @else if (getTabComponent(tab) && getTabComponentModule(tab)) {
+            <ng-container
+              *ngComponentOutlet="
+                getTabComponent(tab);
+                ngModule: getTabComponentModule(tab);
+                inputs: getTabComponentInputs(tab)
+              "
+            ></ng-container>
+          } @else {
+            <div class="text-sm text-gray-500 dark:text-gray-400">Preview is not available.</div>
+          }
+
+      </nz-tab>
+    </nz-tabset>
+
+  </ng-container>
+
+} @else{
+  <div class="flex flex-col items-center justify-center text-center text-red-500 dark:text-red-400" style="height: calc(100dvh - 10rem);">
+    <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+    <p class="text-lg font-medium">An error occurred while loading the treatment data.</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Please try again later or contact support.</p>
+    <div class="flex flex-col sm:flex-row gap-4">
+      <button nz-button nzType="default" nzShape="round" class="w-full sm:w-auto" (click)="getTreatmentDetails()">
+        <i class="fa-solid fa-rotate-right mr-2"></i>
+        Reload
+      </button>
+      <button nz-button nzType="default" nzShape="round" class="w-full sm:w-auto" (click)="moveBack()">
+        <i class="fa-solid fa-arrow-left mr-2"></i>
+        Go Back
+      </button>
+    </div>
+  </div>
+}
+
+<ng-template #loadingMain>
+  <div class="flex items-center justify-center min-h-[88vh] border-t dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl">
+    <div class="text-center">
+      <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Treatment Data...</p>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #loading>
+  <div class="flex items-center justify-center h-40 border-t dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-xl">
+    <div class="text-center">
+      <i class="fa-solid fa-arrows-spin animate-spin text-primary text-3xl"></i>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading Data...</p>
+    </div>
+  </div>
+</ng-template>
+
+<nz-modal
+  [(nzVisible)]="intakeModalVisible"
+  nzTitle="Intake Form Answers"
+  (nzOnCancel)="handleIntakeCancel()"
+  [nzFooter]="null"
+  [nzWidth]="940"
+  [nzBodyStyle]="{ 'max-height': '75vh', 'overflow-y': 'auto', 'padding': '1rem 1.1rem' }"
+>
+  <ng-container *nzModalContent>
+    <div *ngIf="intakeForms?.length; else noIntakeData" class="ia-grid">
+      <ng-container *ngFor="let item of intakeForms; let i = index; trackBy: trackByIntakeIndex">
+
+        <div *ngIf="item.type === 'consent'" class="ia-consent-card">
+          <div class="ia-consent-header">
+            <i class="fa-solid fa-file-signature"></i>
+            <span>{{ item.question }}</span>
+          </div>
+          <div class="ia-consent-fields" *ngIf="item.answer">
+            <ng-container *ngFor="let part of parseConsentParts(item.answer ?? '')">
+
+              <div *ngIf="part.isImage" class="ia-consent-sig-wrap">
+                <label class="ia-consent-field-label">{{ part.key }}</label>
+                <a [href]="part.value" target="_blank" rel="noopener noreferrer">
+                  <img [src]="part.value" class="ia-sig-img" alt="Signature" />
+                </a>
+              </div>
+
+              <div *ngIf="!part.isImage && part.key" class="ia-consent-field">
+                <label class="ia-consent-field-label">{{ part.key }}</label>
+                <span class="ia-consent-field-value">{{ part.value }}</span>
+              </div>
+            </ng-container>
+          </div>
+
+          <div *ngIf="item.consentHtml" class="ia-consent-html-section">
+            <button type="button" class="ia-consent-toggle-btn" (click)="toggleConsentHtml(i)">
+              <i class="fa-solid" [ngClass]="expandedConsentSet.has(i) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              {{ expandedConsentSet.has(i) ? 'Hide' : 'View' }} Consent Document
+            </button>
+            <div *ngIf="expandedConsentSet.has(i)" class="ia-consent-html-body" [innerHTML]="sanitizeConsentHtml(item.consentHtml)"></div>
+          </div>
+        </div>
+
+        <div *ngIf="item.type === 'radio'" class="ia-radio-card">
+          <span class="ia-radio-question">{{ item.question }}</span>
+          <span class="ia-radio-badge"
+            [class.ia-badge-yes]="item.answer === 'Yes'"
+            [class.ia-badge-no]="item.answer === 'No'"
+          >{{ item.answer }}</span>
+        </div>
+
+        <div *ngIf="item.type !== 'consent' && item.type !== 'radio'"
+          class="ia-text-card">
+          <div class="ia-text-question">{{ item.question }}</div>
+          <div class="ia-text-answer">{{ item.answer }}</div>
+          <div *ngIf="item.otherText" class="ia-text-other">{{ item.otherText }}</div>
+        </div>
+
+      </ng-container>
+    </div>
+
+    <ng-template #noIntakeData>
+      <div class="flex items-center justify-center p-8">
+        <div class="text-center text-gray-600 dark:text-gray-400">
+          <i class="fa-regular fa-file-lines text-2xl mb-2 opacity-70"></i>
+          <div class="text-sm">No intake answers found.</div>
+        </div>
+      </div>
+    </ng-template>
+  </ng-container>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="statusModalVisible"
+  nzTitle="Update Treatment Status"
+  (nzOnCancel)="handleStatusCancel()"
+  (nzOnOk)="confirmUpdateStatus()"
+  [nzOkText]="'Update'"
+  [nzOkDisabled]="statusControl.invalid || isUpdatingStatus"
+  [nzOkLoading]="isUpdatingStatus"
+  [nzWidth]="480"
+>
+  <ng-container *nzModalContent>
+    <div>
+      <label class="label-C">Select Status <span class="text-red-600">*</span></label>
+      <nz-select class="w-full mt-1"
+                 nzPlaceHolder="Select status"
+                 [formControl]="statusControl">
+        <nz-option *ngFor="let s of statusOptions" [nzLabel]="s" [nzValue]="s"></nz-option>
+      </nz-select>
+      <div class="text-red-600 text-xs mt-1" *ngIf="statusControl.touched && statusControl.invalid">
+        Status is required.
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="isFollowUpApptVisible"
+  nzTitle="Set Follow-up Appointment"
+  (nzOnCancel)="handleCancelFollowUpAppointment()"
+  [nzFooter]="followUpFooter"
+>
+  <ng-container *nzModalContent>
+    <div class="grid gap-4">
+
+      <div>
+        <label class="label-C-F">Date</label>
+        <nz-date-picker
+          class="w-full"
+          [(ngModel)]="followUpSelectedDate"
+          nzPlaceHolder="Choose a date"
+          [nzDisabledDate]="disablePastDates"
+          (ngModelChange)="onFollowUpDateChange($event)"
+        ></nz-date-picker>
+
+        <p *ngIf="followUpFormattedDate" class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          Selected Date:
+          <strong class="text-gray-800 dark:text-gray-200">{{ followUpFormattedDate }}</strong>
+        </p>
+      </div>
+
+      <div>
+        <label class="label-C-F">Available Slots</label>
+        <nz-select
+          class="w-full"
+          nzPlaceHolder="Select Slot"
+          nzShowSearch
+          [nzLoading]="followUpLoadingSlots"
+          [nzDisabled]="!followUpFormattedDate || followUpLoadingSlots || (!followUpAvailableSlots.length && !followUpSlotsError)"
+          [(ngModel)]="followUpSelectedProviderScheduledSlotId"
+        >
+          <nz-option
+            *ngFor="let s of followUpAvailableSlots"
+            [nzValue]="s.providerScheduledSlotId"
+            [nzLabel]="getFollowUpSlotLabel(s)">
+          </nz-option>
+        </nz-select>
+
+        <p *ngIf="!followUpLoadingSlots && followUpFormattedDate && !followUpAvailableSlots.length && !followUpSlotsError"
+           class="text-xs text-gray-500 mt-1">
+          No slots available for selected date.
+        </p>
+
+        <p *ngIf="followUpSlotsError" class="text-xs text-red-600 mt-1">
+          {{ followUpSlotsError }}
+        </p>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <ng-template #followUpFooter>
+    <button nz-button nzType="default" nzShape="round"
+            (click)="handleCancelFollowUpAppointment()"
+            [disabled]="isSubmittingFollowUp">
+      Cancel
+    </button>
+
+    <button nz-button nzType="default" nzShape="round"
+            [nzLoading]="isSubmittingFollowUp"
+            [disabled]="!canSubmitFollowUp()"
+            (click)="submitFollowUpAppointment()">
+      OK
+    </button>
+  </ng-template>
+</nz-modal>
+
+<app-comman-form-modal #commanModel [apiUrl]="this.modalApiUrl" (formClosed)="getTreatmentDetails()"></app-comman-form-modal>
+
+<nz-modal
+  [(nzVisible)]="isFullscriptModalVisible"
+  nzTitle="Fullscript — Treatment Plan & Recommendations"
+  (nzOnCancel)="closeFullscriptModal()"
+  [nzFooter]="null"
+  [nzWidth]="'96vw'"
+  [nzStyle]="{ 'max-width.px': 1200 }"
+  [nzBodyStyle]="{ 'padding': '0.75rem', 'height': '80vh', 'overflow': 'hidden' }"
+  [nzMaskClosable]="false"
+>
+  <ng-container *nzModalContent>
+
+      @if(isFullscriptModalVisible){
+        @if(fullscriptPatientPayload){
+          <app-fullscript-platform
+            [patient]="fullscriptPatientPayload"
+            [entrypoint]="'catalog'">
+          </app-fullscript-platform>
+        } @else {
+          <app-fullscript-platform [entrypoint]="'catalog'"></app-fullscript-platform>
+        }
+      }
+
+  </ng-container>
+</nz-modal>

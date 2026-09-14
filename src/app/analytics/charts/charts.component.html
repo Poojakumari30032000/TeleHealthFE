@@ -1,0 +1,54 @@
+ <div *ngIf="userRole === 'Global Admin'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 shadow-md">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Subscription Plans Distribution</h2>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Last 6 months</div>
+        </div>
+        <div echarts [options]="subscriptionPlanChart" style="height: 400px;"></div>
+    </div>
+
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 shadow-md lg:col-span-2">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Total Users</h2>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Last 6 months</div>
+        </div>
+        <div echarts [options]="userGrowthOptions" style="height: 400px;"></div>
+    </div>
+
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 shadow-md md:col-span-2 lg:col-span-3">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Total Invoices</h2>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Last 6 months</div>
+        </div>
+        <div echarts [options]="invoiceBarOptions" style="height: 400px;"></div>
+    </div>
+</div>
+
+<div *ngIf="userRole === 'Clinic Admin'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 shadow-md lg:col-span-2">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Number of Orders</h2>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Last 6 Months</div>
+        </div>
+        <div echarts [options]="ordersGrowthChart" style="height: 400px;"></div>
+    </div>
+
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 shadow-md">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Patients</h2>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Current Status</div>
+        </div>
+        <div echarts [options]="patientStatusChart" style="height: 400px;"></div>
+    </div>
+
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 shadow-md md:col-span-2 lg:col-span-3">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Monthly Revenue Breakdown</h2>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Last 6 Months</div>
+        </div>
+        <div echarts [options]="revenueBarChart" style="height: 400px;"></div>
+    </div>
+
+</div>

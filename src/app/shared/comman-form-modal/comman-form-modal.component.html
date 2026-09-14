@@ -1,0 +1,17 @@
+<nz-modal [(nzVisible)]="isVisible" [nzTitle]="title" (nzOnCancel)="handleCancel()" [nzOkDisabled]="isBtnLoading" [nzClosable]="dontShowCancel" [nzKeyboard]="dontShowCancel" [nzCancelDisabled]="!dontShowCancel" [nzOkLoading]="isBtnLoading" (nzOnOk)="handleOk()" [nzWidth]="width" [nzMaskClosable]="false">
+    <ng-container *nzModalContent>
+        @if(type === 'form'){
+            <app-dynamic-forms
+                [jsonPath]="this.jsonPath"
+                type="modal"
+                [primaryId]="this.id"
+                [facilityId]="this.facilityId"
+                [roleId]="this.roleId"
+                [apiUrl]="this.apiUrl"
+                [editData]="this.modalFormData"
+                (formStatus)="onFormStatus($event)"
+                (formSubmit)="onFormSubmit($event)"
+            ></app-dynamic-forms>
+        }
+    </ng-container>
+</nz-modal>
