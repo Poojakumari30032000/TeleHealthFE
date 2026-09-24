@@ -1,0 +1,10 @@
+# agent-setup.sh runs in a Linux container and the workflows run on Linux
+# runners. A CRLF checkout on a Windows machine would otherwise be committed
+# back with carriage returns, and the shebang line fails with a confusing
+# "bad interpreter: /usr/bin/env bash^M".
+*.sh    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+
+# Windows-only tooling keeps CRLF.
+*.ps1   text eol=crlf

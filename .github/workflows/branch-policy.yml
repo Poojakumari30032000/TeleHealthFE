@@ -76,15 +76,38 @@ jobs:
 
           TITLE_PATTERN="^(${PROJECT_KEYS})-[1-9][0-9]* .+"
 
+          BRANCH_KEY=$(echo "$BRANCH" | sed -E "s#^[a-z]+/((${PROJECT_KEYS})-[0-9]+).*#\1#")
+
           if [[ ! "$TITLE" =~ $TITLE_PATTERN ]]; then
+            # Derive a ready-to-paste suggestion from the branch slug, because
+            # in practice nobody types these titles - GitHub prefills them, and
+            # neither thing it prefills is valid here.
+            SLUG=$(echo "$BRANCH" | sed -E "s#^[a-z]+/(${PROJECT_KEYS})-[0-9]+-?##" | tr '-' ' ')
+
             echo "::error::Invalid PR title '$TITLE'"
             echo ""
             echo "Expected: <JIRA-KEY> <ticket summary>"
             echo "Example : TEL-19 ICD-10 and CPT reference data model and code set load"
+            echo ""
+            echo "This branch is '$BRANCH', so the title must start with '${BRANCH_KEY} '."
+            if [[ -n "$SLUG" ]]; then
+              echo "Suggested: ${BRANCH_KEY} ${SLUG}"
+            fi
+            echo ""
+            echo "Both common causes are GitHub prefilling the title for you:"
+            echo ""
+            echo "  1. One commit on the branch, so it used the commit subject."
+            echo "     The commit convention is '${BRANCH_KEY}: summary' WITH a colon."
+            echo "     That colon is correct in a commit message and invalid here:"
+            echo "     the ticket key must be followed by a space, not a colon."
+            echo ""
+            echo "  2. More than one commit, so it used the branch name instead,"
+            echo "     e.g. 'Feature/tel 36 rbac gap analysis'."
+            echo ""
+            echo "Editing the PR title re-runs this check automatically - no re-push needed."
             exit 1
           fi
 
-          BRANCH_KEY=$(echo "$BRANCH" | sed -E "s#^[a-z]+/((${PROJECT_KEYS})-[0-9]+).*#\1#")
           TITLE_KEY=$(echo "$TITLE"  | grep -oE "^(${PROJECT_KEYS})-[0-9]+")
 
           if [[ "$BRANCH_KEY" != "$TITLE_KEY" ]]; then
