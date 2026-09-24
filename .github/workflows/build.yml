@@ -1,0 +1,69 @@
+name: Build
+
+# Installs, builds and runs the Angular test suite on every PR and on every
+# push to an integration branch.
+#
+# Why this exists: branch-policy.yml validates branch names, PR targets and
+# titles, but nothing in CI ever built the app. A green check only meant the
+# branch was named correctly.
+#
+# The unattended nightly agent cannot fill the gap either. The backend hit this
+# first - no .NET SDK in the sandbox - and the frontend has its own version of
+# the same problem, documented in AGENT-ENVIRONMENT.md.
+#
+# This also gives the nightly runner's handover rule something real to stand
+# on: it may only move a ticket from In Progress to PR Review once all required
+# checks have passed, and until now that was almost free.
+
+on:
+  pull_request:
+    branches: [development, main]
+  push:
+    branches: [development, main]
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      # Angular 17 requires Node >= 18.13. Pinned to 20.x (LTS) rather than
+      # floating, so a runner image update cannot silently change the toolchain
+      # under a release.
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # build:prod rather than build: the `build` script carries a `prebuild`
+      # hook that rimrafs dist, .angular and node_modules/.cache. Harmless in
+      # CI but pure cost, and `build:prod` has no such hook.
+      - name: Build (production)
+        run: npm run build:prod
+
+      # Non-blocking on purpose - for now.
+      #
+      # There are 101 spec files in src/ and none of them has ever run in CI,
+      # so their current pass rate is genuinely unknown. Gating on them today
+      # would very likely red-light every PR in the repository on day one,
+      # which is the fastest way to teach people to ignore a red check.
+      #
+      # The first run on this PR reports the real numbers. Once the suite is
+      # green - or once the known failures are fixed or explicitly excluded -
+      # delete `continue-on-error` below and the tests become a real gate.
+      #
+      # ChromeHeadless uses the Chrome preinstalled on the runner image. If it
+      # fails to launch (a sandbox error is the usual one), the fix is a
+      # karma.conf.js with a --no-sandbox launcher wired up via angular.json.
+      - name: Test
+        continue-on-error: true
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+        run: npm test -- --watch=false --browsers=ChromeHeadless --progress=false
