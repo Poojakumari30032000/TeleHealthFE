@@ -72,7 +72,7 @@
       </div>
 
       <button
-        *ngIf="userRole === 'Provider' || userRole === 'Global Admin'"
+        *ngIf="userRole === 'Provider' || userRole === 'Global Admin' || userRole === 'Clinic Admin'"
         class="cal-btn cal-btn--primary"
         (click)="openCreateAppointment()"
       >
@@ -423,7 +423,7 @@
 >
   <div *nzModalContent class="grid gap-4">
 
-    <div *ngIf="userRole === 'Global Admin'">
+    <div *ngIf="userRole === 'Global Admin' || userRole === 'Clinic Admin'">
       <label class="label-C-F">Provider</label>
       <nz-select
         class="w-full"
