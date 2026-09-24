@@ -29,6 +29,7 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { PatientQuestionnaireViewComponent } from './patient-questionnaire-view/patient-questionnaire-view.component';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { PatientQuestionnaireComponent } from './patient-questionnaire/patient-questionnaire.component';
+import { MyQuestionnairesComponent } from './my-questionnaires/my-questionnaires.component';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { NzProgressModule } from 'ng-zorro-antd/progress';
 import { SignaturePadComponent } from 'app/shared/signature-pad/signature-pad.component';
@@ -38,7 +39,8 @@ import { SignaturePadComponent } from 'app/shared/signature-pad/signature-pad.co
     QuestionnaireListViewComponent,
     QuestionnaireDetailViewComponent,
     PatientQuestionnaireViewComponent,
-    PatientQuestionnaireComponent
+    PatientQuestionnaireComponent,
+    MyQuestionnairesComponent
   ],
   imports: [
     CommonModule,

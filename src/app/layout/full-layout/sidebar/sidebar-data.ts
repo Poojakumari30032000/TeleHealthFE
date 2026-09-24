@@ -293,6 +293,14 @@ export const sidebarMenu: SidebarMenu = {
 
     {
       level: 1,
+      title: 'My Questionnaires',
+      icon: 'fa-regular fa-file-lines',
+      route: '/forms/my',
+      disabled: false
+    },
+
+    {
+      level: 1,
       title: 'Billing',
       icon: 'fa-solid fa-credit-card',
       disabled: false,

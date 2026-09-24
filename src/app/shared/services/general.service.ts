@@ -607,6 +607,20 @@ savePatientIntakeFormByTreatmentID(payload:any){
   return this.http.post<ApiResponse | any>(this.baseUrl + 'PatientTreatments/saveTreatmentIntakeRange', payload, { headers: this.getHeaders() });
 }
 
+/**
+ * The signed-in patient's completed questionnaires. The patient is taken from
+ * the PatientId claim server side, so no identifier is sent.
+ */
+getMyQuestionnaires(){
+  return this.http.get<ApiResponse | any>(this.baseUrl + 'Questionnaires/getPatientQuestionnaires', { headers: this.getHeaders() });
+}
+
+/** The answers of one of the signed-in patient's own submissions. */
+getMyQuestionnaireResponses(patientTreatmentId: number){
+  const params = new HttpParams().set('Id', patientTreatmentId);
+  return this.http.get<ApiResponse | any>(this.baseUrl + 'Questionnaires/getPatientQuestionnaireResponses', { headers: this.getHeaders(), params: params });
+}
+
 checkDuplicateEmail(email: string): Observable<any> {
   const params = new HttpParams().set('email', email);
   return this.http.get<ApiResponse | any>(this.baseUrl + 'Users/ActiveUserExists', { params: params });
