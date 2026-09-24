@@ -442,7 +442,15 @@ export class CalenderViewComponent implements AfterViewInit {
 
   private getAllProvdiders(): void{
     this.loadingProvider = true;
-    this.generalService.commonGet('DropDowns/getAllProviders').pipe(takeUntil(this.destroy$)).subscribe({
+
+    // A Clinic Admin may only ever see providers assigned to their own facility.
+    // getAllProviders applies FacilityId only when IsAssign is supplied alongside it.
+    const facilityId = this.isClinicAdminRole ? this.effectiveFacilityId : 0;
+    const url = facilityId
+      ? `DropDowns/getAllProviders?IsAssign=true&FacilityId=${facilityId}`
+      : 'DropDowns/getAllProviders';
+
+    this.generalService.commonGet(url).pipe(takeUntil(this.destroy$)).subscribe({
       next : (response) =>{
         if(response.status === 1 && response.data){
           this.providerData = response.data;
