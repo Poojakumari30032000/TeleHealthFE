@@ -175,7 +175,10 @@ export const Full_ROUTES: Routes = [
     path: 'forms',
     loadChildren: () => import('../../questionnaire/questionnaire.module').then(m => m.QuestionnaireModule),
     canActivate: [PermissionGuard],
-    data: { permissions: ['questionnaier_view'] }
+    // PermissionGuard grants on ANY of these. 'pt_view' lets a patient reach
+    // 'forms/my'; the child routes still gate the admin screens on
+    // 'questionnaier_view', which a patient does not hold.
+    data: { permissions: ['questionnaier_view', 'pt_view'] }
   },
   {
     path: 'pharmacy',

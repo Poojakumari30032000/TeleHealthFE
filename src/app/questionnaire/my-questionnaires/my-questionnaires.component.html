@@ -1,0 +1,109 @@
+<div class="mq-shell">
+
+  <div class="mq-header">
+    <h2 class="mq-title">My Questionnaires</h2>
+    <p class="mq-subtitle">The forms you have completed, most recent first.</p>
+  </div>
+
+  <div class="mq-state" *ngIf="loadingList">
+    <i class="fa-solid fa-arrows-spin fa-spin mr-2"></i> Loading your questionnaires…
+  </div>
+
+  <nz-alert
+    *ngIf="!loadingList && listError"
+    nzType="error"
+    [nzMessage]="listError"
+    nzShowIcon
+    class="mb-4"
+  ></nz-alert>
+
+  <div class="mq-state" *ngIf="!loadingList && !listError && questionnaires.length === 0">
+    <i class="fa-regular fa-file-lines mr-2"></i>
+    You have not completed any questionnaires yet.
+  </div>
+
+  <div class="mq-list" *ngIf="!loadingList && !listError && questionnaires.length > 0">
+    <nz-card
+      *ngFor="let item of questionnaires; trackBy: trackByTreatmentId"
+      class="mq-card"
+      [nzHoverable]="true"
+    >
+      <div class="mq-card-body">
+        <div class="mq-card-main">
+          <h3 class="mq-card-title">{{ displayTitle(item) }}</h3>
+          <p class="mq-card-meta" *ngIf="item.productName && item.questionnaireName">
+            {{ item.productName }}
+          </p>
+          <p class="mq-card-meta">
+            <span *ngIf="item.submittedDate">
+              Submitted {{ item.submittedDate | date: 'mediumDate' }}
+            </span>
+            <span *ngIf="!item.submittedDate">Submission date not recorded</span>
+            <span class="mq-dot">•</span>
+            {{ item.answerCount }} answer{{ item.answerCount === 1 ? '' : 's' }}
+          </p>
+        </div>
+
+        <button
+          nz-button
+          nzType="default"
+          class="mq-view-btn"
+          (click)="openAnswers(item)"
+        >
+          View answers
+        </button>
+      </div>
+    </nz-card>
+  </div>
+
+</div>
+
+<nz-modal
+  [(nzVisible)]="isAnswersVisible"
+  [nzTitle]="selected ? displayTitle(selected) : 'Answers'"
+  (nzOnCancel)="closeAnswers()"
+  [nzFooter]="answersFooter"
+  [nzWidth]="760"
+  [nzBodyStyle]="{ 'max-height': 'calc(100vh - 260px)', 'overflow': 'auto' }"
+>
+  <ng-container *nzModalContent>
+
+    <div class="mq-state" *ngIf="loadingAnswers">
+      <i class="fa-solid fa-arrows-spin fa-spin mr-2"></i> Loading answers…
+    </div>
+
+    <nz-alert
+      *ngIf="!loadingAnswers && answersError"
+      nzType="error"
+      [nzMessage]="answersError"
+      nzShowIcon
+    ></nz-alert>
+
+    <div class="mq-state" *ngIf="!loadingAnswers && !answersError && answers.length === 0">
+      No answers were recorded for this questionnaire.
+    </div>
+
+    <div class="mq-answers" *ngIf="!loadingAnswers && !answersError && answers.length > 0">
+      <div class="mq-answer" *ngFor="let a of answers; trackBy: trackByAnswerId">
+        <p class="mq-question">{{ a.question }}</p>
+
+        <div class="mq-answer-value" *ngIf="answerLines(a).length > 0; else noAnswer">
+          <ul *ngIf="answerLines(a).length > 1">
+            <li *ngFor="let line of answerLines(a)">{{ line }}</li>
+          </ul>
+          <span *ngIf="answerLines(a).length === 1">{{ answerLines(a)[0] }}</span>
+        </div>
+        <ng-template #noAnswer>
+          <span class="mq-no-answer">Not answered</span>
+        </ng-template>
+
+        <p class="mq-other" *ngIf="a.otherText">{{ a.otherText }}</p>
+      </div>
+    </div>
+
+  </ng-container>
+</nz-modal>
+
+<ng-template #answersFooter>
+  <button nz-button nzType="primary" (click)="closeAnswers()">Close</button>
+</ng-template>
