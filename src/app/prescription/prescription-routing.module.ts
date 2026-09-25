@@ -32,6 +32,12 @@ const routes: Routes = [
   {
     path: 'soap-notes/:id',
     component : SOAPNotesComponent,
+    // TEL-22 - was unguarded. Same codes the treatment screens use to view a treatment.
+    canActivate: [PermissionGuard],
+    data: {
+      permissions: ['treatment_patient_view', 'treatment_view'],
+      title : 'SOAP Notes'
+    }
   },
   {
     path: 'update/:id',
