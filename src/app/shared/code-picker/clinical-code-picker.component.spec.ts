@@ -62,7 +62,7 @@ describe('ClinicalCodePickerComponent', () => {
   }
 
   it('debounces typing into one search for the last term', fakeAsync(() => {
-    init(c => { c.onDate = '2026-01-01'; });
+    init(c => { c.serviceDate = '2026-01-01'; });
     component.onSearch('e1');
     tick(100);
     component.onSearch('e11');
@@ -182,6 +182,43 @@ describe('ClinicalCodePickerComponent', () => {
     expect(el.textContent).toContain('You do not have permission');
   });
 
+  it('read-only shows the codes without a search box or remove buttons', () => {
+    init(c => {
+      c.readOnly = true;
+      c.selected = [{
+        codeSystem: 'ICD10CM', codeId: 1, codeSetVersionId: 6, code: 'I10', displayCode: 'I10',
+        description: 'Essential (primary) hypertension', isBillable: true,
+      }];
+    });
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('nz-select')).toBeNull();
+    expect(el.querySelector('li button')).toBeNull();
+    expect(el.textContent).toContain('Essential (primary) hypertension');
+    expect(el.textContent).not.toContain('You do not have permission');
+
+    component.remove(component.selection[0]!);
+    expect(component.selection.length).toBe(1);
+  });
+
+  it('read-only with nothing stored says so', () => {
+    init(c => { c.readOnly = true; });
+    expect(fixture.nativeElement.textContent).toContain('No codes recorded.');
+  });
+
+  it('without search permission still lists the codes it was given', () => {
+    allowed = false;
+    init(c => {
+      c.selected = [{
+        codeSystem: 'ICD10CM', codeId: 1, codeSetVersionId: 6, code: 'I10', displayCode: 'I10',
+        description: 'Essential (primary) hypertension', isBillable: true,
+      }];
+    });
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.textContent).toContain('You do not have permission');
+    expect(el.textContent).toContain('Essential (primary) hypertension');
+    expect(el.querySelector('li button')).toBeNull();
+  });
+
   it('works as a form control', fakeAsync(() => {
     init();
     const changes: SelectedClinicalCode[][] = [];
@@ -205,8 +242,8 @@ describe('ClinicalCodePickerComponent', () => {
     expect(component.selection.length).toBe(2);
   }));
 
-  it('formats a Date onDate as yyyy-MM-dd', fakeAsync(() => {
-    init(c => { c.onDate = new Date(2025, 5, 1); });
+  it('formats a Date serviceDate as yyyy-MM-dd', fakeAsync(() => {
+    init(c => { c.serviceDate = new Date(2025, 5, 1); });
     component.onSearch('diab');
     tick(300);
     expect(search.calls.mostRecent().args[0].onDate).toBe('2025-06-01');
@@ -215,6 +252,29 @@ describe('ClinicalCodePickerComponent', () => {
 });
 
 describe('ClinicalCodesService', () => {
+  function setup() {
+    const http = {
+      get: jasmine.createSpy('get').and.returnValue(of({})),
+      post: jasmine.createSpy('post').and.returnValue(of({})),
+    };
+    TestBed.configureTestingModule({ providers: [ClinicalCodesService, { provide: HttpService, useValue: http }] });
+    return { http, service: TestBed.inject(ClinicalCodesService) };
+  }
+
+  it('reads the codes on a SOAP note through HttpService', () => {
+    const { http, service } = setup();
+    service.getSoapNoteCodes(42).subscribe();
+    expect(http.get).toHaveBeenCalledWith('ClinicalCodes/getSoapNoteCodes?id=42');
+  });
+
+  it('saves the codes on a SOAP note through HttpService', () => {
+    const { http, service } = setup();
+    service.saveSoapNoteCodes(42, [{ codeSystem: 'ICD10CM', codeSetVersionId: 7, code: 'E1165' }]).subscribe();
+    expect(http.post).toHaveBeenCalledWith('ClinicalCodes/saveSoapNoteCodes', {
+      soapNoteId: 42, codes: [{ codeSystem: 'ICD10CM', codeSetVersionId: 7, code: 'E1165' }],
+    });
+  });
+
   it('calls searchCodes through HttpService with encoded parameters', () => {
     const http = { get: jasmine.createSpy('get').and.returnValue(of({})) };
     TestBed.configureTestingModule({ providers: [ClinicalCodesService, { provide: HttpService, useValue: http }] });

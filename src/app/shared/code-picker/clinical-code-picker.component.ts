@@ -59,19 +59,20 @@ const PAGE_SIZE = 20;
 const DEBOUNCE_MS = 300;
 
 /**
- * TEL-22 - reusable ICD-10-CM / CPT code picker.
+ * TEL-22 - reusable ICD-10-CM / CPT code picker. Used on the treatment SOAP
+ * note screen (soap-notes.component), which loads and saves the note's codes.
  *
  * Type-ahead search against `api/ClinicalCodes/searchCodes` (TEL-21), code and
  * description shown together, any number of selections. Works as a form control
  * (`formControlName` / `ngModel`, value `SelectedClinicalCode[]`) or with
  * `[selected]` / `(selectedChange)`.
  *
- * It does not save anything itself: attaching the codes to an encounter is the
- * host screen's job, because where an encounter lives is still an open question
- * on TEL-22.
+ * It does not save anything itself; the host screen does, so the picker can be
+ * reused wherever codes are attached.
  *
- * Rendering is gated on the same permissions the API enforces, so a user who
- * would get a 403 sees a notice instead of a search box that always fails.
+ * The search box is gated on the same permissions the search API enforces, so a
+ * user who would get a 403 sees a notice instead of a search box that always
+ * fails. The selected codes are shown either way.
  */
 @Component({
   selector: 'app-clinical-code-picker',
@@ -106,7 +107,7 @@ export class ClinicalCodePickerComponent implements OnInit, OnDestroy, ControlVa
    * The date of service (yyyy-MM-dd or a Date). Only codes in force on that date
    * are offered. Defaults to today on the server.
    */
-  @Input() onDate: string | Date | null = null;
+  @Input() serviceDate: string | Date | null = null;
 
   /**
    * Leave out ICD-10-CM header codes, which cannot go on a claim. On by default;
@@ -116,6 +117,12 @@ export class ClinicalCodePickerComponent implements OnInit, OnDestroy, ControlVa
 
   /** 0 for no limit. */
   @Input() maxSelections = 0;
+
+  /**
+   * Show the selected codes only: no search box, no remove buttons. For a user
+   * who may view the record but not change it.
+   */
+  @Input() readOnly = false;
 
   @Input() placeholder = 'Search by code or description, e.g. E11.65 or type 2 diabetes';
 
@@ -153,6 +160,7 @@ export class ClinicalCodePickerComponent implements OnInit, OnDestroy, ControlVa
 
   /** Mirrors `[RequiresPermission]` on the search endpoint. */
   get canSearch(): boolean {
+    if (this.readOnly) return false;
     return this.permissions.hasAnyPermission(CLINICAL_CODE_PICKER_PERMISSIONS);
   }
 
@@ -186,7 +194,7 @@ export class ClinicalCodePickerComponent implements OnInit, OnDestroy, ControlVa
             .searchCodes({
               query: term,
               codeSystem: system,
-              onDate: this.formatDate(this.onDate),
+              onDate: this.formatDate(this.serviceDate),
               billableOnly: this.billableOnly,
               pageSize: PAGE_SIZE,
             })
@@ -269,7 +277,7 @@ export class ClinicalCodePickerComponent implements OnInit, OnDestroy, ControlVa
   }
 
   remove(code: SelectedClinicalCode): void {
-    if (this.isDisabled) return;
+    if (this.isDisabled || this.readOnly) return;
     this.selection = this.selection.filter(
       c => !(c.codeSystem === code.codeSystem && c.code === code.code),
     );

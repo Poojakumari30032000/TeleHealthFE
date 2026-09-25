@@ -17,6 +17,8 @@ import { firstValueFrom } from 'rxjs';
 import { GeneralService } from 'app/shared/services/general.service';
 import { TitleService } from 'app/shared/services/title.service';
 import { AuthService } from '../../shared/Auth/auth.service';
+import { ClinicalCodesService, SoapNoteCode, SoapNoteCodes } from 'app/shared/services/clinical-codes.service';
+import { SelectedClinicalCode } from 'app/shared/code-picker/clinical-code-picker.component';
 
 interface ApiResponse<T = any> {
   status: number;
@@ -90,6 +92,19 @@ export class SOAPNotesComponent implements OnInit, OnChanges {
 
   userRole: string | null = null;
   canEdit = false;
+
+  // TEL-22 - ICD-10-CM / CPT codes on this note, saved with it.
+  noteCodes: SelectedClinicalCode[] = [];
+  /** yyyy-MM-dd the codes must be in force on: the note's created date (UTC), today for a new note. */
+  codingDate: string = this.utcToday();
+  codesLoading = false;
+  codesError: string | null = null;
+  /** The server's view of whether this user may change the codes. */
+  private serverCanEditCodes = true;
+  private codesDirty = false;
+  private codesRequestId = 0;
+  /** The note the current codes belong to; 0 for a note not saved yet. */
+  private codesNoteId = 0;
   isPhoneView = false;
   readonly maxLen = {
     soapSection: 4000,
@@ -107,7 +122,13 @@ export class SOAPNotesComponent implements OnInit, OnChanges {
     private cdr: ChangeDetectorRef,
     private auth: AuthService,
     private router: Router,
+    private clinicalCodes: ClinicalCodesService,
   ) {}
+
+  /** Read-only when the note cannot be edited here, or the server says the codes cannot be. */
+  get codesReadOnly(): boolean {
+    return !this.canEdit || !this.serverCanEditCodes;
+  }
 
   ngOnInit(): void {
     this.userRole = this.auth.getUserRole();
@@ -256,6 +277,7 @@ export class SOAPNotesComponent implements OnInit, OnChanges {
 
   private applySoapNoteState(sn: SoapNote | null): void {
     this.soapNote = sn;
+    this.loadNoteCodes(Number(sn?.soapNoteId || 0));
 
     this.form.patchValue({
       subjective: sn?.subjective || '',
@@ -979,12 +1001,15 @@ export class SOAPNotesComponent implements OnInit, OnChanges {
               ...payload,
               soapNoteId: savedSoapNoteId
             };
-            if (savedSoapNoteId > 0) {
-              this.openSavedSoapNoteInParent(this.soapNote);
-              this.refreshSavedSoapNoteDetails(savedSoapNoteId);
-            }
             this.gs.showSuccess(res?.message || 'SOAP note saved.');
-            this.refreshTreatmentDetailsInParent();
+            // Codes go after the note, because a new note has no id until now.
+            this.saveNoteCodes(savedSoapNoteId).finally(() => {
+              if (savedSoapNoteId > 0) {
+                this.openSavedSoapNoteInParent(this.soapNote);
+                this.refreshSavedSoapNoteDetails(savedSoapNoteId);
+              }
+              this.refreshTreatmentDetailsInParent();
+            });
           } else {
             this.gs.showError(res?.message || 'Save failed.');
           }
@@ -993,6 +1018,105 @@ export class SOAPNotesComponent implements OnInit, OnChanges {
           this.gs.showError(err?.message || 'Network error while saving.');
         }
       });
+  }
+
+  // ---- TEL-22 codes
+
+  onNoteCodesChange(codes: SelectedClinicalCode[]): void {
+    this.noteCodes = codes;
+    this.codesDirty = true;
+    this.codesError = null;
+    this.cdr.markForCheck();
+  }
+
+  private loadNoteCodes(soapNoteId: number): void {
+    const requestId = ++this.codesRequestId;
+
+    // Unsaved picks survive a reload of the same note, and a new note getting its
+    // id on save, so a failed code save loses neither them nor the reason it
+    // failed. Another note: start clean.
+    const sameNote = soapNoteId === this.codesNoteId || this.codesNoteId === 0;
+    if (!sameNote) this.codesDirty = false;
+    if (!this.codesDirty) this.codesError = null;
+    this.codesNoteId = soapNoteId;
+
+    if (!soapNoteId) {
+      // A new note: nothing stored yet, and it will be created today.
+      if (!this.codesDirty) this.noteCodes = [];
+      this.codingDate = this.utcToday();
+      this.serverCanEditCodes = true;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    this.codesLoading = true;
+    this.cdr.markForCheck();
+
+    this.clinicalCodes.getSoapNoteCodes(soapNoteId)
+      .pipe(finalize(() => {
+        if (requestId !== this.codesRequestId) return;
+        this.codesLoading = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: (res) => {
+          if (requestId !== this.codesRequestId) return;
+          if (res?.status === 1 && res?.data) {
+            const data = res.data as SoapNoteCodes;
+            if (!this.codesDirty) this.noteCodes = (data.codes || []).map(c => this.toSelected(c));
+            this.codingDate = (data.codingDate || '').substring(0, 10) || this.utcToday();
+            this.serverCanEditCodes = data.canEdit === true;
+          } else {
+            this.codesError = res?.message || 'Unable to load the codes on this note.';
+          }
+        },
+        error: () => {
+          if (requestId !== this.codesRequestId) return;
+          this.codesError = 'Unable to load the codes on this note.';
+        }
+      });
+  }
+
+  /** Saves the codes when they changed. Never rejects; failures are shown on the note. */
+  private async saveNoteCodes(soapNoteId: number): Promise<void> {
+    if (!soapNoteId || !this.codesDirty || this.codesReadOnly) return;
+
+    try {
+      const res: any = await firstValueFrom(this.clinicalCodes.saveSoapNoteCodes(
+        soapNoteId,
+        this.noteCodes.map(c => ({ codeSystem: c.codeSystem, codeSetVersionId: c.codeSetVersionId, code: c.code }))
+      ));
+
+      if (res?.status === 1) {
+        this.codesDirty = false;
+        this.codesError = null;
+      } else {
+        const errors: string[] = res?.data?.errors || [];
+        this.codesError = [res?.message || 'The codes were not saved.', ...errors].join(' ');
+        this.gs.showError('The SOAP note was saved, but its codes were not. ' + (errors[0] || res?.message || ''));
+      }
+    } catch (err: any) {
+      this.codesError = 'The codes were not saved: ' + (err?.message || 'network error') + '.';
+      this.gs.showError('The SOAP note was saved, but its codes were not.');
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  private toSelected(c: SoapNoteCode): SelectedClinicalCode {
+    return {
+      codeSystem: c.codeSystem,
+      codeId: c.codeId,
+      codeSetVersionId: c.codeSetVersionId,
+      code: c.code,
+      displayCode: c.displayCode,
+      description: c.description,
+      isBillable: c.isBillable,
+    };
+  }
+
+  private utcToday(): string {
+    return new Date().toISOString().substring(0, 10);
   }
 
   goBack(){

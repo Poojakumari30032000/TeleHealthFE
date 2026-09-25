@@ -46,8 +46,42 @@ export interface ClinicalCodeSearchRequest {
   pageSize?: number;
 }
 
+/** One code stored on a treatment SOAP note. Mirrors SoapNoteCodeDTO. */
+export interface SoapNoteCode {
+  soapNoteCodeId: number;
+  codeSystem: ClinicalCodeSystem;
+  /** The release the code was coded against. */
+  codeSetVersionId: number;
+  versionLabel: string | null;
+  codeId: number;
+  code: string;
+  displayCode: string;
+  description: string;
+  isBillable: boolean;
+  /** 1 is the primary code. */
+  displayOrder: number;
+}
+
+/** Mirrors SoapNoteCodesDTO. */
+export interface SoapNoteCodes {
+  soapNoteId: number;
+  /** The date the note's codes must be in force on (its created date). Use as the picker's date of service. */
+  codingDate: string;
+  /** Whether the server lets this caller change the codes. */
+  canEdit: boolean;
+  codes: SoapNoteCode[];
+}
+
+/** One code to store, as picked. Mirrors SoapNoteCodeItemRequestDTO. */
+export interface SoapNoteCodeItem {
+  codeSystem: ClinicalCodeSystem;
+  codeSetVersionId: number;
+  code: string;
+}
+
 /**
- * TEL-22 - ICD-10-CM / CPT code search (TEL-21, `GET api/ClinicalCodes/searchCodes`).
+ * TEL-22 - ICD-10-CM / CPT code search (TEL-21, `GET api/ClinicalCodes/searchCodes`)
+ * and the codes stored on a treatment SOAP note.
  *
  * Goes through `HttpService`, as TEL-22 requires, rather than `GeneralService` or
  * `HttpClient`. The server enforces who may search (staff roles plus
@@ -70,5 +104,20 @@ export class ClinicalCodesService {
     if (request.pageSize) params.push(`pageSize=${request.pageSize}`);
 
     return this.http.get(`ClinicalCodes/searchCodes?${params.join('&')}`);
+  }
+
+  /** Resolves to the `ApiResponse` envelope; `data` is a `SoapNoteCodes`. */
+  getSoapNoteCodes(soapNoteId: number): Observable<any> {
+    return this.http.get(`ClinicalCodes/getSoapNoteCodes?id=${encodeURIComponent(String(soapNoteId))}`);
+  }
+
+  /**
+   * Replaces every code on the note with `codes`, in that order; an empty list
+   * clears them. All-or-nothing on the server. On failure `status` is 0 and
+   * `data.errors` lists each rejected code; on success `data.data` is the
+   * note's `SoapNoteCodes`.
+   */
+  saveSoapNoteCodes(soapNoteId: number, codes: SoapNoteCodeItem[]): Observable<any> {
+    return this.http.post('ClinicalCodes/saveSoapNoteCodes', { soapNoteId, codes });
   }
 }

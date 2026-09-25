@@ -1,5 +1,9 @@
 <div class="clinical-code-picker w-full">
-  <ng-container *ngIf="canSearch; else noAccess">
+  <p *ngIf="!readOnly && !canSearch" class="text-sm text-gray-500">
+    You do not have permission to add diagnosis or procedure codes.
+  </p>
+
+  <ng-container *ngIf="canSearch">
     <!-- Code system switch, only when there is a choice. -->
     <div *ngIf="codeSystems.length > 1" class="mb-2">
       <nz-radio-group
@@ -67,37 +71,36 @@
         Showing the best {{ state.items.length }} of {{ state.totalCount }} matches. Keep typing to narrow the list.
       </div>
     </ng-template>
-
-    <!-- Selected codes: code and description together, removable. -->
-    <ul *ngIf="selection.length > 0" class="mt-3 flex flex-col gap-2" aria-label="Selected codes">
-      <li
-        *ngFor="let c of selection; trackBy: trackBySelected"
-        class="flex items-start gap-2 rounded border border-gray-200 px-3 py-2 bg-white"
-      >
-        <nz-tag class="shrink-0" [nzColor]="c.codeSystem === 'CPT' ? 'purple' : 'blue'">
-          {{ systemLabel(c.codeSystem) }}
-        </nz-tag>
-        <span class="code-cell font-mono font-semibold shrink-0">{{ c.displayCode }}</span>
-        <span class="flex-1 leading-snug">{{ c.description }}</span>
-        <nz-tag *ngIf="!c.isBillable" nzColor="orange" class="shrink-0">Header - not billable</nz-tag>
-        <button
-          nz-button
-          nzType="text"
-          nzSize="small"
-          class="shrink-0"
-          [disabled]="isDisabled"
-          (click)="remove(c)"
-          [attr.aria-label]="'Remove ' + c.displayCode"
-        >
-          <span nz-icon nzType="close" nzTheme="outline"></span>
-        </button>
-      </li>
-    </ul>
-
-    <p *ngIf="selection.length === 0" class="mt-2 text-sm text-gray-400">No codes selected.</p>
   </ng-container>
 
-  <ng-template #noAccess>
-    <p class="text-sm text-gray-500">You do not have permission to add diagnosis or procedure codes.</p>
-  </ng-template>
+  <!-- Selected codes: code and description together; removable unless read-only. -->
+  <ul *ngIf="selection.length > 0" class="mt-3 flex flex-col gap-2" aria-label="Selected codes">
+    <li
+      *ngFor="let c of selection; trackBy: trackBySelected"
+      class="flex items-start gap-2 rounded border border-gray-200 px-3 py-2 bg-white"
+    >
+      <nz-tag class="shrink-0" [nzColor]="c.codeSystem === 'CPT' ? 'purple' : 'blue'">
+        {{ systemLabel(c.codeSystem) }}
+      </nz-tag>
+      <span class="code-cell font-mono font-semibold shrink-0">{{ c.displayCode }}</span>
+      <span class="flex-1 leading-snug">{{ c.description }}</span>
+      <nz-tag *ngIf="!c.isBillable" nzColor="orange" class="shrink-0">Header - not billable</nz-tag>
+      <button
+        *ngIf="canSearch"
+        nz-button
+        nzType="text"
+        nzSize="small"
+        class="shrink-0"
+        [disabled]="isDisabled"
+        (click)="remove(c)"
+        [attr.aria-label]="'Remove ' + c.displayCode"
+      >
+        <span nz-icon nzType="close" nzTheme="outline"></span>
+      </button>
+    </li>
+  </ul>
+
+  <p *ngIf="selection.length === 0" class="mt-2 text-sm text-gray-400">
+    {{ readOnly ? 'No codes recorded.' : 'No codes selected.' }}
+  </p>
 </div>
