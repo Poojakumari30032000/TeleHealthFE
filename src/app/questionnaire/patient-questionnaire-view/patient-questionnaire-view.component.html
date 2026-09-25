@@ -9,12 +9,19 @@
     </div>
     <div class="pqv-banner-body">
       <div class="pqv-banner-title">
-        <ng-container *ngIf="!isConsentPage">Tell us about yourself</ng-container>
+        <ng-container *ngIf="!isConsentPage">{{ questionnaireName || 'Tell us about yourself' }}</ng-container>
         <ng-container *ngIf="isConsentPage">Review &amp; Sign</ng-container>
       </div>
       <div class="pqv-banner-sub">
         <ng-container *ngIf="!isConsentPage">This helps us personalise your care plan.</ng-container>
         <ng-container *ngIf="isConsentPage">Consent {{ currentConsentIndex }} of {{ totalConsents }}</ng-container>
+        <span *ngIf="isAssignment && draftSaveState" class="pqv-save-state" aria-live="polite">
+          <ng-container [ngSwitch]="draftSaveState">
+            <ng-container *ngSwitchCase="'saving'">· Saving…</ng-container>
+            <ng-container *ngSwitchCase="'saved'">· Progress saved</ng-container>
+            <ng-container *ngSwitchCase="'error'">· Not saved to your account yet</ng-container>
+          </ng-container>
+        </span>
       </div>
     </div>
     <div class="pqv-banner-step">{{ progressPercent }}%</div>
@@ -311,7 +318,12 @@
   </div>
 </div>
 
-<div *ngIf="!pageFields?.length">
+<div *ngIf="loadError" class="text-center pt-[4rem] px-4">
+  <i class="fa-regular fa-file-lines text-4xl text-gray-400 mb-3"></i>
+  <p class="text-sm text-gray-600 dark:text-gray-300">{{ loadError }}</p>
+</div>
+
+<div *ngIf="!pageFields?.length && !loadError">
   <div class="text-center text-primary text-5xl pt-[6rem]">
     <i class="fa-solid fa-arrows-spin animate-spin"></i>
   </div>

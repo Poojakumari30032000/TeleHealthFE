@@ -2,7 +2,7 @@
 
   <div class="mq-header">
     <h2 class="mq-title">My Questionnaires</h2>
-    <p class="mq-subtitle">The forms you have completed, most recent first.</p>
+    <p class="mq-subtitle">Forms your care team has asked you to complete, and the ones you have already sent.</p>
   </div>
 
   <div class="mq-state" *ngIf="loadingList">
@@ -17,57 +17,117 @@
     class="mb-4"
   ></nz-alert>
 
-  <div class="mq-state" *ngIf="!loadingList && !listError && questionnaires.length === 0">
-    <i class="fa-regular fa-file-lines mr-2"></i>
-    You have not completed any questionnaires yet.
-  </div>
+  <ng-container *ngIf="!loadingList && !listError">
 
-  <div class="mq-list" *ngIf="!loadingList && !listError && questionnaires.length > 0">
-    <nz-card
-      *ngFor="let item of questionnaires; trackBy: trackByTreatmentId"
-      class="mq-card"
-      [nzHoverable]="true"
-    >
-      <div class="mq-card-body">
-        <div class="mq-card-main">
-          <h3 class="mq-card-title">{{ displayTitle(item) }}</h3>
-          <p class="mq-card-meta" *ngIf="item.productName && item.questionnaireName">
-            {{ item.productName }}
-          </p>
-          <p class="mq-card-meta">
-            <span *ngIf="item.submittedDate">
-              Submitted {{ item.submittedDate | date: 'mediumDate' }}
-            </span>
-            <span *ngIf="!item.submittedDate">Submission date not recorded</span>
-            <span class="mq-dot">•</span>
-            {{ item.answerCount }} answer{{ item.answerCount === 1 ? '' : 's' }}
-          </p>
-        </div>
+    <!-- To do -->
+    <section class="mq-section">
+      <h3 class="mq-section-title">
+        To complete
+        <span class="mq-count" *ngIf="pending.length">{{ pending.length }}</span>
+      </h3>
 
-        <button
-          nz-button
-          nzType="default"
-          class="mq-view-btn"
-          (click)="openAnswers(item)"
-        >
-          View answers
-        </button>
+      <div class="mq-state" *ngIf="pending.length === 0">
+        <i class="fa-regular fa-circle-check mr-2"></i>
+        Nothing to complete right now.
       </div>
-    </nz-card>
-  </div>
 
+      <div class="mq-list" *ngIf="pending.length > 0">
+        <nz-card *ngFor="let item of pending; trackBy: trackByAssignment" class="mq-card">
+          <div class="mq-card-body">
+            <div class="mq-card-main">
+              <h4 class="mq-card-title">
+                {{ item.questionnaireName || 'Questionnaire' }}
+                <nz-tag *ngIf="item.status === 'InProgress'" nzColor="processing" class="ml-2">In progress</nz-tag>
+                <nz-tag *ngIf="item.status === 'Assigned'" nzColor="default" class="ml-2">Not started</nz-tag>
+                <nz-tag *ngIf="isOverdue(item)" nzColor="error">Overdue</nz-tag>
+              </h4>
+              <p class="mq-card-meta">
+                Assigned {{ item.assignedDate | date: 'mediumDate' }}
+                <ng-container *ngIf="item.assignedByName?.trim()"> by {{ item.assignedByName }}</ng-container>
+                <ng-container *ngIf="item.dueDate">
+                  <span class="mq-dot">•</span>
+                  Due {{ item.dueDate | date: 'mediumDate' }}
+                </ng-container>
+              </p>
+              <p class="mq-card-meta" *ngIf="item.draftSavedDate">
+                Progress saved {{ item.draftSavedDate | date: 'mediumDate' }}
+              </p>
+            </div>
+
+            <button nz-button nzType="primary" class="mq-view-btn" (click)="openForm(item)">
+              {{ item.status === 'InProgress' ? 'Continue' : 'Start' }}
+            </button>
+          </div>
+        </nz-card>
+      </div>
+    </section>
+
+    <!-- Done -->
+    <section class="mq-section">
+      <h3 class="mq-section-title">Completed</h3>
+
+      <div class="mq-state" *ngIf="completed.length === 0">
+        <i class="fa-regular fa-file-lines mr-2"></i>
+        You have not completed any questionnaires yet.
+      </div>
+
+      <div class="mq-list" *ngIf="completed.length > 0">
+        <nz-card *ngFor="let item of completed; trackBy: trackByCompleted" class="mq-card">
+          <div class="mq-card-body">
+            <div class="mq-card-main">
+              <h4 class="mq-card-title">
+                {{ item.title }}
+                <nz-tag nzColor="success" class="ml-2">Submitted</nz-tag>
+              </h4>
+              <p class="mq-card-meta" *ngIf="item.subtitle">{{ item.subtitle }}</p>
+              <p class="mq-card-meta">
+                <span *ngIf="item.submittedDate">Submitted {{ item.submittedDate | date: 'mediumDate' }}</span>
+                <span *ngIf="!item.submittedDate">Submission date not recorded</span>
+                <span class="mq-dot">•</span>
+                {{ item.answerCount }} answer{{ item.answerCount === 1 ? '' : 's' }}
+              </p>
+            </div>
+
+            <button nz-button nzType="default" class="mq-view-btn" (click)="openAnswers(item)">
+              View answers
+            </button>
+          </div>
+        </nz-card>
+      </div>
+    </section>
+
+  </ng-container>
 </div>
 
+<!-- Fill in an assigned questionnaire -->
+<nz-modal
+  [(nzVisible)]="isFillVisible"
+  [nzTitle]="filling?.questionnaireName || 'Questionnaire'"
+  (nzOnCancel)="closeForm()"
+  [nzFooter]="null"
+  [nzWidth]="960"
+  [nzMaskClosable]="false"
+  [nzBodyStyle]="{ 'max-height': 'calc(100vh - 200px)', 'overflow': 'auto' }"
+>
+  <ng-container *nzModalContent>
+    <app-patient-questionnaire-view
+      *ngIf="filling"
+      [patientQuestionnaireId]="filling.patientQuestionnaireId"
+      (questionnaireSubmitted)="closeForm()"
+    ></app-patient-questionnaire-view>
+  </ng-container>
+</nz-modal>
+
+<!-- Read-only answers -->
 <nz-modal
   [(nzVisible)]="isAnswersVisible"
-  [nzTitle]="selected ? displayTitle(selected) : 'Answers'"
+  [nzTitle]="selected?.title || 'Answers'"
   (nzOnCancel)="closeAnswers()"
   [nzFooter]="answersFooter"
   [nzWidth]="760"
   [nzBodyStyle]="{ 'max-height': 'calc(100vh - 260px)', 'overflow': 'auto' }"
 >
   <ng-container *nzModalContent>
-
     <div class="mq-state" *ngIf="loadingAnswers">
       <i class="fa-solid fa-arrows-spin fa-spin mr-2"></i> Loading answers…
     </div>
@@ -79,28 +139,10 @@
       nzShowIcon
     ></nz-alert>
 
-    <div class="mq-state" *ngIf="!loadingAnswers && !answersError && answers.length === 0">
-      No answers were recorded for this questionnaire.
-    </div>
-
-    <div class="mq-answers" *ngIf="!loadingAnswers && !answersError && answers.length > 0">
-      <div class="mq-answer" *ngFor="let a of answers; trackBy: trackByAnswerId">
-        <p class="mq-question">{{ a.question }}</p>
-
-        <div class="mq-answer-value" *ngIf="answerLines(a).length > 0; else noAnswer">
-          <ul *ngIf="answerLines(a).length > 1">
-            <li *ngFor="let line of answerLines(a)">{{ line }}</li>
-          </ul>
-          <span *ngIf="answerLines(a).length === 1">{{ answerLines(a)[0] }}</span>
-        </div>
-        <ng-template #noAnswer>
-          <span class="mq-no-answer">Not answered</span>
-        </ng-template>
-
-        <p class="mq-other" *ngIf="a.otherText">{{ a.otherText }}</p>
-      </div>
-    </div>
-
+    <app-questionnaire-answers
+      *ngIf="!loadingAnswers && !answersError"
+      [answers]="answers"
+    ></app-questionnaire-answers>
   </ng-container>
 </nz-modal>
 

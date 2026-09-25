@@ -22,6 +22,7 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { ChatComponent } from 'app/chat/chat.component';
+import { PatientQuestionnaireAssignmentsComponent } from 'app/questionnaire/patient-questionnaire-assignments/patient-questionnaire-assignments.component';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,8 @@ import { ChatComponent } from 'app/chat/chat.component';
     PipeModule,
     SharedModule,
     NzCollapseModule,
-    ChatComponent
+    ChatComponent,
+    PatientQuestionnaireAssignmentsComponent
   ]
 })
 export class PatientModule { }

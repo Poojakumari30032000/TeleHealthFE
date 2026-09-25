@@ -1,0 +1,23 @@
+<div class="qa-state" *ngIf="answers.length === 0">
+  No answers were recorded for this questionnaire.
+</div>
+
+<div class="qa-answers" *ngIf="answers.length > 0">
+  <div class="qa-answer" *ngFor="let a of answers">
+    <p class="qa-question">{{ a.question }}</p>
+
+    <ng-container *ngIf="answerLines(a) as lines">
+      <div class="qa-answer-value" *ngIf="lines.length > 0; else noAnswer">
+        <ul *ngIf="lines.length > 1">
+          <li *ngFor="let line of lines">{{ line }}</li>
+        </ul>
+        <span *ngIf="lines.length === 1">{{ lines[0] }}</span>
+      </div>
+    </ng-container>
+    <ng-template #noAnswer>
+      <span class="qa-no-answer">Not answered</span>
+    </ng-template>
+
+    <p class="qa-other" *ngIf="a.otherText">{{ a.otherText }}</p>
+  </div>
+</div>

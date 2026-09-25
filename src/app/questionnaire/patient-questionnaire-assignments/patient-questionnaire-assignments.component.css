@@ -1,0 +1,66 @@
+.pqa-shell {
+  padding: 4px 0;
+}
+
+.pqa-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.pqa-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.pqa-sub {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.pqa-name {
+  font-weight: 500;
+}
+
+.pqa-meta {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.pqa-actions {
+  white-space: nowrap;
+}
+
+.pqa-empty {
+  padding: 20px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.pqa-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.pqa-optional {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.pqa-hint {
+  margin: 14px 0 0;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .pqa-head {
+    flex-direction: column;
+  }
+}

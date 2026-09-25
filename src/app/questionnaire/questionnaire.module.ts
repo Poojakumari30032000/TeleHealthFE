@@ -33,6 +33,7 @@ import { MyQuestionnairesComponent } from './my-questionnaires/my-questionnaires
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { NzProgressModule } from 'ng-zorro-antd/progress';
 import { SignaturePadComponent } from 'app/shared/signature-pad/signature-pad.component';
+import { QuestionnaireAnswersComponent } from './questionnaire-answers/questionnaire-answers.component';
 
 @NgModule({
   declarations: [
@@ -71,6 +72,7 @@ import { SignaturePadComponent } from 'app/shared/signature-pad/signature-pad.co
     NzProgressModule,
     SharedModule,
     SignaturePadComponent,
+    QuestionnaireAnswersComponent,
   ],
   exports:[
     PatientQuestionnaireViewComponent

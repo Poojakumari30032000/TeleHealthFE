@@ -289,3 +289,8 @@ nz-sider {
   pointer-events: none;
   cursor: default !important;
 }
+
+.pqv-save-state {
+  margin-left: 0.25rem;
+  opacity: 0.8;
+}
