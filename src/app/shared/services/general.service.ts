@@ -621,6 +621,54 @@ getMyQuestionnaireResponses(patientTreatmentId: number){
   return this.http.get<ApiResponse | any>(this.baseUrl + 'Questionnaires/getPatientQuestionnaireResponses', { headers: this.getHeaders(), params: params });
 }
 
+// TEL-57 - assigned questionnaires. For the patient calls the patient is taken
+// from the PatientId claim server side, so no patient identifier is sent.
+
+/** The signed-in patient's assigned questionnaires, with their status. */
+getMyAssignedQuestionnaires(){
+  return this.http.get<ApiResponse | any>(this.baseUrl + 'Questionnaires/getMyAssignedQuestionnaires', { headers: this.getHeaders() });
+}
+
+/** The form and saved progress of one of the signed-in patient's open assignments. */
+getMyQuestionnaireForm(patientQuestionnaireId: number){
+  const params = new HttpParams().set('Id', patientQuestionnaireId);
+  return this.http.get<ApiResponse | any>(this.baseUrl + 'Questionnaires/getMyQuestionnaireForm', { headers: this.getHeaders(), params: params });
+}
+
+saveMyQuestionnaireDraft(patientQuestionnaireId: number, draftJson: string){
+  return this.http.post<ApiResponse | any>(this.baseUrl + 'Questionnaires/saveMyQuestionnaireDraft', { patientQuestionnaireId, draftJson }, { headers: this.getHeaders() });
+}
+
+submitMyQuestionnaire(payload: { patientQuestionnaireId: number; answers: any[] }){
+  return this.http.post<ApiResponse | any>(this.baseUrl + 'Questionnaires/submitMyQuestionnaire', payload, { headers: this.getHeaders() });
+}
+
+/** A submitted assignment and its answers. Serves the patient and staff. */
+getPatientQuestionnaireSubmission(patientQuestionnaireId: number){
+  const params = new HttpParams().set('Id', patientQuestionnaireId);
+  return this.http.get<ApiResponse | any>(this.baseUrl + 'Questionnaires/getPatientQuestionnaireSubmission', { headers: this.getHeaders(), params: params });
+}
+
+/** Staff: every assignment of one patient. */
+getPatientQuestionnaireAssignments(patientId: number){
+  const params = new HttpParams().set('Id', patientId);
+  return this.http.get<ApiResponse | any>(this.baseUrl + 'Questionnaires/getPatientQuestionnaireAssignments', { headers: this.getHeaders(), params: params });
+}
+
+/** Staff: questionnaires that can be given to this patient. */
+getAssignableQuestionnaires(patientId: number){
+  const params = new HttpParams().set('Id', patientId);
+  return this.http.get<ApiResponse | any>(this.baseUrl + 'Questionnaires/getAssignableQuestionnaires', { headers: this.getHeaders(), params: params });
+}
+
+assignPatientQuestionnaire(payload: { patientId: number; questionnaireId: number; patientTreatmentId?: number | null; dueDate?: string | null }){
+  return this.http.post<ApiResponse | any>(this.baseUrl + 'Questionnaires/assignPatientQuestionnaire', payload, { headers: this.getHeaders() });
+}
+
+cancelPatientQuestionnaire(patientQuestionnaireId: number){
+  return this.http.post<ApiResponse | any>(this.baseUrl + 'Questionnaires/cancelPatientQuestionnaire', { id: patientQuestionnaireId }, { headers: this.getHeaders() });
+}
+
 checkDuplicateEmail(email: string): Observable<any> {
   const params = new HttpParams().set('email', email);
   return this.http.get<ApiResponse | any>(this.baseUrl + 'Users/ActiveUserExists', { params: params });

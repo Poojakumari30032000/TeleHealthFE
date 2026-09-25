@@ -663,6 +663,18 @@
               </nz-tab>
               }
 
+              @if (canViewQuestionnaires) {
+              <nz-tab [nzTitle]="'Questionnaires'">
+                <div class="pd-history-pane">
+                  <app-patient-questionnaire-assignments
+                    [patientId]="patientData.patientId"
+                    [canAssign]="canAssignQuestionnaires"
+                    [treatments]="historyTreatments"
+                  ></app-patient-questionnaire-assignments>
+                </div>
+              </nz-tab>
+              }
+
               @if (canMessagePatient) {
                 <nz-tab [nzTitle]="'Message'">
                   <div class="pd-history-pane">

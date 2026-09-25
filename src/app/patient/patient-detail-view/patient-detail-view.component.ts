@@ -20,6 +20,10 @@ import {AuthService} from "../../shared/Auth/auth.service";
 import { getUnifiedStatusBadgeClass } from 'app/shared/utils/status-badge.util';
 import { ChatService } from 'app/chat/chat.service';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { PermissionsService } from 'app/shared/permission/permissions.service';
+
+/** Roles the questionnaire assignment endpoints accept (TEL-57). */
+const QUESTIONNAIRE_STAFF_ROLES = ['Super Admin', 'Global Admin', 'Clinic Admin', 'Provider'];
 
 interface PatientData {
   patientId: number;
@@ -219,6 +223,7 @@ export class PatientDetailViewComponent {
     private auth : AuthService,
     private sanitizer: DomSanitizer,
     private modal: NzModalService,
+    private permissions: PermissionsService,
 
     @SkipSelf() private rootChatService: ChatService,
   ){
@@ -242,6 +247,15 @@ export class PatientDetailViewComponent {
 
   get canManageNotes(): boolean {
     return this.userRole === 'Global Admin';
+  }
+
+  get canViewQuestionnaires(): boolean {
+    return !!this.userRole && QUESTIONNAIRE_STAFF_ROLES.includes(this.userRole)
+      && this.permissions.hasPermission('patient_view');
+  }
+
+  get canAssignQuestionnaires(): boolean {
+    return this.canViewQuestionnaires && this.permissions.hasPermission('patient_edit');
   }
 
   get canMessagePatient(): boolean {

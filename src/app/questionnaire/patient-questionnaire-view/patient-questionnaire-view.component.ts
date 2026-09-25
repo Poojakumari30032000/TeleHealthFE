@@ -3,11 +3,12 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  Input,
   OnDestroy,
   OnInit,
   Output,
 } from '@angular/core';
-import { Subject, takeUntil, of, map, lastValueFrom, Observable } from 'rxjs';
+import { Subject, takeUntil, of, map, lastValueFrom, Observable, debounceTime, switchMap, catchError } from 'rxjs';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { GeneralService } from 'app/shared/services/general.service';
 
@@ -52,6 +53,23 @@ export class PatientQuestionnaireViewComponent implements OnInit, OnDestroy {
 
   @Output() questionnaireSubmitted = new EventEmitter<string>();
 
+  /**
+   * TEL-57. When set, the form is an assigned questionnaire: it is loaded from
+   * the assignment's snapshot, progress is saved to the server as well as to
+   * localStorage, and submission closes the assignment. When unset the
+   * component runs the original first-intake flow unchanged.
+   */
+  @Input() patientQuestionnaireId: number | null = null;
+
+  questionnaireName: string | null = null;
+  loadError: string | null = null;
+  draftSaveState: 'saving' | 'saved' | 'error' | null = null;
+
+  private serverDraft: IntakeDraft | null = null;
+  private draftDirty = false;
+  private submitted = false;
+  private draftSave$ = new Subject<void>();
+
   selectedSub: any[] = [];
 
   currentStep = 0;
@@ -82,13 +100,85 @@ export class PatientQuestionnaireViewComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('PatientQuestionnaireViewComponent ngOnInit');
+    if (this.isAssignment) {
+      this.watchDraftSaves();
+      this.loadAssignedQuestionnaire();
+      return;
+    }
     this.getPatientQuestionnaireInfo();
   }
 
   ngOnDestroy(): void {
+    // Leaving mid-debounce would otherwise drop the last few answers.
+    if (this.isAssignment && this.draftDirty && !this.submitted) {
+      this.generalService
+        .saveMyQuestionnaireDraft(this.patientQuestionnaireId!, JSON.stringify(this.currentDraft()))
+        .subscribe({ error: () => {} });
+    }
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  get isAssignment(): boolean {
+    return !!this.patientQuestionnaireId && this.patientQuestionnaireId > 0;
+  }
+
+  private loadAssignedQuestionnaire(): void {
+    this.storageKey = `patient-questionnaire:${this.patientQuestionnaireId}`;
+    this.loadError = null;
+
+    this.generalService
+      .getMyQuestionnaireForm(this.patientQuestionnaireId!)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          const form = response?.status === 1 ? response?.data : null;
+          if (!form?.questionnaireJson) {
+            this.loadError = response?.message || 'This questionnaire could not be loaded.';
+            this.cdr.markForCheck();
+            return;
+          }
+          this.questionnaireName = form.questionnaireName ?? null;
+          this.serverDraft = this.parseDraft(form.draftJson);
+          try {
+            this.intakeFormJson = JSON.parse(form.questionnaireJson);
+            this.initializeForm(this.intakeFormJson);
+          } catch {
+            this.intakeFormJson = null;
+            this.loadError = 'This questionnaire is not set up correctly. Please contact your clinic.';
+          }
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.loadError = 'This questionnaire could not be loaded.';
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
+  private watchDraftSaves(): void {
+    this.draftSave$
+      .pipe(
+        debounceTime(1500),
+        switchMap(() => {
+          this.draftSaveState = 'saving';
+          this.draftDirty = false;
+          this.cdr.markForCheck();
+          return this.generalService
+            .saveMyQuestionnaireDraft(this.patientQuestionnaireId!, JSON.stringify(this.currentDraft()))
+            .pipe(catchError(() => of(null)));
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((response: any) => {
+        if (response?.status === 1) {
+          this.draftSaveState = 'saved';
+        } else {
+          this.draftSaveState = 'error';
+          this.draftDirty = true;
+        }
+        this.cdr.markForCheck();
+      });
   }
 
   private coerceToDate(v: any): Date | null {
@@ -658,9 +748,23 @@ export class PatientQuestionnaireViewComponent implements OnInit, OnDestroy {
     return this.storageKey;
   }
 
+  /**
+   * For an assignment the server copy is what survives a change of device;
+   * the local copy can be newer when the last server save did not land.
+   */
   private loadDraft(): IntakeDraft | null {
+    let local: IntakeDraft | null = null;
     try {
-      const raw = localStorage.getItem(this.lsKey());
+      local = this.parseDraft(localStorage.getItem(this.lsKey()));
+    } catch {}
+
+    if (!this.isAssignment || !this.serverDraft) return local;
+    if (!local) return this.serverDraft;
+    return local.ts > this.serverDraft.ts ? local : this.serverDraft;
+  }
+
+  private parseDraft(raw: string | null | undefined): IntakeDraft | null {
+    try {
       if (!raw) return null;
       const parsed = JSON.parse(raw);
       if (!parsed || typeof parsed !== 'object') return null;
@@ -675,24 +779,32 @@ export class PatientQuestionnaireViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  private currentDraft(): IntakeDraft {
+    return {
+      userSelections: this.userSelections,
+      visitedFields: this.visitedFields,
+      currentIndex: this.currentIndex,
+      ts: Date.now(),
+    };
+  }
+
   private saveDraft(): void {
     try {
-      const draft: IntakeDraft = {
-        userSelections: this.userSelections,
-        visitedFields: this.visitedFields,
-        currentIndex: this.currentIndex,
-        ts: Date.now(),
-      };
-      localStorage.setItem(this.lsKey(), JSON.stringify(draft));
+      localStorage.setItem(this.lsKey(), JSON.stringify(this.currentDraft()));
     } catch {}
+
+    if (this.isAssignment && !this.submitted) {
+      this.draftDirty = true;
+      this.draftSave$.next();
+    }
   }
 
   private formatIntakeData(): Observable<
-    { question_text: string; answer: string; other_text?: string; type: string; consentHtml?: string }[]
+    { field_key: string; question_text: string; answer: string; other_text?: string; type: string; consentHtml?: string }[]
   > {
     return of(this.intakeFormJson).pipe(
       map((data: any) => {
-        const out: { question_text: string; answer: string; other_text?: string; type: string; consentHtml?: string }[] = [];
+        const out: { field_key: string; question_text: string; answer: string; other_text?: string; type: string; consentHtml?: string }[] = [];
 
         const jsonFields: Field[] = (data?.fields ?? []) as Field[];
 
@@ -762,6 +874,7 @@ export class PatientQuestionnaireViewComponent implements OnInit, OnDestroy {
 
           if (question_text) {
             out.push({
+              field_key: key,
               question_text,
               answer,
               ...(other_text ? { other_text } : {}),
@@ -789,6 +902,10 @@ export class PatientQuestionnaireViewComponent implements OnInit, OnDestroy {
   }
 
   async submitIntakeToTreatment(): Promise<void> {
+    if (this.isAssignment) {
+      await this.submitAssignedQuestionnaire();
+      return;
+    }
     try {
       const intakeFormData = await lastValueFrom(this.formatIntakeData());
       const payload = this.createTreatmentPayload(intakeFormData);
@@ -831,6 +948,50 @@ export class PatientQuestionnaireViewComponent implements OnInit, OnDestroy {
     );
 
     return Promise.resolve(true);
+  }
+
+  private async submitAssignedQuestionnaire(): Promise<void> {
+    if (this.isFormSubmitting) return;
+
+    const intakeFormData = await lastValueFrom(this.formatIntakeData());
+    const payload = {
+      patientQuestionnaireId: this.patientQuestionnaireId!,
+      answers: intakeFormData.map(i => ({
+        fieldKey: i.field_key,
+        question: i.question_text,
+        answer: i.answer,
+        otherText: i.other_text || '',
+        type: i.type,
+        ...(i.consentHtml ? { consentHtml: i.consentHtml } : {}),
+      })),
+    };
+
+    this.isFormSubmitting = true;
+    this.cdr.markForCheck();
+
+    this.generalService
+      .submitMyQuestionnaire(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res: any) => {
+          this.isFormSubmitting = false;
+          if (res?.status === 1) {
+            this.submitted = true;
+            this.draftDirty = false;
+            try { localStorage.removeItem(this.lsKey()); } catch {}
+            this.generalService.showSuccess('Questionnaire submitted successfully');
+            this.questionnaireSubmitted.emit('submitted');
+          } else {
+            this.generalService.showError(res?.message || 'Questionnaire submission failed');
+          }
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.isFormSubmitting = false;
+          this.generalService.showError('Questionnaire submission failed');
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   trackByField = (_: number, f: Field) => f.id;
