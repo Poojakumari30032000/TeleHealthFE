@@ -31,6 +31,9 @@ import {NzInputNumberModule} from "ng-zorro-antd/input-number";
 import {NzIconModule} from "ng-zorro-antd/icon";
 import { ClinicPackageGAViewComponent } from './clinic-package-gaview/clinic-package-gaview.component';
 import { ClinicDrugGAViewComponent } from './clinic-drug-gaview/clinic-drug-gaview.component';
+import { ClinicalCodeMappingsComponent } from './clinical-code-mappings/clinical-code-mappings.component';
+import { ClinicalCodePickerComponent } from 'app/shared/code-picker/clinical-code-picker.component';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 @NgModule({
   declarations: [
@@ -42,7 +45,8 @@ import { ClinicDrugGAViewComponent } from './clinic-drug-gaview/clinic-drug-gavi
     DrugsListViewComponent,
     CouponListViewComponent,
     ClinicPackageGAViewComponent,
-    ClinicDrugGAViewComponent
+    ClinicDrugGAViewComponent,
+    ClinicalCodeMappingsComponent
   ],
   imports: [
     CommonModule,
@@ -66,7 +70,9 @@ import { ClinicDrugGAViewComponent } from './clinic-drug-gaview/clinic-drug-gavi
     PipeModule,
     NzIconModule,
     NzInputNumberModule,
-    SharedModule
+    NzSpinModule,
+    SharedModule,
+    ClinicalCodePickerComponent
   ]
 })
 export class ProductModule { }

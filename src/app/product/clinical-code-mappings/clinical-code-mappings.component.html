@@ -1,0 +1,221 @@
+<div class="code-mappings-shell">
+
+  <!-- ---------- Which target ---------- -->
+  <section class="code-mappings-panel">
+    <header class="code-mappings-panel-head">
+      <h2 class="code-mappings-title">Diagnosis &amp; procedure codes</h2>
+      <p class="code-mappings-subtitle">
+        The ICD-10-CM and CPT codes a Category, Service or Package carries towards billing.
+      </p>
+    </header>
+
+    <div class="code-mappings-controls">
+      <div class="code-mappings-control">
+        <label class="code-mappings-label" id="target-type-label">Maps to</label>
+        <nz-radio-group
+          nzButtonStyle="solid"
+          [ngModel]="targetType"
+          (ngModelChange)="onTargetTypeChange($event)"
+          aria-labelledby="target-type-label"
+        >
+          <label *ngFor="let option of targetTypes" nz-radio-button [nzValue]="option.value">
+            <span nz-tooltip [nzTooltipTitle]="option.hint">{{ option.label }}</span>
+          </label>
+        </nz-radio-group>
+      </div>
+
+      <div class="code-mappings-control code-mappings-control-grow">
+        <label class="code-mappings-label" for="target-select">
+          {{ targetTypeLabel(targetType) }}
+        </label>
+        <nz-select
+          id="target-select"
+          class="w-full"
+          nzShowSearch
+          nzAllowClear
+          [nzFilterOption]="filterTarget"
+          [nzLoading]="targetsLoading"
+          [nzPlaceHolder]="'Choose a ' + targetTypeLabel(targetType).toLowerCase()"
+          [ngModel]="targetId"
+          (ngModelChange)="onTargetChange($event)"
+        >
+          <nz-option
+            *ngFor="let target of targets; trackBy: trackByTargetId"
+            nzCustomContent
+            [nzValue]="target.id"
+            [nzLabel]="target.name"
+          >
+            <span>{{ target.name }}</span>
+            <span *ngIf="target.hint" class="code-mappings-hint"> &middot; {{ target.hint }}</span>
+          </nz-option>
+        </nz-select>
+      </div>
+
+      <div class="code-mappings-control">
+        <label class="code-mappings-label" for="effective-on">In force on</label>
+        <nz-date-picker
+          id="effective-on"
+          [nzAllowClear]="false"
+          [ngModel]="effectiveOn"
+          (ngModelChange)="onDateChange($event)"
+        ></nz-date-picker>
+      </div>
+
+      <div class="code-mappings-control">
+        <label class="code-mappings-label" for="billable-only">Billable codes only</label>
+        <nz-switch
+          id="billable-only"
+          [(ngModel)]="billableOnly"
+          nz-tooltip
+          nzTooltipTitle="ICD-10-CM header codes such as E11 are not valid on a claim"
+        ></nz-switch>
+      </div>
+    </div>
+
+    <p *ngIf="targetsError" class="code-mappings-error">{{ targetsError }}</p>
+    <p *ngIf="targetsTruncated" class="code-mappings-note">
+      Only the first {{ targets.length }} are listed. Use the search box to narrow it down.
+    </p>
+  </section>
+
+  <!-- ---------- The chosen target's codes ---------- -->
+  <section *ngIf="targetId != null" class="code-mappings-panel">
+    <header class="code-mappings-panel-head">
+      <h3 class="code-mappings-subtitle-strong">
+        Codes on {{ selectedTarget?.name || (targetTypeLabel(targetType) + ' ' + targetId) }}
+      </h3>
+      <p class="code-mappings-subtitle">
+        Saving replaces the whole list, and every code must be in force on
+        {{ effectiveOn | date: 'mediumDate' }}.
+      </p>
+    </header>
+
+    <nz-spin [nzSpinning]="mappingsLoading">
+      <p *ngIf="mappingsError" class="code-mappings-error">{{ mappingsError }}</p>
+
+      <app-clinical-code-picker
+        [codeSystems]="codeSystems"
+        [serviceDate]="effectiveOnIso"
+        [billableOnly]="billableOnly"
+        [readOnly]="!canEdit"
+        [selected]="selection"
+        (selectedChange)="onSelectionChange($event)"
+      ></app-clinical-code-picker>
+
+      <!-- Only the stored codes that need an administrator's eye. -->
+      <div *ngIf="attention.length" class="code-mappings-attention">
+        <h4 class="code-mappings-attention-title">
+          {{ attention.length }} stored
+          {{ attention.length === 1 ? 'code needs' : 'codes need' }} attention
+        </h4>
+        <table class="code-mappings-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>System</th>
+              <th>Release</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of attention; trackBy: trackByMappingId">
+              <td class="font-mono">{{ row.displayCode || row.code }}</td>
+              <td>{{ systemLabel(row.codeSystem) }}</td>
+              <td>{{ row.versionLabel || '—' }}</td>
+              <td class="code-mappings-status">{{ statusOf(row) }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="code-mappings-note">
+          A flagged code stays stored until you remove it here and save.
+        </p>
+      </div>
+
+      <div *ngIf="rejected.length" class="code-mappings-error-block">
+        <p class="code-mappings-error">Nothing was saved. The server refused these codes:</p>
+        <ul>
+          <li *ngFor="let reason of rejected; trackBy: trackByRejection">{{ reason }}</li>
+        </ul>
+      </div>
+
+      <p *ngIf="saveError && !rejected.length" class="code-mappings-error">{{ saveError }}</p>
+      <p *ngIf="saveMessage" class="code-mappings-success">{{ saveMessage }}</p>
+
+      <div *ngIf="canEdit" class="code-mappings-actions">
+        <button
+          nz-button
+          nzType="primary"
+          type="button"
+          [nzLoading]="saving"
+          [disabled]="!isDirty || saving"
+          (click)="save()"
+        >
+          Save codes
+        </button>
+        <button nz-button type="button" [disabled]="!isDirty || saving" (click)="revert()">
+          Discard changes
+        </button>
+      </div>
+
+      <p *ngIf="!canEdit" class="code-mappings-note">
+        You can view these mappings but not change them.
+      </p>
+    </nz-spin>
+  </section>
+
+  <!-- ---------- The review queue ---------- -->
+  <section *ngIf="canEdit" class="code-mappings-panel">
+    <header class="code-mappings-panel-head code-mappings-panel-head-row">
+      <div>
+        <h3 class="code-mappings-subtitle-strong">Flagged for review</h3>
+        <p class="code-mappings-subtitle">
+          Mappings whose code a later release terminated. Loading a code set re-checks
+          these automatically.
+        </p>
+      </div>
+      <button
+        nz-button
+        type="button"
+        [nzLoading]="refreshing"
+        [disabled]="refreshing"
+        (click)="refreshReviewFlags()"
+      >
+        Re-check all
+      </button>
+    </header>
+
+    <p *ngIf="reviewError" class="code-mappings-error">{{ reviewError }}</p>
+    <p *ngIf="reviewMessage" class="code-mappings-success">{{ reviewMessage }}</p>
+
+    <nz-spin [nzSpinning]="reviewLoading">
+      <p *ngIf="!reviewLoading && !review.length && !reviewError" class="code-mappings-note">
+        Nothing is flagged on {{ effectiveOn | date: 'mediumDate' }}.
+      </p>
+
+      <table *ngIf="review.length" class="code-mappings-table">
+        <thead>
+          <tr>
+            <th>Maps to</th>
+            <th>Code</th>
+            <th>System</th>
+            <th>Reason</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of review; trackBy: trackByMappingId">
+            <td>{{ targetTypeLabel(row.targetType) }} {{ row.targetId }}</td>
+            <td class="font-mono">{{ row.displayCode || row.code }}</td>
+            <td>{{ systemLabel(row.codeSystem) }}</td>
+            <td class="code-mappings-status">{{ statusOf(row) }}</td>
+            <td>
+              <button nz-button nzType="link" nzSize="small" type="button" (click)="openFromReview(row)">
+                Open
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </nz-spin>
+  </section>
+</div>

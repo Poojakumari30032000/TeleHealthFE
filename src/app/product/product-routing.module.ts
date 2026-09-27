@@ -9,6 +9,7 @@ import { PermissionGuard } from 'app/shared/permission/permission.guard';
 import { DrugsListViewComponent } from './drugs-list-view/drugs-list-view.component';
 import { CouponListViewComponent } from './coupon-list-view/coupon-list-view.component';
 import {ClinicPackageGAViewComponent} from "./clinic-package-gaview/clinic-package-gaview.component";
+import { ClinicalCodeMappingsComponent } from './clinical-code-mappings/clinical-code-mappings.component';
 
 const routes: Routes = [
   {
@@ -74,6 +75,15 @@ const routes: Routes = [
     data: {
       permissions: ['product_view'],
       title : 'Package categories'
+    }
+  },
+  {
+    path: 'code-mappings',
+    component : ClinicalCodeMappingsComponent,
+    canActivate: [PermissionGuard],
+    data: {
+      permissions: ['product_view', 'product_category_view'],
+      title : 'Diagnosis & Procedure Codes'
     }
   },
   {

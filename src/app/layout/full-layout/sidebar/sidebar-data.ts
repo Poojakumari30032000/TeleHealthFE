@@ -65,6 +65,7 @@ export const sidebarMenu: SidebarMenu = {
       disabled: false,
       children: [
         { level: 2, title: 'Categories', route: '/product/category', disabled: false },
+        { level: 2, title: 'Code Mappings', route: '/product/code-mappings', disabled: false },
         { level: 2, title: 'Packages', route: '/product/view/Bundles', disabled: false },
         { level: 2, title: 'Clinic Packages', route: '/product/view/BundlesClinic', disabled: false },
         { level: 2, title: 'Rx Catalog', route: '/product/view/Drugs', disabled: false },
@@ -162,6 +163,7 @@ export const sidebarMenu: SidebarMenu = {
       disabled: false,
       children: [
         { level: 2, title: 'Categories', route: '/product/category', disabled: false },
+        { level: 2, title: 'Code Mappings', route: '/product/code-mappings', disabled: false },
         { level: 2, title: 'Packages', route: '/product/view/Bundles', disabled: false },
         { level: 2, title: 'Rx Catalog', route: '/product/view/Drugs', disabled: false },
         { level: 2, title: 'Coupons', route: '/product/coupons', disabled: false },
