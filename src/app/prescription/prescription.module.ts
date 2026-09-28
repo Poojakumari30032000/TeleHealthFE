@@ -29,6 +29,7 @@ import { NzImageModule } from 'ng-zorro-antd/image';
 import { SOAPNotesComponent } from './soap-notes/soap-notes.component';
 import {NzToolTipModule} from "ng-zorro-antd/tooltip";
 import {NzIconModule} from "ng-zorro-antd/icon";
+import { ClinicalCodePickerComponent } from 'app/shared/code-picker/clinical-code-picker.component';
 
 @NgModule({
   declarations: [
@@ -57,6 +58,7 @@ import {NzIconModule} from "ng-zorro-antd/icon";
     NzDrawerModule,
     PipeModule,
     SharedModule,
+    ClinicalCodePickerComponent,
     NzUploadModule,
     NzModalModule,
     NzImageModule,

@@ -286,6 +286,34 @@
         </ng-template>
       </article>
 
+      <!-- TEL-22 - diagnosis and procedure codes on this note, saved with it. -->
+      <article class="sn-info-panel">
+        <div class="sn-info-head">
+          <div class="sn-info-copy">
+            <h4 class="sn-panel-title">
+              <i class="fa-solid fa-barcode mr-2 text-primary"></i>Diagnosis &amp; Procedure Codes
+            </h4>
+            <p class="sn-panel-subtitle">
+              ICD-10-CM and CPT codes for this visit, as in force on {{ codingDate }}.
+              <ng-container *ngIf="!codesReadOnly">Saved with the note.</ng-container>
+            </p>
+          </div>
+        </div>
+
+        <p *ngIf="codesLoading" class="text-sm text-gray-500">Loading codes...</p>
+        <p *ngIf="codesError" class="text-sm text-red-600 mb-2" role="alert">{{ codesError }}</p>
+
+        <app-clinical-code-picker
+          *ngIf="!codesLoading"
+          [selected]="noteCodes"
+          (selectedChange)="onNoteCodesChange($event)"
+          [serviceDate]="codingDate"
+          [billableOnly]="true"
+          [readOnly]="codesReadOnly"
+          [disabled]="isSaving"
+        ></app-clinical-code-picker>
+      </article>
+
       <article class="sn-info-panel">
         <div class="sn-info-head">
           <div class="sn-info-copy">

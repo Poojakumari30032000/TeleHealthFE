@@ -1,0 +1,4 @@
+/* Codes line up in a column whatever their length (E11.65, S72.001A, QA0.0101). */
+.code-cell {
+  min-width: 5.5rem;
+}
